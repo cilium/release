@@ -71,7 +71,7 @@ func GeneratePatchRelease(
 					foundPR = true
 					continue
 				}
-				if pr.GetMergeCommitSHA() == "" {
+				if pr.GetState() != "closed" {
 					continue
 				}
 				foundPR = true
