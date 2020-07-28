@@ -24,11 +24,6 @@ import (
 	"github.com/cilium/release/pkg/types"
 )
 
-const (
-	owner = "cilium"
-	repo  = "cilium"
-)
-
 // GeneratePatchRelease will returns a map that maps the backport PR number to
 // the upstream PR number and a map that maps the backport PR number to the PR
 // if no upstream PR was found.
@@ -36,6 +31,8 @@ const (
 func GeneratePatchRelease(
 	ctx context.Context,
 	ghClient *gh.Client,
+	owner string,
+	repo string,
 	printer func(msg string),
 	backportPRs types.BackportPRs,
 	listOfPRs types.PullRequests,

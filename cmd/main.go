@@ -29,11 +29,6 @@ import (
 	"github.com/cilium/release/pkg/types"
 )
 
-const (
-	owner = "cilium"
-	repo  = "cilium"
-)
-
 var releaseNotes = map[string]string{
 	"release-note/major": "**Major Changes:**",
 	"release-note/minor": "**Minor Changes:**",
@@ -57,6 +52,7 @@ var (
 	head       string
 	lastStable string
 	stateFile  string
+	repoName   string
 )
 
 func init() {
@@ -64,6 +60,7 @@ func init() {
 	flag.StringVar(&head, "head", "", "Head commit used to generate release notes")
 	flag.StringVar(&lastStable, "last-stable", "", "When last stable version is set, it will be used to detect if a bug was already backported or not to that particular branch (e.g.: '1.5', '1.6')")
 	flag.StringVar(&stateFile, "state-file", "release-state.json", "When set, it will use the already fetched information from a previous run")
+	flag.StringVar(&repoName, "repo", "cilium/cilium", "GitHub organization and repository names separated by a slash")
 	flag.Parse()
 
 	if len(base) == 0 {
@@ -107,6 +104,13 @@ func main() {
 		listOfPRs   = types.PullRequests{}
 		shas        []string
 	)
+	ownerRepo := strings.Split(repoName, "/")
+	if len(ownerRepo) != 2 {
+		fmt.Fprintf(os.Stderr, "Invalid repo name: %s\n", repoName)
+		os.Exit(-1)
+	}
+	owner := ownerRepo[0]
+	repo := ownerRepo[1]
 
 	if _, err := os.Stat(stateFile); err == nil {
 		fmt.Fprintf(os.Stderr, "Found state file, resuming from stored state\n")
@@ -120,6 +124,7 @@ func main() {
 	} else {
 		cont := false
 		prevHead := ""
+
 		for {
 			fmt.Fprintf(os.Stderr, "Comparing %s...%s\n", base, head)
 			cc, _, err := ghClient.Repositories.CompareCommits(globalCtx, owner, repo, base, head)
@@ -168,7 +173,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, msg)
 	}
 
-	prsWithUpstream, listOfPrs, leftShas, err := github.GeneratePatchRelease(globalCtx, ghClient, printer, backportPRs, listOfPRs, shas)
+	prsWithUpstream, listOfPrs, leftShas, err := github.GeneratePatchRelease(globalCtx, ghClient, owner, repo, printer, backportPRs, listOfPRs, shas)
 	fmt.Println()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to retrieve PRs for commits: %s\n", err)
