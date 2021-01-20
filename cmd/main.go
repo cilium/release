@@ -1,4 +1,4 @@
-// Copyright 2020 Authors of Cilium
+// Copyright 2020-2021 Authors of Cilium
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import (
 
 	flag "github.com/spf13/pflag"
 
+	"github.com/cilium/release/cmd/projects"
 	"github.com/cilium/release/pkg/github"
 	"github.com/cilium/release/pkg/persistence"
 	"github.com/cilium/release/pkg/types"
@@ -53,9 +54,13 @@ var (
 	lastStable string
 	stateFile  string
 	repoName   string
+	currVer    string
+	nextVer    string
 )
 
 func init() {
+	flag.StringVar(&currVer, "current-version", "", "Current version - the one being released")
+	flag.StringVar(&nextVer, "next-dev-version", "", "Next version - the next development cycle")
 	flag.StringVar(&base, "base", "", "Base commit / tag used to generate release notes")
 	flag.StringVar(&head, "head", "", "Head commit used to generate release notes")
 	flag.StringVar(&lastStable, "last-stable", "", "When last stable version is set, it will be used to detect if a bug was already backported or not to that particular branch (e.g.: '1.5', '1.6')")
@@ -111,6 +116,16 @@ func main() {
 	}
 	owner := ownerRepo[0]
 	repo := ownerRepo[1]
+
+	if len(currVer) != 0 {
+		pm := projects.NewProjectManagement(ghClient, owner, repo)
+		err := pm.SyncProjects(globalCtx, currVer, nextVer)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Unable to manage project: %s\n", err)
+			os.Exit(-1)
+		}
+		return
+	}
 
 	if _, err := os.Stat(stateFile); err == nil {
 		fmt.Fprintf(os.Stderr, "Found state file, resuming from stored state\n")
