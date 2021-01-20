@@ -7,7 +7,7 @@ tests:
 	go test -mod=vendor ./...
 
 release: tests
-	CGO_ENABLED=0 go build -mod=vendor -a -installsuffix cgo -o $@ ./cmd/...
+	CGO_ENABLED=0 go build -mod=vendor -a -installsuffix cgo -o $@ ./cmd/main.go
 
 local: release
 	strip release
