@@ -97,14 +97,14 @@ func (pm *ProjectManagement) findColumnIDs(ctx context.Context, projID int64, ve
 	return
 }
 
-func (pm *ProjectManagement) createProject(ctx context.Context, name string) (int64, error) {
+func (pm *ProjectManagement) createProject(ctx context.Context, name string) (int64, int, error) {
 	proj, _, err := pm.ghClient.Repositories.CreateProject(ctx, pm.owner, pm.repo, &gh.ProjectOptions{
 		Name: &name,
 	})
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-	return proj.GetID(), nil
+	return proj.GetID(), proj.GetNumber(), nil
 }
 
 func (pm *ProjectManagement) createColumn(ctx context.Context, projID int64, name string) (int64, error) {
@@ -264,9 +264,11 @@ func (pm *ProjectManagement) SyncProjects(ctx context.Context, currVer, nextVer 
 		nextDoneColumnID    = int64(-1)
 	)
 	if nextProjID == -1 {
+		var projNumber int
 		fmt.Fprintf(os.Stdout, "Next project %q not found, creating it...\n", nextVer)
 		// create project
-		nextProjID, err = pm.createProject(ctx, nextVer)
+		nextProjID, projNumber, err = pm.createProject(ctx, nextVer)
+		fmt.Fprintf(os.Stdout, "Project created for %q, command for release: start-release.sh %s %d\n", nextVer, nextVer, projNumber)
 
 		// create all 3 columns
 		nextNeedsColumnID,
@@ -311,12 +313,10 @@ func (pm *ProjectManagement) SyncProjects(ctx context.Context, currVer, nextVer 
 	}
 
 	// Close the current project
-	// TODO: uncomment when we change the order of release process because
-	// the start-release.sh needs the project number.
-	// fmt.Fprintf(os.Stdout, "Closing project %q\n", currVer)
-	// _, _, err = pm.ghClient.Projects.UpdateProject(ctx, currProjID, &gh.ProjectOptions{
-	// 	State: func() *string { a := "closed"; return &a }(),
-	// })
+	fmt.Fprintf(os.Stdout, "Closing project %q\n", currVer)
+	_, _, err = pm.ghClient.Projects.UpdateProject(ctx, currProjID, &gh.ProjectOptions{
+		State: func() *string { a := "closed"; return &a }(),
+	})
 
 	return err
 }
