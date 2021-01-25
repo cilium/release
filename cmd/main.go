@@ -68,13 +68,13 @@ func init() {
 	flag.StringVar(&repoName, "repo", "cilium/cilium", "GitHub organization and repository names separated by a slash")
 	flag.Parse()
 
-	if len(base) == 0 {
+	if len(base) == 0 && len(currVer) == 0 {
 		fmt.Fprintf(os.Stderr, "--base can't be empty\n")
 		flag.Usage()
 		os.Exit(-1)
 
 	}
-	if len(head) == 0 {
+	if len(head) == 0 && len(currVer) == 0 {
 		fmt.Fprintf(os.Stderr, "--head can't be empty\n")
 		flag.Usage()
 		os.Exit(-1)
