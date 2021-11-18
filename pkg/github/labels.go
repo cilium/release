@@ -42,6 +42,9 @@ func textBlockBetween(body, str string) string {
 	if beginning == end {
 		return ""
 	}
+	if end == -1 {
+		end = len(lines)
+	}
 	return strings.TrimSpace(strings.Join(lines[beginning+1:end], " "))
 }
 

@@ -124,6 +124,15 @@ func Test_getBackportPRs(t *testing.T) {
 			},
 			want: nil,
 		},
+		{
+			name: "test-6",
+			args: args{
+				body: "```upstream-prs\n$ for pr in 9959 ; do contrib/backporting/set-labels.py $pr done 1.6; done\r\nfoo\nbar",
+			},
+			want: []int{
+				9959,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
