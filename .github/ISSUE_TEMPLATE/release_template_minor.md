@@ -75,8 +75,12 @@ assignees: ''
   - [ ] Publish the release
 - [ ] Announce the release in #general on Slack (Use [@]channel for vX.Y.0)
 - [ ] Update Grafana dashboards
-  - Install the dashboards available in ``./examples/kubernetes/addons/prometheus``
-    and use them to upload them to Grafana.com.
+  - [ ] Install the dashboards into a live cluster by following the
+        [Grafana install] steps.
+  - [ ] Export the dashboards by following the [Grafana export] guide.
+        Enable the "Export for sharing externally" option during export.
+  - [ ] Upload the dashboards to Grafana.com and populate the description,
+        README, icons, etc. by copying them from the previous release.
 
 ## Post-release
 
@@ -113,3 +117,5 @@ assignees: ''
 [cluster administration networking]: https://kubernetes.io/docs/concepts/cluster-administration/networking/
 [cluster administration addons]: https://kubernetes.io/docs/concepts/cluster-administration/addons/
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/conformance-gke.yaml
+[Grafana install]: https://docs.cilium.io/en/stable/gettingstarted/grafana/#install-metrics
+[Grafana export]: https://grafana.com/docs/grafana/latest/dashboards/export-import/
