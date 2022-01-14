@@ -86,6 +86,8 @@ assignees: ''
 
 - [ ] For new minor version update [security policy]
 - [ ] Prepare post-release changes to master branch using `contrib/release/bump-readme.sh`
+  - [ ] Make sure to update the `.github/maintainers-little-helper.yaml` so that
+        upcoming PRs are tracked correctly for the next release.
   - [ ] Bump the master testsuite to upgrade from vX.Y branch to master
 - [ ] Notify #development on Slack that deprecated features may now be removed.
 - [ ] Update external tools and guides to point to the new Cilium version:
