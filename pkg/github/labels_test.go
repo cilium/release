@@ -71,6 +71,14 @@ func Test_getReleaseNote(t *testing.T) {
 			},
 			want: "golang: update to 1.12.15",
 		},
+		{
+			name: "",
+			args: args{
+				title: "Pineapple pizza",
+				body:  "```release-note\r\n<!-- Enter the release note text here if needed or remove this section! -->\n",
+			},
+			want: "Pineapple pizza",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

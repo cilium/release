@@ -24,6 +24,7 @@ import (
 const (
 	releaseNoteBlock = "```release-note"
 	upstreamPRsBlock = "```upstream-prs"
+	commentTag       = "<!--"
 )
 
 func textBlockBetween(body, str string) string {
@@ -83,7 +84,7 @@ func getUpstreamPRs(body string) []int {
 func getReleaseNote(title, body string) string {
 	if strings.Contains(body, releaseNoteBlock) {
 		block := textBlockBetween(body, releaseNoteBlock)
-		if len(block) != 0 {
+		if len(block) != 0 && !strings.Contains(block, commentTag) {
 			return block
 		}
 	}
