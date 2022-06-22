@@ -48,7 +48,7 @@ assignees: ''
     - `echo "X.Y.90" > VERSION`
     - `make -C install/kubernetes`
     - `git add .github/ Documentation/contributing/testing/ci.rst`
-    - `git commit -sam "Prepare for 1.12.0 development"`
+    - `git commit -sam "Prepare for X.Y+1 development cycle"`
   - [ ] Merge the master PR so that the next step can be properly done with the
         right status checks requirements.
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
@@ -67,8 +67,13 @@ assignees: ''
     - Remove the `labels-unset` field from the MLH configuration and add
       the `auto-label` field. See [5b4934284d](https://github.com/cilium/cilium/commit/5b4934284dd525399aacec17c137811df9cf0f8b)
       for reference.
+    - Change `install/kubernetes/Makefile.values` with the instructions
+      available in that document.
+    - Run `make -C install/kubernetes`
   - [ ] Ping CI team to prepare all necessary jenkins configuration for this
         branch.
+  - [ ] Push a PR with those changes:
+    - `git commit -sam "Prepare v1.12 stable branch`
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rcW`
   - [ ] Run `Documentation/check-crd-compat-table.sh vX.Y`
@@ -99,10 +104,9 @@ assignees: ''
 - [ ] Update helm charts
   - [ ] Pull latest branch locally into the cilium repository.
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
-        [cilium helm release tool] for both the `vX.Y.Z` release and `vX.Y`
-        branch and push these changes into the helm repository. Make sure the
-        generated helm charts point to the commit that contains the image
-        digests.
+        [cilium helm release tool] for the `vX.Y.Z` release and push these
+        changes into the helm repository. Make sure the generated helm charts
+        point to the commit that contains the image digests.
   - [ ] Check the output of the [chart workflow] and see if the test was
         successful.
 - [ ] Check [read the docs] configuration:
@@ -112,10 +116,6 @@ assignees: ''
       - Update the versions in `docsearch.config.json`, commit them and push a trigger the workflow [here](https://github.com/cilium/docsearch-scraper-webhook/actions/workflows/update-algolia-index.yaml)
 - [ ] Check draft release from [releases] page
   - [ ] Update the text at the top with 2-3 highlights of the release
-  - [ ] Copy the text from `digest-vX.Y.Z.txt` to the end of the release text.
-        This text was previously generated with
-        `contrib/release/post-release.sh`, or is otherwise available in the
-        GitHub workflow run that built the images.
   - [ ] Publish the release
 - [ ] Announce the release in #general on Slack.
   Text template for the first RC:
