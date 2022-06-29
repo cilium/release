@@ -70,6 +70,7 @@ assignees: ''
     - Change `install/kubernetes/Makefile.values` with the instructions
       available in that document.
     - Run `make -C install/kubernetes`
+    - Rewrite the CODEOWNERS file. See [97daf56221](https://github.com/cilium/cilium/commit/97daf5622197d0cdda003a3f693e6e5a61038884)
   - [ ] Ping CI team to prepare all necessary jenkins configuration for this
         branch.
   - [ ] Push a PR with those changes:
