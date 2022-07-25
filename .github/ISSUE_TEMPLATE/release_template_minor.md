@@ -21,6 +21,7 @@ assignees: ''
       versions on this branch:
   - Modify the `FORCE_BUILD` environment value in the `images/runtime/Dockerfile` to force a rebuild.
      [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
+- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/master/Documentation/community/roadmap.rst) for any features that changed status.
 - [ ] Execute `release --current-version X.Y.0 --next-dev-version X.Y.1` to automatically
   move any unresolved issues/PRs from old release project into the new
   project.
