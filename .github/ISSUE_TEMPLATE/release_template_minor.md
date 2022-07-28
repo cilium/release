@@ -27,7 +27,7 @@ assignees: ''
   project.
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Pull latest changes from the branch being released
-  - [ ] Run `contrib/release/start-release.sh`
+  - [ ] Run `contrib/release/start-release.sh X.Y.0 <GH-PROJECT> X.Y-1`
   - [ ] Run `Documentation/check-crd-compat-table.sh vX.Y` and if needed, follow the
         instructions.
   - [ ] `rm CHANGELOG.md`
