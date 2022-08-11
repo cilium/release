@@ -28,8 +28,6 @@ assignees: ''
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Pull latest changes from the branch being released
   - [ ] Run `contrib/release/start-release.sh X.Y.0 <GH-PROJECT> X.Y-1`
-  - [ ] Run `Documentation/check-crd-compat-table.sh vX.Y` and if needed, follow the
-        instructions.
   - [ ] `rm CHANGELOG.md`
   - [ ] Regenerate the log since the previous release with `prep-changelog.sh <last-patch-release> vX.Y.0`
   - [ ] Check and edit the `CHANGELOG.md` to ensure all PRs have proper release notes
