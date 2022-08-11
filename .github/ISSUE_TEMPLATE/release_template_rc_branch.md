@@ -77,10 +77,9 @@ assignees: ''
     - `git commit -sam "Prepare v1.12 stable branch`
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rcW`
-  - [ ] Run `Documentation/check-crd-compat-table.sh vX.Y`
-    - [ ] Check the modified file(s) in `Documentation` as it will be necessary
-          to fix them manually. Add a new line for this RC and remove
-          unsupported versions.
+  - [ ] Check the modified schema file(s) in `Documentation` as it will be
+        necessary to fix them manually. Add a new line for this RC and remove
+        unsupported versions.
   - [ ] Fix any duplicate `AUTHORS` entries and verify if it is possible to
         get the real names instead of GitHub usernames.
   - [ ] Add the generated `CHANGELOG.md` file and commit all remaining changes
