@@ -20,11 +20,8 @@ assignees: ''
 - [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] Consider building new [cilium-runtime images] and bumping the base image
       versions on this branch:
-  - Cilium v1.10 or later:
-     Modify the `FORCE_BUILD` environment value in the `images/runtime/Dockerfile` to force a rebuild.
-     [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
-  - Cilium v1.7 to v1.9:
-     [Re-trigger a build in quay.io](https://docs.cilium.io/en/v1.9/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
+  - Modify the `FORCE_BUILD` environment value in the `images/runtime/Dockerfile` to force a rebuild.
+    [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
 - [ ] If stable branch is not created yet. Run:
   - `git fetch origin && git checkout -b origin/vX.Y origin/master`
   - [ ] Update the VERSION file with the last RC released for this stable version

@@ -19,12 +19,8 @@ assignees: ''
 - [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] Consider building new [cilium-runtime images] and bumping the base image
       versions on this branch:
-  - Cilium v1.10 or later:
-     Modify the `FORCE_BUILD` environment value in the `images/runtime/Dockerfile` to force a rebuild.
-     [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
-  - Cilium v1.9:
-     Rebuild the image in DockerHub and submit a PR to update the images.
-     [Instructions](https://docs.cilium.io/en/v1.9/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
+  - Modify the `FORCE_BUILD` environment value in the `images/runtime/Dockerfile` to force a rebuild.
+    [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
 - [ ] Execute `release --current-version X.Y.Z --next-dev-version X.Y.W` to automatically
   move any unresolved issues/PRs from old release project into the new
   project. (`W` should be calculation of `Z+1`)
