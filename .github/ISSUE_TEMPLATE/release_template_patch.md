@@ -30,6 +30,7 @@ assignees: ''
   - [ ] Commit all changes with title `Prepare for release vX.Y.Z`
   - [ ] Submit PR (`contrib/release/submit-release.sh`)
 - [ ] Merge PR
+- [ ] Ask a maintainer if there are any known issues that should hold up the release
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z`, `X.Y.Z`)
   - [ ] Pull latest branch locally
   - [ ] Run `contrib/release/tag-release.sh`.
