@@ -22,9 +22,6 @@ assignees: ''
       [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rcW`
-  - [ ] Check the modified schema file(s) in `Documentation` as it will be
-        necessary to fix them manually. Add a new line for this RC and remove
-        unsupported versions.
   - [ ] Fix any duplicate `AUTHORS` entries and verify if it is possible to
         get the real names instead of GitHub usernames.
   - [ ] Commit the `AUTHORS` as well as the documentation files changed by the
