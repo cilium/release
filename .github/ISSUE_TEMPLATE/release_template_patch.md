@@ -29,9 +29,10 @@ assignees: ''
       versions on this branch:
   - Modify the `FORCE_BUILD` environment value in the `images/runtime/Dockerfile` to force a rebuild.
     [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
-- [ ] Execute `release --current-version X.Y.Z --next-dev-version X.Y.W` to automatically
-  move any unresolved issues/PRs from old release project into the new
-  project. (`W` should be calculation of `Z+1`)
+- [ ] Execute `release --current-version X.Y.Z --next-dev-version X.Y.W` to
+      automatically move any unresolved issues/PRs from old release project
+      into the new project (`W` should be calculation of `Z+1`). The `release`
+      binary is located in the [current repository][Cilium release-notes tool].
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Pull latest changes from the branch being released
   - [ ] Run `contrib/release/start-release.sh`
