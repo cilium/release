@@ -12,6 +12,7 @@ assignees: ''
 - [ ] Depending on your OS, make sure Docker is running
 - [ ] Export a `GITHUB_TOKEN` that has access to the repository
 - [ ] Make sure a setup (GPG, SSH, S/MIME) is in place for [signing tags] with Git
+- [ ] Make sure the `GOPATH` environment variable is set and pointing to the relevant path
 
 ## Pre-release
 
