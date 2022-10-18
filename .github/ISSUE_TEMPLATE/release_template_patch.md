@@ -11,6 +11,7 @@ assignees: ''
 
 - [ ] Depending on your OS, make sure Docker is running
 - [ ] Export a `GITHUB_TOKEN` that has access to the repository
+- [ ] Make sure a setup (GPG, SSH, S/MIME) is in place for [signing tags] with Git
 
 ## Pre-release
 
@@ -77,6 +78,7 @@ assignees: ''
   - [ ] [cluster administration addons]
 
 
+[signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
 [release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
 [backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Abackport%2FX.Y
 [Cilium release-notes tool]: https://github.com/cilium/release
