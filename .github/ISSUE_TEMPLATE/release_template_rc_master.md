@@ -7,21 +7,32 @@ assignees: ''
 
 ---
 
+## Setup preparation
+
+- [ ] Depending on your OS, make sure Docker is running
+- [ ] Export a `GITHUB_TOKEN` that has access to the repository
+- [ ] Make sure a setup (GPG, SSH, S/MIME) is in place for [signing tags] with Git
+- [ ] Make sure the `GOPATH` environment variable is set and pointing to the relevant path
+- [ ] Make sure the [Cilium helm charts][Cilium charts] repository is installed locally:
+  - [ ] Run `git clone https://github.com/cilium/charts.git "$GOPATH/src/github.com/cilium/charts"`
+
 ## Pre-release
 
 - [ ] Announce in Cilium slack channel #launchpad: `Starting vX.Y.Z-rcW release process :ship:`
 - [ ] Create a thread for that message and ping current top-hat to not merge any
       PRs until the release process is complete.
 - [ ] Change directory to the local copy of Cilium repository.
-- [ ] Make sure docker is running.
-- [ ] Export a `GITHUB_TOKEN` that has access to the repository.
 - [ ] Check that there are no [release blockers] for the targeted release version
 - [ ] Consider building new [cilium-runtime images] and bumping the base image
       versions on this branch:
-    - Modify the `FORCE_BUILD` environment value in the `images/runtime/Dockerfile` to force a rebuild.
-      [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
+    - [ ] Modify the `FORCE_BUILD` environment value in the
+          `images/runtime/Dockerfile` to force a rebuild
+          ([Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images))
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rcW`
+        Note that this script produces some files at the root of the Cilium
+        repository, and that these files are required at a later step for
+        tagging the release.
   - [ ] Fix any duplicate `AUTHORS` entries and verify if it is possible to
         get the real names instead of GitHub usernames.
   - [ ] Commit the `AUTHORS` as well as the documentation files changed by the
@@ -37,10 +48,10 @@ assignees: ''
   - Pull latest branch locally.
   - Check out the commit before the revert and run `contrib/release/tag-release.sh`
     against that commit.
-- [ ] Ask a maintainer to approve the build in the following links:
-  - [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
-  - Check if all docker images are available before announcing the release
-    `make -C install/kubernetes/ check-docker-images`
+- [ ] Ask a maintainer to approve the build in the following link:
+      [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
+  - [ ] Check if all docker images are available before announcing the release:
+        `make -C install/kubernetes/ check-docker-images`
 - [ ] Update helm charts
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
         [cilium helm release tool] for the `vX.Y.Z-rcW` release and push
@@ -77,7 +88,7 @@ https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rcW
 Thank you for the testing and contributing to the previous RC. There are [vX.Y.Z-rcW OSS docs](https://docs.cilium.io/en/vX.Y.Z-rcW) available if you want to pull this version & try it out.
 ```
 
-[Cilium release-notes tool]: https://github.com/cilium/release
+[signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
 [Cilium charts]: https://github.com/cilium/charts
 [releases]: https://github.com/cilium/cilium/releases
 [cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh

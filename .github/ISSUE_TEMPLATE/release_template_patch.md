@@ -28,8 +28,8 @@ assignees: ''
 - [ ] Consider building new [cilium-runtime images] and bumping the base image
       versions on this branch:
   - [ ] Modify the `FORCE_BUILD` environment value in the
-    `images/runtime/Dockerfile` to force a rebuild
-    [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images).
+        `images/runtime/Dockerfile` to force a rebuild
+        ([Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images))
 - [ ] Execute `release --current-version X.Y.Z --next-dev-version X.Y.W` to
       automatically move any unresolved issues/PRs from old release project
       into the new project (`W` should be calculation of `Z+1`). The `release`
