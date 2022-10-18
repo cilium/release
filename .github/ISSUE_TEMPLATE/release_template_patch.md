@@ -27,8 +27,9 @@ assignees: ''
 - [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] Consider building new [cilium-runtime images] and bumping the base image
       versions on this branch:
-  - Modify the `FORCE_BUILD` environment value in the `images/runtime/Dockerfile` to force a rebuild.
-    [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images)
+  - [ ] Modify the `FORCE_BUILD` environment value in the
+    `images/runtime/Dockerfile` to force a rebuild
+    [Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images).
 - [ ] Execute `release --current-version X.Y.Z --next-dev-version X.Y.W` to
       automatically move any unresolved issues/PRs from old release project
       into the new project (`W` should be calculation of `Z+1`). The `release`
@@ -47,11 +48,11 @@ assignees: ''
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z`, `X.Y.Z`)
   - [ ] Pull latest branch locally
   - [ ] Run `contrib/release/tag-release.sh`.
-- [ ] Ask a maintainer to approve the build in the following links (keep the URL
+- [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
-  - [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
-  - Check if all docker images are available before announcing the release
-    `make -C install/kubernetes/ check-docker-images`
+      [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
+  - [ ] Check if all docker images are available before announcing the release:
+        `make -C install/kubernetes/ check-docker-images`
 - [ ] Get the image digests from the build process and make a commit and PR with
       these digests.
   - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
