@@ -87,16 +87,8 @@ assignees: ''
 [release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
 [backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Abackport%2FX.Y
 [Cilium release-notes tool]: https://github.com/cilium/release
-[Docker Hub]: https://hub.docker.com/orgs/cilium/repositories
 [Cilium charts]: https://github.com/cilium/charts
 [releases]: https://github.com/cilium/cilium/releases
-[Stable releases]: https://github.com/cilium/cilium#stable-releases
 [cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh
-[Quick Install]: https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default.html
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
-[read the docs]: https://readthedocs.org/projects/cilium/
-[active versions]: https://readthedocs.org/projects/cilium/versions/
-[default version]: https://readthedocs.org/dashboard/cilium/advanced/
-[docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
-[security policy]: https://github.com/cilium/cilium/security/policy
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/conformance-gke.yaml
