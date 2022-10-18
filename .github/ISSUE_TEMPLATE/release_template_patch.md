@@ -35,7 +35,10 @@ assignees: ''
       binary is located in the [current repository][Cilium release-notes tool].
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Pull latest changes from the branch being released
-  - [ ] Run `contrib/release/start-release.sh`
+  - [ ] Run `contrib/release/start-release.sh`.
+        Note that this script produces some files at the root of the Cilium
+        repository, and that these files are required at a later step for
+        tagging the release.
   - [ ] Commit all changes with title `Prepare for release vX.Y.Z`
   - [ ] Submit PR (`contrib/release/submit-release.sh`)
 - [ ] Merge PR
