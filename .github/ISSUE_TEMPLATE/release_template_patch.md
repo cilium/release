@@ -35,7 +35,8 @@ assignees: ''
       binary is located in the [current repository][Cilium release-notes tool].
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Pull latest changes from the branch being released
-  - [ ] Run `contrib/release/start-release.sh`.
+  - [ ] Run `contrib/release/start-release.sh X.Y.Z N`, where `N` is the id of
+        the GitHub project created at the previous step.
         Note that this script produces some files at the root of the Cilium
         repository, and that these files are required at a later step for
         tagging the release.
@@ -53,8 +54,9 @@ assignees: ''
     `make -C install/kubernetes/ check-docker-images`
 - [ ] Get the image digests from the build process and make a commit and PR with
       these digests.
-  - [ ] Run `contrib/release/post-release.sh` to fetch the image
-        digests and submit a PR to update these, use the URL of the GitHub run here.
+  - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
+        digests and submit a PR to update these, use the `URL` of the GitHub
+        run here
   - [ ] Merge PR
 - [ ] Update helm charts
   - [ ] Pull latest branch locally into the cilium repository.
