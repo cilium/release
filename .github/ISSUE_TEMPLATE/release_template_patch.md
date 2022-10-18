@@ -7,14 +7,17 @@ assignees: ''
 
 ---
 
+## Setup preparation
+
+- [ ] Depending on your OS, make sure Docker is running
+- [ ] Export a `GITHUB_TOKEN` that has access to the repository
+
 ## Pre-release
 
 - [ ] Announce in Cilium slack channel #launchpad: `Starting vX.Y.Z release process :ship:`
 - [ ] Create a thread for that message and ping current top-hat to not merge any
       PRs until the release process is complete.
 - [ ] Change directory to the local copy of Cilium repository.
-- [ ] Make sure docker is running.
-- [ ] Export a `GITHUB_TOKEN` that has access to the repository.
 - [ ] Check that there are no [release blockers] for the targeted release version
 - [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] Consider building new [cilium-runtime images] and bumping the base image
