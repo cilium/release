@@ -13,6 +13,9 @@ assignees: ''
 - [ ] Export a `GITHUB_TOKEN` that has access to the repository
 - [ ] Make sure a setup (GPG, SSH, S/MIME) is in place for [signing tags] with Git
 - [ ] Make sure the `GOPATH` environment variable is set and pointing to the relevant path
+- [ ] Make sure the [Cilium helm charts][Cilium charts] and [release][Cilium release-notes tool] repositories are installed locally:
+  - [ ] Run `git clone https://github.com/cilium/charts.git "$GOPATH/src/github.com/cilium/charts"`
+  - [ ] Run `git clone https://github.com/cilium/release.git "$GOPATH/src/github.com/cilium/release"`
 
 ## Pre-release
 
