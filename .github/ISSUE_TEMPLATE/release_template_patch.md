@@ -81,12 +81,6 @@ assignees: ''
 ## Post-release
 
 - [ ] Prepare post-release changes to master branch using `contrib/release/bump-readme.sh`
-- [ ] Update external tools and guides to point to the new Cilium version:
-  - [ ] [kops]
-  - [ ] [kubespray]
-  - [ ] [network policy]
-  - [ ] [cluster administration networking]
-  - [ ] [cluster administration addons]
 
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
@@ -97,8 +91,6 @@ assignees: ''
 [Cilium charts]: https://github.com/cilium/charts
 [releases]: https://github.com/cilium/cilium/releases
 [Stable releases]: https://github.com/cilium/cilium#stable-releases
-[kops]: https://github.com/kubernetes/kops/
-[kubespray]: https://github.com/kubernetes-sigs/kubespray/
 [cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh
 [Quick Install]: https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default.html
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
@@ -107,7 +99,4 @@ assignees: ''
 [default version]: https://readthedocs.org/dashboard/cilium/advanced/
 [docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [security policy]: https://github.com/cilium/cilium/security/policy
-[network policy]: https://kubernetes.io/docs/tasks/administer-cluster/network-policy-provider/cilium-network-policy/
-[cluster administration networking]: https://kubernetes.io/docs/concepts/cluster-administration/networking/
-[cluster administration addons]: https://kubernetes.io/docs/concepts/cluster-administration/addons/
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/conformance-gke.yaml
