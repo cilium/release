@@ -103,12 +103,15 @@ assignees: ''
         upcoming PRs are tracked correctly for the next release.
   - [ ] Bump the master testsuite to upgrade from vX.Y branch to master
 - [ ] Notify #development on Slack that deprecated features may now be removed.
-- [ ] Update external tools and guides to point to the new Cilium version:
-  - [ ] [kops]
-  - [ ] [kubespray]
-  - [ ] [network policy]
-  - [ ] [cluster administration networking]
-  - [ ] [cluster administration addons]
+- [ ] This is the list of links for known external installers that depend on
+      the release process. Ideally, work toward updating external tools and
+      guides to point to the new Cilium version. If you find where to submit
+      the update, please add the relevant links to this template.
+  - [kops]
+  - [kubespray]
+  - [network policy]
+  - [cluster administration networking]
+  - [cluster administration addons]
 
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
