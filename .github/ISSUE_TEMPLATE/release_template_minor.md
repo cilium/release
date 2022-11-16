@@ -45,7 +45,7 @@ assignees: ''
   - [ ] Regenerate the log since the previous release with `prep-changelog.sh <last-patch-release> vX.Y.0`
   - [ ] Check and edit the `CHANGELOG.md` to ensure all PRs have proper release notes
   - [ ] Edit the `vX.Y.0-changes.txt` files locally to replace the text with "See CHANGELOG.md for more details"
-  - [ ] Commit all changes with title `Prepare for release vX.Y.0`
+  - [ ] Update the release commit with `git add CHANGELOG.md && git commit --amend --no-edit`
   - [ ] Submit PR (`contrib/release/submit-release.sh`)
   - [ ] Add the 'stable' tag as part of the GitHub workflow and remove the
         'stable' tag from the last stable branch.

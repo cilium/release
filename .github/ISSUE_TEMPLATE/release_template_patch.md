@@ -41,7 +41,6 @@ assignees: ''
         Note that this script produces some files at the root of the Cilium
         repository, and that these files are required at a later step for
         tagging the release.
-  - [ ] Commit all changes with title `Prepare for release vX.Y.Z`
   - [ ] Submit PR (`contrib/release/submit-release.sh`)
 - [ ] Merge PR
 - [ ] Ask a maintainer if there are any known issues that should hold up the release

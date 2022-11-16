@@ -35,10 +35,7 @@ assignees: ''
         tagging the release.
   - [ ] Fix any duplicate `AUTHORS` entries and verify if it is possible to
         get the real names instead of GitHub usernames.
-  - [ ] Commit the `AUTHORS` as well as the documentation files changed by the
-        previous step with title `update AUTHORS and Documentation`.
-  - [ ] Add the generated `CHANGELOG.md` file and commit all remaining changes
-        with the title `Prepare for release vX.Y.Z-rcW`
+  - [ ] Update the release commit with `git add AUTHORS CHANGELOG.md && git commit --amend --no-edit`
   - [ ] Submit PR (`contrib/release/submit-release.sh`)
   - [ ] Allow the CI to sanity-check the PR (GitHub actions are enough) and get review
   - [ ] Revert the release commit and re-push

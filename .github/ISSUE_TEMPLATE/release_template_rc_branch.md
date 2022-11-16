@@ -92,6 +92,7 @@ assignees: ''
         get the real names instead of GitHub usernames.
   - [ ] Add the generated `CHANGELOG.md` file and commit all remaining changes
         with the title `Prepare for release vX.Y.Z-rcW`
+  - [ ] Update the release commit with `git add Documentation AUTHORS CHANGELOG.md && git commit --amend --no-edit`
   - [ ] Submit PR (`contrib/release/submit-release.sh`)
 - [ ] Merge PR
 - [ ] Ping current top-hat that PRs can be merged again.
