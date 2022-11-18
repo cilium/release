@@ -56,6 +56,12 @@ var (
 	repoName   string
 	currVer    string
 	nextVer    string
+
+	// forceMovePending lets "pending" backports be moved from one project
+	// to another. By default this is set to false, since most commonly
+	// this is a mistake and the PR should have been previously marked as
+	// "backport-done".
+	forceMovePending bool
 )
 
 func init() {
@@ -66,6 +72,7 @@ func init() {
 	flag.StringVar(&lastStable, "last-stable", "", "When last stable version is set, it will be used to detect if a bug was already backported or not to that particular branch (e.g.: '1.5', '1.6')")
 	flag.StringVar(&stateFile, "state-file", "release-state.json", "When set, it will use the already fetched information from a previous run")
 	flag.StringVar(&repoName, "repo", "cilium/cilium", "GitHub organization and repository names separated by a slash")
+	flag.BoolVar(&forceMovePending, "force-move-pending-backports", false, "Force move pending backports to the next version's project")
 	flag.Parse()
 
 	if len(base) == 0 && len(currVer) == 0 {
@@ -119,7 +126,7 @@ func main() {
 
 	if len(currVer) != 0 {
 		pm := projects.NewProjectManagement(ghClient, owner, repo)
-		err := pm.SyncProjects(globalCtx, currVer, nextVer)
+		err := pm.SyncProjects(globalCtx, currVer, nextVer, forceMovePending)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Unable to manage project: %s\n", err)
 			os.Exit(-1)
