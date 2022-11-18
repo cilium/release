@@ -23,11 +23,6 @@ assignees: ''
       PRs until the release process is complete.
 - [ ] Change directory to the local copy of Cilium repository.
 - [ ] Check that there are no [release blockers] for the targeted release version
-- [ ] Consider building new [cilium-runtime images] and bumping the base image
-      versions on this branch:
-    - [ ] Modify the `FORCE_BUILD` environment value in the
-          `images/runtime/Dockerfile` to force a rebuild
-          ([Instructions](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images))
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rcW`
         Note that this script produces some files at the root of the Cilium
