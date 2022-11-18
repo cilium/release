@@ -158,7 +158,7 @@ func (pm *ProjectManagement) createCard(ctx context.Context, columnID, prID int6
 	return err
 }
 
-func (pm *ProjectManagement) syncCards(ctx context.Context, currVer, nextVer string, currColumnID, nextColumnID, currDoneColumnID, nextPendingColumnID int64) error {
+func (pm *ProjectManagement) syncCards(ctx context.Context, currVer, nextVer string, currColumnID, nextColumnID, currDoneColumnID, nextPendingColumnID int64, forceMovePending bool) error {
 	// get base cards
 	currCards, _, err := pm.ghClient.Projects.ListProjectCards(ctx, currColumnID, &gh.ProjectCardListOptions{})
 	if err != nil {
@@ -200,6 +200,10 @@ func (pm *ProjectManagement) syncCards(ctx context.Context, currVer, nextVer str
 				labelFound = true
 				// If it is pending, them move it to the right column in the new
 				// project.
+				if !forceMovePending {
+					return fmt.Errorf("Found unexpected pending PR https://github.com/%s/%d in project. Please ensure that all backported PRs have been moved to the done column.",
+						repoName, prNmuber)
+				}
 				moveToColumnID = nextPendingColumnID
 				fmt.Fprintf(os.Stdout, "moving PR %d to %q\n", prNumber, columnName(pendingBackportPrefix, nextVer))
 			}
@@ -232,7 +236,7 @@ func NewProjectManagement(ghClient *gh.Client, owner, repo string) *ProjectManag
 	}
 }
 
-func (pm *ProjectManagement) SyncProjects(ctx context.Context, currVer, nextVer string) error {
+func (pm *ProjectManagement) SyncProjects(ctx context.Context, currVer, nextVer string, forceMovePending bool) error {
 	currProjID, nextProjID, err := pm.findProjects(ctx, currVer, nextVer)
 	if err != nil {
 		return err
@@ -302,12 +306,12 @@ func (pm *ProjectManagement) SyncProjects(ctx context.Context, currVer, nextVer 
 	}
 
 	// Move needs backport column cards to the correct columns
-	err = pm.syncCards(ctx, currVer, nextVer, currNeedsColumnID, nextNeedsColumnID, currDoneColumnID, nextPendingColumnID)
+	err = pm.syncCards(ctx, currVer, nextVer, currNeedsColumnID, nextNeedsColumnID, currDoneColumnID, nextPendingColumnID, true)
 	if err != nil {
 		return err
 	}
 	// Move pending backport column cards to the correct columns
-	err = pm.syncCards(ctx, currVer, nextVer, currPendingColumnID, nextPendingColumnID, currDoneColumnID, nextPendingColumnID)
+	err = pm.syncCards(ctx, currVer, nextVer, currPendingColumnID, nextPendingColumnID, currDoneColumnID, nextPendingColumnID, forceMovePending)
 	if err != nil {
 		return err
 	}
