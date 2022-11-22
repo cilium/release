@@ -40,7 +40,11 @@ assignees: ''
   - [ ] Add the generated `CHANGELOG.md` file and commit all remaining changes
         with the title `Prepare for release vX.Y.Z-rcW`
   - [ ] Submit PR (`contrib/release/submit-release.sh`)
-  - [ ] Allow the CI to sanity-check the PR (GitHub actions are enough) and get review
+  - [ ] Allow the CI to sanity-check the PR (GitHub actions are enough) and get
+        review.
+        Note that it's likely that the "helm-charts" will fail since the GH 
+        action regenerates the helm values file without understanding that 
+        it's a release.
   - [ ] Revert the release commit and re-push
 - [ ] Merge PR
 - [ ] Ping current top-hat that PRs can be merged again.
@@ -51,7 +55,7 @@ assignees: ''
 - [ ] Ask a maintainer to approve the build in the following link:
       [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
   - [ ] Check if all docker images are available before announcing the release:
-        `make -C install/kubernetes/ check-docker-images`
+        `make -C install/kubernetes/ RELEASE=yes CILIUM_BRANCH=master check-docker-images`
 - [ ] Update helm charts
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
         [cilium helm release tool] for the `vX.Y.Z-rcW` release and push
