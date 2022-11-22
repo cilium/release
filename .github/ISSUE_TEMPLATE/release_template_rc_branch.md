@@ -67,9 +67,6 @@ assignees: ''
     - Remove the `labels-unset` field from the MLH configuration and add
       the `auto-label` field. See [5b4934284d](https://github.com/cilium/cilium/commit/5b4934284dd525399aacec17c137811df9cf0f8b)
       for reference.
-    - Change `install/kubernetes/Makefile.values` with the instructions
-      available in that document.
-    - Run `make -C install/kubernetes`
     - Rewrite the CODEOWNERS file. See [97daf56221](https://github.com/cilium/cilium/commit/97daf5622197d0cdda003a3f693e6e5a61038884)
   - [ ] Ping CI team to prepare all necessary jenkins configuration for this
         branch.
@@ -98,7 +95,7 @@ assignees: ''
       of the GitHub run to be used later):
       [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
   - [ ] Check if all docker images are available before announcing the release:
-        `make -C install/kubernetes/ check-docker-images`
+        `make -C install/kubernetes/ RELEASE=yes CILIUM_BRANCH=vX.Y check-docker-images`
 - [ ] Get the image digests from the build process and make a commit and PR with
       these digests.
   - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
