@@ -91,6 +91,7 @@ Thank you for the testing and contributing to the previous RC. There are [vX.Y.Z
 ```
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
+[release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
 [Cilium charts]: https://github.com/cilium/charts
 [releases]: https://github.com/cilium/cilium/releases
 [cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh
