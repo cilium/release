@@ -141,6 +141,8 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 ```
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
+[release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
+[backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Abackport%2FX.Y
 [Cilium charts]: https://github.com/cilium/charts
 [releases]: https://github.com/cilium/cilium/releases
 [cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh
