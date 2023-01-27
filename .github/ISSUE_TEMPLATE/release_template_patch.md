@@ -59,10 +59,13 @@ assignees: ''
   - [ ] Pull latest branch locally into the cilium repository.
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
         [cilium helm release tool] for the `vX.Y.Z` release
-        and push these changes into the helm repository. Make sure the
-        generated helm charts point to the commit that contains the image
-        digests.
-  - [ ] Push the charts
+        and create a PR with these changes against the charts repository. Make
+        sure the generated helm charts point to the commit that contains the
+        image digests. Note: If you handle several patch releases at once,
+        create one PR per release, based one on top of the others to avoid
+        conflicts after one is merged. This is to make sure that the
+        corresponding workflow action run for each commit.
+  - [ ] Have a maintainer review and merge your PR.
   - [ ] Check the output of the [chart workflow] and see if the test was
         successful.
 - [ ] Check draft release from [releases] page
