@@ -44,7 +44,7 @@ assignees: ''
   - [ ] Submit PR (`contrib/release/submit-release.sh`)
   - [ ] Add the 'stable' tag as part of the GitHub workflow and remove the
         'stable' tag from the last stable branch.
-- [ ] Merge PR https://github.com/cilium/cilium/pull/18126
+- [ ] Merge PR
 - [ ] Create and push *both* tags to GitHub (`vX.Y.0`, `X.Y.0`)
   - [ ] Pull latest branch locally and run `contrib/release/tag-release.sh`.
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
@@ -57,7 +57,7 @@ assignees: ''
   - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
         digests and submit a PR to update these, use the `URL` of the GitHub
         run here
-  - [ ] Merge PR https://github.com/cilium/cilium/pull/18136
+  - [ ] Merge PR
 - [ ] Update helm charts
   - [ ] Pull latest branch locally into the cilium repository.
   - [ ] Create helm charts artifacts for `vX.Y-dev` by following the
