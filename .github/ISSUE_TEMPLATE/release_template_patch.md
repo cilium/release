@@ -58,8 +58,8 @@ assignees: ''
 - [ ] Update helm charts
   - [ ] Pull latest branch locally into the cilium repository.
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
-        [cilium helm release tool] for both the `vX.Y.Z` release and `vX.Y`
-        branch and push these changes into the helm repository. Make sure the
+        [cilium helm release tool] for the `vX.Y.Z` release
+        and push these changes into the helm repository. Make sure the
         generated helm charts point to the commit that contains the image
         digests.
   - [ ] Push the charts
