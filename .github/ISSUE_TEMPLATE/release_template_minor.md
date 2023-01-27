@@ -57,7 +57,8 @@ assignees: ''
   - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
         digests and submit a PR to update these, use the `URL` of the GitHub
         run here
-  - [ ] Merge PR
+  - [ ] Get someone to review the PR. Do not trigger the full CI suite, but
+        wait for the automatic checks to complete. Merge the PR.
 - [ ] Update helm charts
   - [ ] Pull latest branch locally into the cilium repository.
   - [ ] Create helm charts artifacts for `vX.Y-dev` by following the
