@@ -74,6 +74,11 @@ assignees: ''
         This text was previously generated with
         `contrib/release/post-release.sh`, or is otherwise available in the
         GitHub workflow run that built the images.
+  - [ ] Check whether the new release should be set as the _latest_ release
+        (via the checkbox at the bottom of the page). It should be the new
+        _latest_ if the version number is strictly superior to the current
+        _latest_ release displayed on GitHub (e.g. 1.11.13 does not become the
+        new latest release over 1.12.5, but version 1.12.6 will).
   - [ ] Publish the release
 - [ ] Announce the release in #general on Slack (do not use [@]channel)
 
