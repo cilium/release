@@ -99,7 +99,7 @@ func Test_getBackportPRs(t *testing.T) {
 		want []int
 	}{
 		{
-			name: "test-1",
+			name: "get all three PRs",
 			args: args{
 				body: "```upstream-prs\r\n$ for pr in 9959 9982 10005; do contrib/backporting/set-labels.py $pr done 1.6; done\r\n```",
 			},
@@ -110,7 +110,18 @@ func Test_getBackportPRs(t *testing.T) {
 			},
 		},
 		{
-			name: "test-2",
+			name: "get all three PRs (no prompt symbol)",
+			args: args{
+				body: "```upstream-prs\r\nfor pr in 9959 9982 10005; do contrib/backporting/set-labels.py $pr done 1.6; done\r\n```",
+			},
+			want: []int{
+				9959,
+				9982,
+				10005,
+			},
+		},
+		{
+			name: "get single PR",
 			args: args{
 				body: "```upstream-prs\r\n$ for pr in 9959 ; do contrib/backporting/set-labels.py $pr done 1.6; done\r\n```",
 			},
@@ -119,21 +130,37 @@ func Test_getBackportPRs(t *testing.T) {
 			},
 		},
 		{
-			name: "test-4",
+			name: "get single PR (no prompt symbol)",
+			args: args{
+				body: "```upstream-prs\r\n$ for pr in 9959 ; do contrib/backporting/set-labels.py $pr done 1.6; done\r\n```",
+			},
+			want: []int{
+				9959,
+			},
+		},
+		{
+			name: "command line pattern missing",
 			args: args{
 				body: "```upstream-prs\r\n$ 9 ; do contrib/backporting/set-labels.py $pr done 1.6; done\r\n```",
 			},
 			want: nil,
 		},
 		{
-			name: "test-5",
+			name: "command line pattern missing (no prompt symbol)",
+			args: args{
+				body: "```upstream-prs\r\n9 ; do contrib/backporting/set-labels.py $pr done 1.6; done\r\n```",
+			},
+			want: nil,
+		},
+		{
+			name: "command line pattern incomplete",
 			args: args{
 				body: "```upstream-prs\r\npr in 99 ; do contrib/backporting/set-labels.py $pr done 1.6; done\r\n```",
 			},
 			want: nil,
 		},
 		{
-			name: "test-6",
+			name: "unfinished quote section",
 			args: args{
 				body: "```upstream-prs\n$ for pr in 9959 ; do contrib/backporting/set-labels.py $pr done 1.6; done\r\nfoo\nbar",
 			},
