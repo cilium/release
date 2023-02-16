@@ -22,7 +22,7 @@ import (
 	"strconv"
 	"strings"
 
-	gh "github.com/google/go-github/v28/github"
+	gh "github.com/google/go-github/v50/github"
 )
 
 const (
