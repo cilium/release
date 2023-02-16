@@ -22,6 +22,7 @@ import (
 	"sort"
 	"strings"
 
+	gh "github.com/google/go-github/v50/github"
 	flag "github.com/spf13/pflag"
 
 	"github.com/cilium/release/cmd/projects"
@@ -149,7 +150,7 @@ func main() {
 
 		for {
 			fmt.Fprintf(os.Stderr, "Comparing %s...%s\n", base, head)
-			cc, _, err := ghClient.Repositories.CompareCommits(globalCtx, owner, repo, base, head)
+			cc, _, err := ghClient.Repositories.CompareCommits(globalCtx, owner, repo, base, head, &gh.ListOptions{})
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Unable to compare commits %s %s: %s\n", base, head, err)
 				os.Exit(-1)
