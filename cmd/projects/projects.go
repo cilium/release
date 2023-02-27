@@ -201,8 +201,8 @@ func (pm *ProjectManagement) syncCards(ctx context.Context, currVer, nextVer str
 				// If it is pending, them move it to the right column in the new
 				// project.
 				if !forceMovePending {
-					return fmt.Errorf("Found unexpected pending PR https://github.com/%s/%d in project. Please ensure that all backported PRs have been moved to the done column.",
-						pm.repo, prNumber)
+					return fmt.Errorf("Found unexpected pending PR https://github.com/%s/%s/pull/%d in project. Please ensure that all backported PRs have been moved to the done column.",
+						pm.owner, pm.repo, prNumber)
 				}
 				moveToColumnID = nextPendingColumnID
 				fmt.Fprintf(os.Stdout, "moving PR %d to %q\n", prNumber, columnName(pendingBackportPrefix, nextVer))
