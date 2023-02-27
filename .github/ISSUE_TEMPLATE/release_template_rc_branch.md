@@ -40,7 +40,8 @@ assignees: ''
         see [4d52791d27](https://github.com/cilium/cilium/commit/4d52791d27de836d2fb1190230769e32ad813c25)
         for reference):
     - [ ] Create the specific GH workflow that are only triggered via comment in
-          the master branch for the stable version going to be released.
+          the master branch for the stable version going to be released. You can
+          find all of them by running `grep -Rl issue_comment ./.github/workflows/*`
     - [ ] Remove all GH workflow that are only triggered via comment from the
           stable branch that is going to be released.
     - [ ] Adjust `maintainers-little-helper.yaml` accordingly the new stable
