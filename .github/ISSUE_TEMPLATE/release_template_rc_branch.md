@@ -128,7 +128,7 @@ assignees: ''
 :cilium-new: *Cilium release candidate vX.Y.Z-rc.W has been released:*
 https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
-This kicks off the release train that leads us towards vX.Y final version in the coming weeks. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
+This is the first monthly snapshot for the v1.14 development cycle. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
 Text template for the next RCs:
 ```
@@ -137,7 +137,7 @@ Text template for the next RCs:
 :cilium-new: *Cilium release candidate vX.Y.Z-rc.W has been released:*
 https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
-Thank you for the testing and contributing to the previous RC. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
+Thank you for the testing and contributing to the previous pre-releases. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
