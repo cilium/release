@@ -32,9 +32,6 @@ assignees: ''
         get the real names instead of GitHub usernames.
   - [ ] Commit the `AUTHORS` as well as the documentation files changed by the
         previous step with title `update AUTHORS and Documentation`.
-  - [ ] Change `install/kubernetes/Makefile.values` with the instructions
-        available in that document.
-  - [ ] Run `make -C install/kubernetes`
   - [ ] Add the generated `CHANGELOG.md` file and commit all remaining changes
         with the title `Prepare for release vX.Y.Z-rcW`
   - [ ] Submit PR (`contrib/release/submit-release.sh`)
