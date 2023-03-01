@@ -48,7 +48,7 @@ assignees: ''
   - Check out the commit before the revert and run `contrib/release/tag-release.sh`
     against that commit.
 - [ ] Ask a maintainer to approve the build in the following link:
-      [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
+      [Cilium Image Release builds]
   - [ ] Check if all docker images are available before announcing the release:
         `make -C install/kubernetes/ RELEASE=yes CILIUM_BRANCH=master check-docker-images`
 - [ ] Update helm charts
@@ -66,6 +66,7 @@ assignees: ''
 - [ ] Check draft release from [releases] page
   - [ ] Update the text at the top with 2-3 highlights of the release
   - [ ] Mark the checkbox of "This is a pre-release"
+  - [ ] Add the digests from the [Cilium Image Release builds] to the draft
   - [ ] Publish the release
 - [ ] Announce the release in #general on Slack.
 Text template for the first RC:
@@ -89,6 +90,7 @@ Thank you for the testing and contributing to the previous RC. There are [vX.Y.Z
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
 [Cilium charts]: https://github.com/cilium/charts
+[Cilium Image Release builds]: https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22
 [releases]: https://github.com/cilium/cilium/releases
 [cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
