@@ -1,7 +1,7 @@
 ---
 name: Release a new RC version of Cilium from a stable branch
 about: Create a checklist for an upcoming release
-title: 'vX.Y.Z-rcW release'
+title: 'vX.Y.Z-rc.W release'
 labels: kind/release
 assignees: ''
 
@@ -19,7 +19,7 @@ assignees: ''
 ## Pre-release
 
 
-- [ ] Announce in Cilium slack channel #launchpad: `Starting vX.Y.Z-rcW release process :ship:`
+- [ ] Announce in Cilium slack channel #launchpad: `Starting vX.Y.Z-rc.W release process :ship:`
 - [ ] Create a thread for that message and ping current top-hat to not merge any
   PRs until the release process is complete.
 - [ ] Change directory to the local copy of Cilium repository.
@@ -28,7 +28,7 @@ assignees: ''
 - [ ] If stable branch is not created yet. Run:
   - `git fetch origin && git checkout -b origin/vX.Y origin/master`
   - [ ] Update the VERSION file with the last RC released for this stable version
-    - `echo "X.Y.Z-rcW-1" > VERSION`
+    - `echo "X.Y.Z-rc.W-1" > VERSION`
   - [ ] Commit that change into the `vX.Y` branch with the title `Update vX.Y VERSION`
   - [ ] Push that branch and the commit with the updated `VERSION` to GitHub:
     - `git push origin vX.Y`
@@ -74,7 +74,7 @@ assignees: ''
   - [ ] Push a PR with those changes:
     - `git commit -sam "Prepare v1.12 stable branch`
 - [ ] Push a PR including the changes necessary for the new release:
-  - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rcW`
+  - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rc.W`
         Note that this script produces some files at the root of the Cilium
         repository, and that these files are required at a later step for
         tagging the release.
@@ -84,11 +84,11 @@ assignees: ''
   - [ ] Fix any duplicate `AUTHORS` entries and verify if it is possible to
         get the real names instead of GitHub usernames.
   - [ ] Add the generated `CHANGELOG.md` file and commit all remaining changes
-        with the title `Prepare for release vX.Y.Z-rcW`
+        with the title `Prepare for release vX.Y.Z-rc.W`
   - [ ] Submit PR (`contrib/release/submit-release.sh`)
 - [ ] Merge PR
 - [ ] Ping current top-hat that PRs can be merged again.
-- [ ] Create and push *both* tags to GitHub (`vX.Y.Z-rcW`, `X.Y.Z-rcW`)
+- [ ] Create and push *both* tags to GitHub (`vX.Y.Z-rc.W`, `X.Y.Z-rc.W`)
   - Pull latest branch locally.
   - Check out the commit before the revert and run `contrib/release/tag-release.sh`
     against that commit.
@@ -125,19 +125,19 @@ assignees: ''
 ```
 *Announcement* :tada: :tada:
 
-:cilium-new: *Cilium release candidate vX.Y.Z-rcW has been released:*
-https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rcW
+:cilium-new: *Cilium release candidate vX.Y.Z-rc.W has been released:*
+https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
-This kicks off the release train that leads us towards vX.Y final version in the coming weeks. There are [vX.Y.Z-rcW OSS docs](https://docs.cilium.io/en/vX.Y.Z-rcW) available if you want to pull this version & try it out.
+This kicks off the release train that leads us towards vX.Y final version in the coming weeks. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
 Text template for the next RCs:
 ```
 *Announcement* :tada: :tada:
 
-:cilium-new: *Cilium release candidate vX.Y.Z-rcW has been released:*
-https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rcW
+:cilium-new: *Cilium release candidate vX.Y.Z-rc.W has been released:*
+https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
-Thank you for the testing and contributing to the previous RC. There are [vX.Y.Z-rcW OSS docs](https://docs.cilium.io/en/vX.Y.Z-rcW) available if you want to pull this version & try it out.
+Thank you for the testing and contributing to the previous RC. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
@@ -146,6 +146,6 @@ Thank you for the testing and contributing to the previous RC. There are [vX.Y.Z
 [cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
 [read the docs]: https://readthedocs.org/projects/cilium/
-[active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y.Z-rcW
+[active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y.Z-rc.W
 [docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/conformance-gke.yaml
