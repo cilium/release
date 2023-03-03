@@ -294,7 +294,7 @@ func printReleaseNotes(prsWithUpstream types.BackportPRs, listOfPrs types.PullRe
 				continue
 			}
 			if !printedReleaseNoteHeader {
-				fmt.Println(releaseNotes[releaseLabel])
+				fmt.Fprintf(os.Stderr, releaseNotes[releaseLabel])
 				printedReleaseNoteHeader = true
 			}
 			changelogItems = append(
@@ -307,7 +307,7 @@ func printReleaseNotes(prsWithUpstream types.BackportPRs, listOfPrs types.PullRe
 			return strings.ToLower(changelogItems[i]) < strings.ToLower(changelogItems[j])
 		})
 		for _, changeLogItem := range changelogItems {
-			fmt.Println(changeLogItem)
+			fmt.Fprintf(os.Stderr, changeLogItem)
 		}
 	}
 }
