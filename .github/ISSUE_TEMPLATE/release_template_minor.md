@@ -16,6 +16,9 @@ assignees: ''
 - [ ] Make sure the [Cilium helm charts][Cilium charts] and [release][Cilium release-notes tool] repositories are installed locally:
   - [ ] Run `git clone https://github.com/cilium/charts.git "$GOPATH/src/github.com/cilium/charts"`
   - [ ] Run `git clone https://github.com/cilium/release.git "$GOPATH/src/github.com/cilium/release"`
+    - [ ] If you already have the repo checked out, make sure the `release` binary is up to date:
+
+          git checkout master && git pull && make
 
 ## Pre-release
 
