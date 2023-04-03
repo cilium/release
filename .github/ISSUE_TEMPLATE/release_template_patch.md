@@ -18,7 +18,7 @@ assignees: ''
   - [ ] Run `git clone https://github.com/cilium/release.git "$GOPATH/src/github.com/cilium/release"`
     - [ ] If you already have the repo checked out, make sure the `release` binary is up to date:
 
-          git checkout master && git pull && make
+          git checkout main && git pull && make
 
 ## Pre-release
 
@@ -89,7 +89,7 @@ assignees: ''
 
 ## Post-release
 
-- [ ] Prepare post-release changes to master branch using `contrib/release/bump-readme.sh`
+- [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`
 
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags

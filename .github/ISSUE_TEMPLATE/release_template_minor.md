@@ -18,7 +18,7 @@ assignees: ''
   - [ ] Run `git clone https://github.com/cilium/release.git "$GOPATH/src/github.com/cilium/release"`
     - [ ] If you already have the repo checked out, make sure the `release` binary is up to date:
 
-          git checkout master && git pull && make
+          git checkout main && git pull && make
 
 ## Pre-release
 
@@ -30,7 +30,7 @@ assignees: ''
 - [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] Check with @cilium/security team if there are any security fixes to include
       in the release.
-- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/master/Documentation/community/roadmap.rst) for any features that changed status.
+- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst) for any features that changed status.
 - [ ] Execute `release --current-version X.Y.0 --next-dev-version X.Y.1` to
       automatically move any unresolved issues/PRs from old release project
       into the new project. The `release` binary is located in the
@@ -99,10 +99,10 @@ assignees: ''
 ## Post-release
 
 - [ ] For new minor version update [security policy]
-- [ ] Prepare post-release changes to master branch using `contrib/release/bump-readme.sh`
+- [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`
   - [ ] Make sure to update the `.github/maintainers-little-helper.yaml` so that
         upcoming PRs are tracked correctly for the next release.
-  - [ ] Bump the master testsuite to upgrade from vX.Y branch to master
+  - [ ] Bump the main testsuite to upgrade from vX.Y branch to main
 - [ ] Notify #development on Slack that deprecated features may now be removed.
 - [ ] This is the list of links for known external installers that depend on
       the release process. Ideally, work toward updating external tools and

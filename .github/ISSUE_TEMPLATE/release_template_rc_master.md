@@ -1,5 +1,5 @@
 ---
-name: Release a new RC version of Cilium from master branch
+name: Release a new RC version of Cilium from main branch
 about: Create a checklist for an upcoming release
 title: 'vX.Y.Z-rc.W release'
 labels: kind/release
@@ -50,7 +50,7 @@ assignees: ''
 - [ ] Ask a maintainer to approve the build in the following link:
       [Cilium Image Release builds]
   - [ ] Check if all docker images are available before announcing the release:
-        `make -C install/kubernetes/ RELEASE=yes CILIUM_BRANCH=master check-docker-images`
+        `make -C install/kubernetes/ RELEASE=yes CILIUM_BRANCH=main check-docker-images`
 - [ ] Update helm charts
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
         [cilium helm release tool] for the `vX.Y.Z-rc.W` release and push
