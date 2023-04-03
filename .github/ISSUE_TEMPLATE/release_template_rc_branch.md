@@ -26,7 +26,7 @@ assignees: ''
 - [ ] Check that there are no [release blockers] for the targeted release version
 - [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] If stable branch is not created yet. Run:
-  - `git fetch origin && git checkout -b origin/vX.Y origin/master`
+  - `git fetch origin && git checkout -b origin/vX.Y origin/main`
   - [ ] Update the VERSION file with the last RC released for this stable version
     - `echo "X.Y.Z-rc.W-1" > VERSION`
   - [ ] Commit that change into the `vX.Y` branch with the title `Update vX.Y VERSION`
@@ -34,13 +34,13 @@ assignees: ''
     - `git push origin vX.Y`
   - [ ] Create a new GH project for the `X.Y+1.0` version and keep the project ID
         to update the MLH configuration in the next step.
-  - [ ] On the master branch, create a PR with a change in the `VERSION` file to
+  - [ ] On the main branch, create a PR with a change in the `VERSION` file to
         start the next development cycle as well as creating the necessary GH
         workflows (conformance tests, dependabot configuration, MLH configuration,
         see [4d52791d27](https://github.com/cilium/cilium/commit/4d52791d27de836d2fb1190230769e32ad813c25)
         for reference):
     - [ ] Create the specific GH workflow that are only triggered via comment in
-          the master branch for the stable version going to be released. You can
+          the main branch for the stable version going to be released. You can
           find all of them by running `grep -Rl issue_comment ./.github/workflows/*`
     - [ ] Remove all GH workflow that are only triggered via comment from the
           stable branch that is going to be released.
@@ -50,14 +50,14 @@ assignees: ''
     - `make -C install/kubernetes`
     - `git add .github/ Documentation/contributing/testing/ci.rst`
     - `git commit -sam "Prepare for X.Y+1 development cycle"`
-  - [ ] Merge the master PR so that the next step can be properly done with the
+  - [ ] Merge the main PR so that the next step can be properly done with the
         right status checks requirements.
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
-      - Use the settings of the previous stable branch and master as sane defaults
+      - Use the settings of the previous stable branch and main as sane defaults
       - Some of the branch-specific status checks might only appear after they
         were triggered at least one time in the stable branch.
   - [ ] Remove any GitHub workflows from the stable branch that are only
-        relevant for the master branch.
+        relevant for the main branch.
     - Copy-paste the `.github` directory from the previous stable branch and
       manually check the diff between the files from the current stable branch
       and make changes accordingly. Heuristically this means removing all GH

@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	needsBackport         = "Needs backport from master"
+	needsBackport         = "Needs backport from main"
 	pendingBackportPrefix = "Backport pending to v"
 	doneBackportPrefix    = "Backport done to v"
 
