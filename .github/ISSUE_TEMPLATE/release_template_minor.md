@@ -28,6 +28,8 @@ assignees: ''
 - [ ] Change directory to the local copy of Cilium repository.
 - [ ] Check that there are no [release blockers] for the targeted release version
 - [ ] Ensure that outstanding [backport PRs] are merged
+- [ ] Check with @cilium/security team if there are any security fixes to include
+      in the release.
 - [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/master/Documentation/community/roadmap.rst) for any features that changed status.
 - [ ] Execute `release --current-version X.Y.0 --next-dev-version X.Y.1` to
       automatically move any unresolved issues/PRs from old release project
