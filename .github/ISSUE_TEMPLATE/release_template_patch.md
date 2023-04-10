@@ -23,11 +23,13 @@ assignees: ''
 ## Pre-release
 
 - [ ] Announce in Cilium slack channel #launchpad: `Starting vX.Y.Z release process :ship:`
-- [ ] Create a thread for that message and ping current top-hat to not merge any
-      PRs until the release process is complete.
+  - [ ] Create a thread for that message and ping the current backporter to merge the
+        outstanding [backport PRs] and stop merging any new backport PRs until the release
+        process is complete (to avoid generating incomplete release notes).
 - [ ] Change directory to the local copy of Cilium repository.
-- [ ] Check that there are no [release blockers] for the targeted release version
-- [ ] Ensure that outstanding [backport PRs] are merged
+- [ ] Check that there are no [release blockers] for the targeted release version.
+- [ ] Ensure that outstanding [backport PRs] are merged (these may be skipped on
+      case by case basis in coordination with the backporter).
 - [ ] Check with @cilium/security team if there are any security fixes to include
       in the release.
 - [ ] Execute `release --current-version X.Y.Z --next-dev-version X.Y.W` to
@@ -94,7 +96,7 @@ assignees: ''
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
 [release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
-[backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Abackport%2FX.Y
+[backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+draft%3Afalse+label%3Abackport%2FX.Y
 [Cilium release-notes tool]: https://github.com/cilium/release
 [Cilium charts]: https://github.com/cilium/charts
 [releases]: https://github.com/cilium/cilium/releases
