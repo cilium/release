@@ -10,7 +10,8 @@ assignees: ''
 ## Setup preparation
 
 - [ ] Depending on your OS, make sure Docker is running
-- [ ] Export a `GITHUB_TOKEN` that has access to the repository
+- [ ] Export a `GITHUB_TOKEN` that has access to the repository. Only classic tokens are
+      [supported at the moment][GitHub PAT tracker], the needed scope is `public_repo`.
 - [ ] Make sure a setup (GPG, SSH, S/MIME) is in place for [signing tags] with Git
 - [ ] Make sure the `GOPATH` environment variable is set and pointing to the relevant path
 - [ ] Make sure the [Cilium helm charts][Cilium charts] and [release][Cilium release-notes tool] repositories are installed locally:
@@ -94,6 +95,7 @@ assignees: ''
 - [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`
 
 
+[GitHub PAT tracker]: https://github.com/orgs/community/discussions/36441
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
 [release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
 [backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+draft%3Afalse+label%3Abackport%2FX.Y
