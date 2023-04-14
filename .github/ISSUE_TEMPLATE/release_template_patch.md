@@ -43,8 +43,11 @@ assignees: ''
         the GitHub project created at the previous step.
         Note that this script produces some files at the root of the Cilium
         repository, and that these files are required at a later step for
-        tagging the release.
-  - [ ] Commit all changes with title `Prepare for release vX.Y.Z`
+        tagging the release. Do not commit them.
+  - [ ] Commit all changed files with title `Prepare for release vX.Y.Z`. New
+        generated files, such as release-state.json and vX.Y.Z-changes.txt
+        should not be committed. Tip: use `git add -p` to review the changes and
+        compare them with the previous release PR.
   - [ ] Submit PR (`contrib/release/submit-release.sh`). Note that only the smoke tests
         need to succeed in order to merge this PR. Full e2e test runs are not required.
 - [ ] Merge PR
