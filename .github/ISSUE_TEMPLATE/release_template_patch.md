@@ -45,7 +45,8 @@ assignees: ''
         repository, and that these files are required at a later step for
         tagging the release.
   - [ ] Commit all changes with title `Prepare for release vX.Y.Z`
-  - [ ] Submit PR (`contrib/release/submit-release.sh`)
+  - [ ] Submit PR (`contrib/release/submit-release.sh`). Note that only the smoke tests
+        need to succeed in order to merge this PR. Full e2e test runs are not required.
 - [ ] Merge PR
 - [ ] Ask a maintainer if there are any known issues that should hold up the release
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z`, `X.Y.Z`)
