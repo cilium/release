@@ -10,7 +10,7 @@ assignees: ''
 ## Setup preparation
 
 - [ ] Depending on your OS, make sure Docker is running
-- [ ] Export a `GITHUB_TOKEN` that has access to the repository
+- [ ] Export a [`GITHUB_TOKEN`](https://github.com/settings/tokens/new?description=Cilium%20Release%20Script&scopes=write:org,public_repo) that has access to the repository
 - [ ] Make sure a setup (GPG, SSH, S/MIME) is in place for [signing tags] with Git
 - [ ] Make sure the `GOPATH` environment variable is set and pointing to the relevant path
 - [ ] Make sure the [Cilium helm charts][Cilium charts] repository is installed locally:
