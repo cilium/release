@@ -12,7 +12,7 @@ assignees: ''
 - [ ] Depending on your OS, make sure Docker is running
 - [ ] Export a `GITHUB_TOKEN` that has access to the repository. Only classic tokens are
       [supported at the moment][GitHub PAT tracker], the needed scope is `public_repo`.
-- [ ] Make sure a setup (GPG, SSH, S/MIME) is in place for [signing tags] with Git
+- [ ] Make sure a setup (GPG, SSH, S/MIME) is in place for [signing tags] with Git and install [Hub](https://github.com/github/hub).
 - [ ] Make sure the `GOPATH` environment variable is set and pointing to the relevant path
 - [ ] Make sure the [Cilium helm charts][Cilium charts] and [release][Cilium release-notes tool] repositories are installed locally:
   - [ ] Run `git clone https://github.com/cilium/charts.git "$GOPATH/src/github.com/cilium/charts"`
@@ -27,7 +27,7 @@ assignees: ''
   - [ ] Create a thread for that message and ping the current backporter to merge the
         outstanding [backport PRs] and stop merging any new backport PRs until the release
         process is complete (to avoid generating incomplete release notes).
-- [ ] Change directory to the local copy of Cilium repository.
+- [ ] Change directory to the local copy of cilium/release repository.
 - [ ] Check that there are no [release blockers] for the targeted release version.
 - [ ] Ensure that outstanding [backport PRs] are merged (these may be skipped on
       case by case basis in coordination with the backporter).
@@ -37,8 +37,13 @@ assignees: ''
       automatically move any unresolved issues/PRs from old release project
       into the new project (`W` should be calculation of `Z+1`). The `release`
       binary is located in the [current repository][Cilium release-notes tool].
-- [ ] Push a PR including the changes necessary for the new release:
-  - [ ] Pull latest changes from the branch being released
+  - [ ] Check through the list of PRs in the output for any old, unmerged/closed PRs with
+        lingering `needs-backport` labels. Remove the label from any PRs that are no longer
+        valid and need backporting. Remove the PR from the new Github Project created for
+        the next release.
+- [ ] Push a PR to cilium/cilium including the changes necessary for the new release:
+  - [ ] Change directory to the local copy of cilium/cilium repository and pull latest
+        changes from the branch being released
   - [ ] Run `contrib/release/start-release.sh X.Y.Z N`, where `N` is the id of
         the GitHub project created at the previous step.
         Note that this script produces some files at the root of the Cilium
@@ -53,7 +58,7 @@ assignees: ''
 - [ ] Merge PR
 - [ ] Ask a maintainer if there are any known issues that should hold up the release
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z`, `X.Y.Z`)
-  - [ ] Pull latest branch locally
+  - [ ] Pull latest origin/vX.Y branch locally
   - [ ] Run `contrib/release/tag-release.sh`.
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
@@ -97,12 +102,12 @@ assignees: ''
 
 ## Post-release
 
-- [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`
-
+- [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`.
+      Ensure the table formatting for `Stable Releases` in `README.rst` is not broken.
 
 [GitHub PAT tracker]: https://github.com/orgs/community/discussions/36441
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
-[release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
+[release blockers]: https://github.com/cilium/cilium/issues?q=label%3Arelease-blocker%2FX.Y+label%3Aneeds-backport%2FX.Y
 [backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+draft%3Afalse+label%3Abackport%2FX.Y
 [Cilium release-notes tool]: https://github.com/cilium/release
 [Cilium charts]: https://github.com/cilium/charts
