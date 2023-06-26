@@ -89,7 +89,9 @@ assignees: ''
         successful.
 - [ ] Check draft release from [releases] page
   - [ ] Update the text at the top with 2-3 highlights of the release
-  - [ ] Include the list of security advisories at the top.
+  - [ ] Check with @cilium/security if the release addresses any open security
+        advisory. If it does, include the list of security advisories at the
+        top of the release notes.
   - [ ] Copy the text from `digest-vX.Y.Z.txt` to the end of the release text.
         This text was previously generated with
         `contrib/release/post-release.sh`, or is otherwise available in the
