@@ -45,7 +45,8 @@ assignees: ''
   - [ ] Change directory to the local copy of cilium/cilium repository and pull latest
         changes from the branch being released
   - [ ] Run `contrib/release/start-release.sh X.Y.Z N`, where `N` is the id of
-        the GitHub project created at the previous step.
+        the GitHub project created at the previous step. You can ignore
+        warnings about commits with no related PR found.
         Note that this script produces some files at the root of the Cilium
         repository, and that these files are required at a later step for
         tagging the release. Do not commit them.
