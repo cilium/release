@@ -80,9 +80,10 @@ assignees: ''
         and create a PR with these changes against the charts repository. Make
         sure the generated helm charts point to the commit that contains the
         image digests. Note: If you handle several patch releases at once,
-        create one PR per release, based one on top of the others to avoid
-        conflicts after one is merged. This is to make sure that the
-        corresponding workflow action run for each commit.
+        create one PR per release, to make sure that the corresponding workflow
+        action run for each commit. Wait for your PR to be merged before
+        creating the other ones for other patch releases, or they will
+        conflict.
   - [ ] Have a maintainer review and merge your PR.
   - [ ] Check the output of the [chart workflow] and see if the test was
         successful.
