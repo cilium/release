@@ -92,10 +92,6 @@ assignees: ''
   - [ ] Check with @cilium/security if the release addresses any open security
         advisory. If it does, include the list of security advisories at the
         top of the release notes.
-  - [ ] Copy the text from `digest-vX.Y.Z.txt` to the end of the release text.
-        This text was previously generated with
-        `contrib/release/post-release.sh`, or is otherwise available in the
-        GitHub workflow run that built the images.
   - [ ] Check whether the new release should be set as the _latest_ release
         (via the checkbox at the bottom of the page). It should be the new
         _latest_ if the version number is strictly superior to the current
