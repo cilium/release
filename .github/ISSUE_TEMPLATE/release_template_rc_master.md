@@ -51,6 +51,9 @@ assignees: ''
       [Cilium Image Release builds]
   - [ ] Check if all docker images are available before announcing the release:
         `make -C install/kubernetes/ RELEASE=yes CILIUM_BRANCH=main check-docker-images`
+  - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
+        digests and submit draft release to the [releases] page. Use the `URL`
+        of the GitHub run here.
 - [ ] Update helm charts
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
         [cilium helm release tool] for the `vX.Y.Z-rc.W` release and push
@@ -66,7 +69,6 @@ assignees: ''
 - [ ] Check draft release from [releases] page
   - [ ] Update the text at the top with 2-3 highlights of the release
   - [ ] Mark the checkbox of "This is a pre-release"
-  - [ ] Add the digests from the [Cilium Image Release builds] to the draft
   - [ ] Publish the release
 - [ ] Announce the release in #general on Slack.
 Text template for the first RC:
