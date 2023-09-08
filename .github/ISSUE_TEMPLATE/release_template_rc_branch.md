@@ -42,6 +42,10 @@ assignees: ''
     - [ ] Create the specific GH workflow that are only triggered via comment in
           the main branch for the stable version going to be released. You can
           find all of them by running `grep -Rl issue_comment ./.github/workflows/*`
+    - [ ] Create the GH workflow named `Call Backport Label Updater` that is triggered
+          after each Backport PR for the stable branch gets merged. You can copy the workflow
+          yaml file from a previous stable branch and update it replacing all occurrences of
+          the branch version to the newly created one.
     - [ ] Remove all GH workflow that are only triggered via comment from the
           stable branch that is going to be released.
     - [ ] Adjust `maintainers-little-helper.yaml` accordingly the new stable
