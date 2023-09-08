@@ -89,8 +89,7 @@ https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
 Thank you for the testing and contributing to the previous RC. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
-- [ ] Bump the development snapshot version in `README.rst` on the main branch
-      to point to this release
+- [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`.
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
 [release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
