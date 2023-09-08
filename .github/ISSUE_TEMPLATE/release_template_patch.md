@@ -103,7 +103,6 @@ assignees: ''
 ## Post-release
 
 - [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`.
-      Ensure the table formatting for `Stable Releases` in `README.rst` is not broken.
 
 [GitHub PAT tracker]: https://github.com/orgs/community/discussions/36441
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
