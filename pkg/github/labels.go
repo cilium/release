@@ -57,21 +57,8 @@ func getUpstreamPRs(body string) []int {
 	if len(block) == 0 {
 		return nil
 	}
-	// typical block contains something among these lines:
-	// for pr in 9959 9982 10005; do contrib/backporting/set-labels.py $pr done 1.6; done
-	if !strings.Contains(body, "for pr in") {
-		return nil
-	}
-	// blocks may contain a prompt symbol before the "for" loop
-	block = strings.TrimPrefix(block, "$ ")
-	block = strings.TrimPrefix(block, "for pr in")
-	bashLines := strings.Split(block, ";")
-	if len(bashLines) < 1 {
-		return nil
-	}
-	strNumbers := strings.Split(bashLines[0], " ")
 	var prNumbers []int
-	for _, strNumber := range strNumbers {
+	for _, strNumber := range strings.Fields(block) {
 		prNumber, err := strconv.Atoi(strNumber)
 		if err != nil {
 			continue
