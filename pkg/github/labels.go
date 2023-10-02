@@ -57,6 +57,46 @@ func getUpstreamPRs(body string) []int {
 	if len(block) == 0 {
 		return nil
 	}
+
+	// Look for substrings that should be present in a Backport PR body in v1 format
+	if strings.Contains(block, "for pr in") || strings.Contains(block, "contrib/backporting/set-labels.py") {
+		return getUpstreamPRsV1(body, block)
+	}
+
+	// otherwise assume that the body is in v2 format
+	return getUpstreamPRsV2(block)
+}
+
+func getUpstreamPRsV1(body, block string) []int {
+	// v1 of a Backport PR body should follow this format:
+	//
+	// for pr in 9959 9982 10005; do contrib/backporting/set-labels.py $pr done 1.6; done
+	if !strings.Contains(body, "for pr in") {
+		return nil
+	}
+	// blocks may contain a prompt symbol before the "for" loop
+	block = strings.TrimPrefix(block, "$ ")
+	block = strings.TrimPrefix(block, "for pr in")
+	bashLines := strings.Split(block, ";")
+	if len(bashLines) < 1 {
+		return nil
+	}
+	strNumbers := strings.Split(bashLines[0], " ")
+	var prNumbers []int
+	for _, strNumber := range strNumbers {
+		prNumber, err := strconv.Atoi(strNumber)
+		if err != nil {
+			continue
+		}
+		prNumbers = append(prNumbers, prNumber)
+	}
+	return prNumbers
+}
+
+func getUpstreamPRsV2(block string) []int {
+	// v2 of a Backport PR body should follow this format:
+	//
+	// 9959 9982 10005
 	var prNumbers []int
 	for _, strNumber := range strings.Fields(block) {
 		prNumber, err := strconv.Atoi(strNumber)
