@@ -27,10 +27,7 @@ assignees: ''
 - [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] If stable branch is not created yet. Run:
   - `git fetch origin && git checkout -b origin/vX.Y origin/main`
-  - [ ] Update the VERSION file with the last RC released for this stable version
-    - `echo "X.Y.Z-rc.W-1" > VERSION`
-  - [ ] Commit that change into the `vX.Y` branch with the title `Update vX.Y VERSION`
-  - [ ] Push that branch and the commit with the updated `VERSION` to GitHub:
+  - [ ] Push that branch to GitHub:
     - `git push origin vX.Y`
   - [ ] Create a new GH project for the `X.Y+1.0` version and keep the project ID
         to update the MLH configuration in the next step.
@@ -54,29 +51,38 @@ assignees: ''
     - `make -C install/kubernetes`
     - `git add .github/ Documentation/contributing/testing/ci.rst`
     - `git commit -sam "Prepare for X.Y+1 development cycle"`
-  - [ ] Merge the main PR so that the next step can be properly done with the
-        right status checks requirements.
+  - [ ] Merge the main PR so that the stable branch protection can be properly
+        set up with the right status checks requirements.
+  - [ ] Sync the `vX.Y` branch up to the commit before preparing for the `X.Y+1` development cycle.
+    - `git fetch origin && git checkout vX.Y && git merge --ff-only origin/main~1 && git log -5`
+    - `git push origin vX.Y`
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
       - Use the settings of the previous stable branch and main as sane defaults
       - Some of the branch-specific status checks might only appear after they
         were triggered at least one time in the stable branch.
-  - [ ] Remove any GitHub workflows from the stable branch that are only
-        relevant for the main branch.
-    - Copy-paste the `.github` directory from the previous stable branch and
-      manually check the diff between the files from the current stable branch
-      and make changes accordingly. Heuristically this means removing all GH
-      workflows that are triggered by `issue_comment` and the ones that
-      exclusively cron jobs, and modify the remaining workflows to be specific
-      for the stable branch. See [8bbae9cb43](https://github.com/cilium/cilium/commit/8bbae9cb4323bf3dd94936e355b0c2aad96d0df8)
-      for reference.
-    - Remove the `labels-unset` field from the MLH configuration and add
-      the `auto-label` field. See [5b4934284d](https://github.com/cilium/cilium/commit/5b4934284dd525399aacec17c137811df9cf0f8b)
-      for reference.
-    - Rewrite the CODEOWNERS file. See [97daf56221](https://github.com/cilium/cilium/commit/97daf5622197d0cdda003a3f693e6e5a61038884)
+  - [ ] On the `vX.Y` branch, prepare for stable release development:
+    - [ ] Update the VERSION file with the last prerelease for this stable version
+      - `echo "X.Y.Z-pre.N" > VERSION`
+    - [ ] Remove any GitHub workflows from the stable branch that are only
+          relevant for the main branch.
+      - Copy-paste the `.github` directory from the previous stable branch and
+        manually check the diff between the files from the current stable branch
+        and make changes accordingly. Heuristically this means removing all GH
+        workflows that are triggered by `issue_comment` and the ones that
+        exclusively cron jobs, and modify the remaining workflows to be specific
+        for the stable branch. See [8bbae9cb43](https://github.com/cilium/cilium/commit/8bbae9cb4323bf3dd94936e355b0c2aad96d0df8)
+        for reference.
+      - Remove the `labels-unset` field from the MLH configuration and add
+        the `auto-label` field. See [5b4934284d](https://github.com/cilium/cilium/commit/5b4934284dd525399aacec17c137811df9cf0f8b)
+        for reference.
+      - Rewrite the CODEOWNERS file. See [97daf56221](https://github.com/cilium/cilium/commit/97daf5622197d0cdda003a3f693e6e5a61038884)
+    - [ ] Review the diff for this commit compared to the preparation commit
+          for the previous stable branch.
+    - [ ] Push a PR with those changes:
+      - `git commit -sam "Prepare vX.Y stable branch"`
+      - `gh pr create -B vX.Y`
   - [ ] Ping CI team to prepare all necessary jenkins configuration for this
         branch.
-  - [ ] Push a PR with those changes:
-    - `git commit -sam "Prepare v1.12 stable branch`
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rc.W`
         Note that this script produces some files at the root of the Cilium
