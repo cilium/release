@@ -36,15 +36,10 @@ assignees: ''
         workflows (conformance tests, dependabot configuration, MLH configuration,
         see [4d52791d27](https://github.com/cilium/cilium/commit/4d52791d27de836d2fb1190230769e32ad813c25)
         for reference):
-    - [ ] Create the specific GH workflow that are only triggered via comment in
-          the main branch for the stable version going to be released. You can
-          find all of them by running `grep -Rl issue_comment ./.github/workflows/*`
     - [ ] Create the GH workflow named `Call Backport Label Updater` that is triggered
           after each Backport PR for the stable branch gets merged. You can copy the workflow
           yaml file from a previous stable branch and update it replacing all occurrences of
           the branch version to the newly created one.
-    - [ ] Remove all GH workflow that are only triggered via comment from the
-          stable branch that is going to be released.
     - [ ] Adjust `maintainers-little-helper.yaml` accordingly the new stable
           branch.
     - `echo "X.Y.90" > VERSION`
