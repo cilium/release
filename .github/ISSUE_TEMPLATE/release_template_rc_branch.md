@@ -29,7 +29,7 @@ assignees: ''
   - `git fetch upstream && git checkout -b upstream/vX.Y upstream/main`
   - [ ] Push that branch to GitHub:
     - `git push upstream vX.Y`
-  - [ ] Create a new GH project for the `X.Y+1.0` version and keep the project ID
+  - [ ] Create a new GH project for the `X.Y.0-rc.0` version and keep the project ID
         to update the MLH configuration in the next step.
   - [ ] On the main branch, create a PR with a change in the `VERSION` file to
         start the next development cycle as well as creating the necessary GH
@@ -50,7 +50,7 @@ assignees: ''
     - `echo "X.Y.90" > VERSION`
     - `make -C install/kubernetes`
     - `git add .github/ Documentation/contributing/testing/ci.rst`
-    - `git commit -sam "Prepare for X.Y+1 development cycle"`
+    - `git commit -sam "Prepare for vX.Y+1 development cycle"`
   - [ ] Merge the main PR so that the stable branch protection can be properly
         set up with the right status checks requirements.
   - [ ] Sync the `vX.Y` branch up to the commit before preparing for the `X.Y+1` development cycle.
@@ -98,7 +98,7 @@ assignees: ''
 - [ ] Ping current top-hat that PRs can be merged again.
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z-rc.W`, `X.Y.Z-rc.W`)
   - Pull latest branch locally.
-  - Check out the commit before the revert and run `contrib/release/tag-release.sh`
+  - Check out the release commit and run `contrib/release/tag-release.sh`
     against that commit.
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):

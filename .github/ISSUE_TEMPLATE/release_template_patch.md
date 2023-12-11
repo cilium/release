@@ -59,7 +59,7 @@ assignees: ''
 - [ ] Merge PR
 - [ ] Ask a maintainer if there are any known issues that should hold up the release
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z`, `X.Y.Z`)
-  - [ ] Pull latest origin/vX.Y branch locally
+  - [ ] Pull latest `upstream/vX.Y` branch locally
   - [ ] Run `contrib/release/tag-release.sh`.
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
