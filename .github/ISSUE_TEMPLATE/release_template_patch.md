@@ -62,7 +62,7 @@ assignees: ''
       Once the tags are published the documentation will be pointing to them. Until we release
       the helm chart, users will face issues while trying out our documentation.
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z`, `X.Y.Z`)
-  - [ ] Pull latest origin/vX.Y branch locally
+  - [ ] Pull latest `upstream/vX.Y` branch locally
   - [ ] Run `contrib/release/tag-release.sh`.
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
