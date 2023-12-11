@@ -81,8 +81,6 @@ assignees: ''
     - [ ] Push a PR with those changes:
       - `git commit -sam "Prepare vX.Y stable branch"`
       - `gh pr create -B vX.Y`
-  - [ ] Ping CI team to prepare all necessary jenkins configuration for this
-        branch.
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rc.W`
         Note that this script produces some files at the root of the Cilium
