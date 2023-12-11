@@ -26,9 +26,9 @@ assignees: ''
 - [ ] Check that there are no [release blockers] for the targeted release version
 - [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] If stable branch is not created yet. Run:
-  - `git fetch origin && git checkout -b origin/vX.Y origin/main`
+  - `git fetch upstream && git checkout -b upstream/vX.Y upstream/main`
   - [ ] Push that branch to GitHub:
-    - `git push origin vX.Y`
+    - `git push upstream vX.Y`
   - [ ] Create a new GH project for the `X.Y+1.0` version and keep the project ID
         to update the MLH configuration in the next step.
   - [ ] On the main branch, create a PR with a change in the `VERSION` file to
@@ -54,8 +54,8 @@ assignees: ''
   - [ ] Merge the main PR so that the stable branch protection can be properly
         set up with the right status checks requirements.
   - [ ] Sync the `vX.Y` branch up to the commit before preparing for the `X.Y+1` development cycle.
-    - `git fetch origin && git checkout vX.Y && git merge --ff-only origin/main~1 && git log -5`
-    - `git push origin vX.Y`
+    - `git fetch upstream && git checkout vX.Y && git merge --ff-only upstream/main~1 && git log -5`
+    - `git push upstream vX.Y`
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
       - Use the settings of the previous stable branch and main as sane defaults
       - Some of the branch-specific status checks might only appear after they
