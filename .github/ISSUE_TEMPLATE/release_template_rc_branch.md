@@ -33,8 +33,8 @@ assignees: ''
         to update the MLH configuration in the next step.
   - [ ] On the main branch, create a PR with a change in the `VERSION` file to
         start the next development cycle as well as creating the necessary GH
-        workflows (conformance tests, dependabot configuration, MLH configuration,
-        see [4d52791d27](https://github.com/cilium/cilium/commit/4d52791d27de836d2fb1190230769e32ad813c25)
+        workflows (renovate configuration, MLH configuration, etc.
+        see [24143732b616](https://github.com/cilium/cilium/commit/24143732b616bb6cd308564b0be33f13fc5613e6)
         for reference):
     - [ ] Adjust `maintainers-little-helper.yaml` accordingly the new stable
           branch.
