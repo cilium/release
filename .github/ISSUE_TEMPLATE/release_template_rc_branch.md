@@ -42,7 +42,7 @@ assignees: ''
           branch `X.Y-1`, and update those to include the new stable `X.Y`
           version as well.
         - `git grep "X.Y-1" .github/`
-    - `echo "X.Y.90" > VERSION`
+    - `echo "X.Y+1-dev" > VERSION`
     - `make -C install/kubernetes`
     - `git add .github/ Documentation/contributing/testing/ci.rst`
     - `git commit -sam "Prepare for vX.Y+1 development cycle"`
