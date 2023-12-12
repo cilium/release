@@ -38,6 +38,10 @@ assignees: ''
         for reference):
     - [ ] Adjust `maintainers-little-helper.yaml` accordingly the new stable
           branch.
+    - [ ] Check for any other .github workflow references to the current stable
+          branch `X.Y-1`, and update those to include the new stable `X.Y`
+          version as well.
+        - `git grep "X.Y-1" .github/`
     - `echo "X.Y.90" > VERSION`
     - `make -C install/kubernetes`
     - `git add .github/ Documentation/contributing/testing/ci.rst`
