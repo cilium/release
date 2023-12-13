@@ -58,6 +58,9 @@ assignees: ''
         need to succeed in order to merge this PR. Full e2e test runs are not required.
 - [ ] Merge PR
 - [ ] Ask a maintainer if there are any known issues that should hold up the release
+- [ ] FYI, do not wait too much time between a tag is created and the helm charts are published.
+      Once the tags are published the documentation will be pointing to them. Until we release
+      the helm chart, users will face issues while trying out our documentation.
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z`, `X.Y.Z`)
   - [ ] Pull latest origin/vX.Y branch locally
   - [ ] Run `contrib/release/tag-release.sh`.
