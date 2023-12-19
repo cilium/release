@@ -53,20 +53,35 @@ assignees: ''
     - `git push upstream vX.Y`
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
       - Use the settings of the previous stable branch and main as sane defaults
-      - Some of the branch-specific status checks might only appear after they
-        were triggered at least one time in the stable branch.
   - [ ] On the `vX.Y` branch, prepare for stable release development:
     - [ ] Update the VERSION file with the last prerelease for this stable version
       - `echo "X.Y.Z-pre.N" > VERSION`
     - [ ] Remove any GitHub workflows from the stable branch that are only
           relevant for the main branch.
+      - Remove workflows that are exclusively triggered by cron job and
+        workflows triggered by `issue_comment` triggers, as they do not run on
+        stable branches. These can be identified with commands like this:
+        - `git grep -B 5 cron .github/ | grep name | sed 's/-name.*//g'`
+        - `git grep issue_comment .github/`
+      - Replace references to `main` branch with `X.Y` in the workflows.
+        - `sed -i 's/- \(ft\/\)\?main/- \1vX.Y/g' .github/workflows/*`
+        - `sed -i 's/@main/@vX.Y/g' .github/workflows/*`
+        - `sed -i 's/\/main\//\/vX.Y\//g' .github/workflows/*`
+      - Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new
+        minor schema version compared to the previous stable release.
+      - Update `install/kubernetes/Makefile*`, following the changes made
+        during the previous stable branch preparation commit on the previous
+        stable branch.
+      - You may want to initially commit the state up until now before the next
+        step, so that it's easier to compare the diff vs. the previous stable
+        release.
       - Copy-paste the `.github` directory from the previous stable branch and
         manually check the diff between the files from the current stable branch
-        and make changes accordingly. Heuristically this means removing all GH
-        workflows that are triggered by `issue_comment` and the ones that
-        exclusively cron jobs, and modify the remaining workflows to be specific
-        for the stable branch. See [8bbae9cb43](https://github.com/cilium/cilium/commit/8bbae9cb4323bf3dd94936e355b0c2aad96d0df8)
+        and modify the workflows to match the target stable branch. See
+        [8bbae9cb43](https://github.com/cilium/cilium/commit/8bbae9cb4323bf3dd94936e355b0c2aad96d0df8)
         for reference.
+      - Ignore all stable branch changes under the `.github/actions` directory.
+        `git checkout .github/actions`
       - Remove the `labels-unset` field from the MLH configuration and add
         the `auto-label` field. See [5b4934284d](https://github.com/cilium/cilium/commit/5b4934284dd525399aacec17c137811df9cf0f8b)
         for reference.
