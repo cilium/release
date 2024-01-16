@@ -108,7 +108,7 @@ assignees: ''
 - [ ] Ping current top-hat that PRs can be merged again.
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z-rc.W`, `X.Y.Z-rc.W`)
   - Pull latest branch locally.
-  - Check out the release commit and run `contrib/release/tag-release.sh`
+  - Check out the commit with the `Prepare for release vX.Y.Z-rc.W` and run `contrib/release/tag-release.sh`
     against that commit.
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
@@ -120,6 +120,7 @@ assignees: ''
   - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
         digests and submit a PR to update these, use the `URL` of the GitHub
         run here
+  - [ ] Run `make -C Documentation update-helm-values` to update the helm-values Documentation.
   - [ ] Get someone to review the PR. Do not trigger the full CI suite, but
         wait for the automatic checks to complete. Merge the PR.
 - [ ] Update helm charts
@@ -146,7 +147,7 @@ assignees: ''
 :cilium-new: *Cilium release candidate vX.Y.Z-rc.W has been released:*
 https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
-This is the first monthly snapshot for the v1.14 development cycle. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
+This is the first monthly snapshot for the vX.Y development cycle. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
 Text template for the next RCs:
 ```
@@ -158,8 +159,7 @@ https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 Thank you for the testing and contributing to the previous pre-releases. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
 - [ ] Bump the development snapshot version in `README.rst` on the main branch
-      to point to this release
-- [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`.
+      to point to this release and push a PR with these changes.
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
 [release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
