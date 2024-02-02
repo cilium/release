@@ -30,13 +30,14 @@ assignees: ''
 - [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] Check with @cilium/security team if there are any security fixes to include
       in the release.
-- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst) for any features that changed status.
 - [ ] Execute `release --current-version X.Y.0 --next-dev-version X.Y.1` to
       automatically move any unresolved issues/PRs from old release project
       into the new project. The `release` binary is located in the
       [current repository][Cilium release-notes tool].
 - [ ] Push a PR including the changes necessary for the new release:
   - [ ] Pull latest changes from the branch being released
+  - [ ] The next step will generate a `CHANGELOG.md` that will not be correct.
+        That is expected, and it is fixed with a follow-up step. Don't worry.
   - [ ] Run `contrib/release/start-release.sh X.Y.0 <GH-PROJECT> X.Y-1`
         Note that this script produces some files at the root of the Cilium
         repository, and that these files are required at a later step for
@@ -45,10 +46,11 @@ assignees: ''
   - [ ] Regenerate the log since the previous release with `prep-changelog.sh <last-patch-release> vX.Y.0`
   - [ ] Check and edit the `CHANGELOG.md` to ensure all PRs have proper release notes
   - [ ] Edit the `vX.Y.0-changes.txt` files locally to replace the text with "See CHANGELOG.md for more details"
-  - [ ] Commit all changes with title `Prepare for release vX.Y.0`
-  - [ ] Submit PR (`contrib/release/submit-release.sh`)
   - [ ] Add the 'stable' tag as part of the GitHub workflow and remove the
         'stable' tag from the last stable branch.
+  - [ ] Commit all changes with title `Prepare for release vX.Y.0`
+  - [ ] Submit PR (`contrib/release/submit-release.sh`)
+  - [ ] Submit a PR that removes the 'stable' tag from the last stable branch.
 - [ ] Merge PR
 - [ ] Create and push *both* tags to GitHub (`vX.Y.0`, `X.Y.0`)
   - [ ] Pull latest branch locally and run `contrib/release/tag-release.sh`.
@@ -66,9 +68,6 @@ assignees: ''
         wait for the automatic checks to complete. Merge the PR.
 - [ ] Update helm charts
   - [ ] Pull latest branch locally into the cilium repository.
-  - [ ] Create helm charts artifacts for `vX.Y-dev` by following the
-      `README.md` in the charts repo and push these changes into the
-        helm repository
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
         [cilium helm release tool] for the `vX.Y.0` release. Make sure the
         generated helm charts point to the commit that contains the image
@@ -85,15 +84,10 @@ assignees: ''
   - [ ] Publish the release
 - [ ] Announce the release in #general on Slack (Use [@]channel for vX.Y.0)
 - [ ] Update Grafana dashboards
-  - [ ] Install the dashboards into a live cluster by following the
-        [Grafana install] steps.
-  - [ ] Export the dashboards by following the [Grafana export] guide.
-        Enable the "Export for sharing externally" option during export.
-  - [ ] Upload the dashboards to Grafana.com and populate the description,
-        README, icons, etc. by copying them from the previous release.
 
 ## Post-release
 
+- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst) for any features that changed status.
 - [ ] For new minor version update [security policy]
 - [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`
   - [ ] Make sure to update the `.github/maintainers-little-helper.yaml` so that
@@ -130,5 +124,3 @@ assignees: ''
 [cluster administration networking]: https://kubernetes.io/docs/concepts/cluster-administration/networking/
 [cluster administration addons]: https://kubernetes.io/docs/concepts/cluster-administration/addons/
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/conformance-gke.yaml
-[Grafana install]: https://docs.cilium.io/en/stable/gettingstarted/grafana/#install-metrics
-[Grafana export]: https://grafana.com/docs/grafana/latest/dashboards/export-import/

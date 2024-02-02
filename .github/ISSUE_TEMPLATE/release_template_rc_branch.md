@@ -162,6 +162,7 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 - [ ] Bump the development snapshot version in `README.rst` on the main branch
       to point to this release
 - [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`.
+- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst) for any features that changed status.
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
 [release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
