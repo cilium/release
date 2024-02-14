@@ -86,6 +86,8 @@ assignees: ''
         the `auto-label` field. See [5b4934284d](https://github.com/cilium/cilium/commit/5b4934284dd525399aacec17c137811df9cf0f8b)
         for reference.
       - Rewrite the CODEOWNERS file. See [97daf56221](https://github.com/cilium/cilium/commit/97daf5622197d0cdda003a3f693e6e5a61038884)
+      - Replace references to `bpf-next-*` lvh images in workflows with the newest LTS kernel from [quay.io](https://quay.io/repository/lvh-images/kind?tab=tags&tag=latest).
+        `grep -R bpf-next- .github/workflows/`
     - [ ] Review the diff for this commit compared to the preparation commit
           for the previous stable branch.
     - [ ] Push a PR with those changes:
