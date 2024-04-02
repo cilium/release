@@ -17,6 +17,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 
@@ -71,13 +72,10 @@ func main() {
 		return
 	}
 
-	printer := func(msg string) {
-		fmt.Fprintf(os.Stderr, msg)
-	}
-	cl, err := changelog.GenerateReleaseNotes(globalCtx, ghClient, printer, cfg)
+	logger := log.New(os.Stderr, "", 0)
+	cl, err := changelog.GenerateReleaseNotes(globalCtx, ghClient, logger, cfg)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(-1)
+		logger.Fatalf("%s\n", err)
 	}
 	cl.PrintReleaseNotes()
 }
