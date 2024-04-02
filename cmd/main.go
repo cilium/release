@@ -31,18 +31,17 @@ import (
 var (
 	cfg               changelog.Config
 	globalCtx, cancel = context.WithCancel(context.Background())
+	logger            = log.New(os.Stderr, "", 0)
 
 	rootCmd = &cobra.Command{
 		Use:          "release",
 		Short:        "release -- Prepare a Cilium release",
 		SilenceUsage: true,
 		Run: func(cmd *cobra.Command, args []string) {
-			logger := log.New(os.Stderr, "", 0)
 			if err := cfg.Sanitize(); err != nil {
 				cmd.Usage()
 				logger.Fatalf("\nFailed to validate configuration: %s", err)
 			}
-			go signals()
 			run(logger)
 		},
 	}
@@ -50,6 +49,10 @@ var (
 
 func init() {
 	addFlags(rootCmd)
+	rootCmd.AddCommand(
+		changelog.Command(globalCtx, logger),
+	)
+	go signals()
 }
 
 func addFlags(cmd *cobra.Command) {
