@@ -17,6 +17,7 @@ package changelog
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"sort"
 	"strings"
@@ -89,12 +90,13 @@ func (cfg Config) Sanitize() error {
 
 type ChangeLog struct {
 	Config
+	Logger *log.Logger
 
 	prsWithUpstream types.BackportPRs
 	listOfPrs       types.PullRequests
 }
 
-func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, printer func(string), cfg Config) (*ChangeLog, error) {
+func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger *log.Logger, cfg Config) (*ChangeLog, error) {
 	var (
 		backportPRs = types.BackportPRs{}
 		listOfPRs   = types.PullRequests{}
@@ -102,7 +104,7 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, printe
 	)
 
 	if _, err := os.Stat(cfg.StateFile); err == nil {
-		printer("Found state file, resuming from stored state\n")
+		logger.Printf("Found state file, resuming from stored state\n")
 
 		var err error
 		backportPRs, listOfPRs, shas, err = persistence.LoadState(cfg.StateFile)
@@ -114,7 +116,7 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, printe
 		prevHead := ""
 
 		for {
-			printer("Comparing " + cfg.Base + "..." + cfg.Head + "\n")
+			logger.Printf("Comparing " + cfg.Base + "..." + cfg.Head + "\n")
 			cc, _, err := ghClient.Repositories.CompareCommits(globalCtx, cfg.Owner, cfg.Repo, cfg.Base, cfg.Head, &gh.ListOptions{})
 			if err != nil {
 				return nil, fmt.Errorf("Unable to compare commits %s %s: %w\n", cfg.Base, cfg.Head, err)
@@ -153,27 +155,29 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, printe
 		}
 	}
 
-	printer(fmt.Sprintf("Found %d commits!\n", len(shas)))
+	logger.Printf("Found %d commits!\n", len(shas))
 
-	prsWithUpstream, listOfPrs, leftShas, err := github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, printer, backportPRs, listOfPRs, shas)
+	output := func(foo string) { logger.Println(foo) }
+	prsWithUpstream, listOfPrs, leftShas, err := github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, output, backportPRs, listOfPRs, shas)
 	fmt.Println()
 	if err != nil {
-		printer(fmt.Sprintf("Storing state in %s before exiting due to error...\n", cfg.StateFile))
+		logger.Printf("Storing state in %s before exiting due to error...\n", cfg.StateFile)
 	}
 	err2 := persistence.StoreState(cfg.StateFile, prsWithUpstream, listOfPrs, leftShas)
 	if err2 == nil {
-		printer(fmt.Sprintf("State stored successful in %s, please use --state-file=%s in the next run to continue\n", cfg.StateFile, cfg.StateFile))
+		logger.Printf("State stored successful in %s, please use --state-file=%s in the next run to continue\n", cfg.StateFile, cfg.StateFile)
 	} else {
-		printer(fmt.Sprintf("Unable to store state: %s + \n", err2))
+		logger.Printf("Unable to store state: %s + \n", err2)
 	}
 	if err != nil {
 		return nil, fmt.Errorf("unable to retrieve PRs for commits: %w\n", err)
 	}
 
-	printer(fmt.Sprintf("\nFound %d PRs and %d backport PRs!\n\n", len(listOfPrs), len(prsWithUpstream)))
+	logger.Printf("\nFound %d PRs and %d backport PRs!\n\n", len(listOfPrs), len(prsWithUpstream))
 
 	return &ChangeLog{
 		Config:          cfg,
+		Logger:          logger,
 		prsWithUpstream: prsWithUpstream,
 		listOfPrs:       listOfPrs,
 	}, nil
@@ -243,7 +247,7 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 	if len(cl.listOfPrs) == 0 {
 		return
 	}
-	fmt.Fprintf(os.Stderr, "\n\033[1mNOTICE\033[0m: The following PRs were not included in the "+
+	cl.Logger.Printf("\n\033[1mNOTICE\033[0m: The following PRs were not included in the "+
 		"changelog as they were backported to branch %s and assumed to be already released.\n", cl.LastStable)
 
 	for _, releaseLabel := range releaseNotesOrder {
@@ -254,7 +258,7 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 				continue
 			}
 			if !printedReleaseNoteHeader {
-				fmt.Fprintf(os.Stderr, releaseNotes[releaseLabel])
+				cl.Logger.Printf(releaseNotes[releaseLabel])
 				printedReleaseNoteHeader = true
 			}
 			changelogItems = append(
@@ -267,7 +271,7 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 			return strings.ToLower(changelogItems[i]) < strings.ToLower(changelogItems[j])
 		})
 		for _, changeLogItem := range changelogItems {
-			fmt.Fprintf(os.Stderr, changeLogItem)
+			cl.Logger.Printf(changeLogItem)
 		}
 	}
 }
