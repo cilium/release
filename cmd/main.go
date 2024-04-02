@@ -52,6 +52,7 @@ func init() {
 	addFlags(rootCmd)
 	rootCmd.AddCommand(
 		changelog.Command(globalCtx, logger),
+		projects.Command(globalCtx, logger),
 	)
 	go signals()
 }
