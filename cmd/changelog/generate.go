@@ -47,56 +47,15 @@ var releaseNotesOrder = []string{
 	"release-note/none",
 }
 
-type Config struct {
-	Base       string
-	Head       string
-	LastStable string
-	StateFile  string
-	RepoName   string
-	Owner      string
-	Repo       string
-	CurrVer    string
-	NextVer    string
-
-	// ForceMovePending lets "pending" backports be moved from one project
-	// to another. By default this is set to false, since most commonly
-	// this is a mistake and the PR should have been previously marked as
-	// "backport-done".
-	ForceMovePending bool
-}
-
-func (cfg Config) Sanitize() error {
-	ownerRepo := strings.Split(cfg.RepoName, "/")
-	if len(ownerRepo) != 2 {
-		return fmt.Errorf("Invalid repo name: %s\n", cfg.RepoName)
-	}
-	cfg.Owner = ownerRepo[0]
-	cfg.Repo = ownerRepo[1]
-
-	if len(cfg.Base) == 0 && len(cfg.CurrVer) == 0 {
-		return fmt.Errorf("--base can't be empty\n")
-	}
-	if len(cfg.Head) == 0 && len(cfg.CurrVer) == 0 {
-		return fmt.Errorf("--head can't be empty\n")
-	}
-	if len(cfg.StateFile) == 0 {
-		return fmt.Errorf("--state-file can't be empty\n")
-	}
-	if strings.Contains(cfg.LastStable, "v") {
-		return fmt.Errorf("--last-stable can't contain letters, should be of the format 'x.y'\n")
-	}
-	return nil
-}
-
 type ChangeLog struct {
-	Config
+	ChangeLogConfig
 	Logger *log.Logger
 
 	prsWithUpstream types.BackportPRs
 	listOfPrs       types.PullRequests
 }
 
-func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger *log.Logger, cfg Config) (*ChangeLog, error) {
+func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger *log.Logger, cfg ChangeLogConfig) (*ChangeLog, error) {
 	var (
 		backportPRs = types.BackportPRs{}
 		listOfPRs   = types.PullRequests{}
@@ -176,7 +135,7 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 	logger.Printf("\nFound %d PRs and %d backport PRs!\n\n", len(listOfPrs), len(prsWithUpstream))
 
 	return &ChangeLog{
-		Config:          cfg,
+		ChangeLogConfig: cfg,
 		Logger:          logger,
 		prsWithUpstream: prsWithUpstream,
 		listOfPrs:       listOfPrs,
