@@ -24,12 +24,13 @@ import (
 	"github.com/cilium/release/cmd/changelog"
 	"github.com/cilium/release/cmd/projects"
 	"github.com/cilium/release/pkg/github"
+	"github.com/cilium/release/pkg/types"
 
 	"github.com/spf13/cobra"
 )
 
 var (
-	cfg               changelog.Config
+	cfg               Config
 	globalCtx, cancel = context.WithCancel(context.Background())
 	logger            = log.New(os.Stderr, "", 0)
 
@@ -53,6 +54,34 @@ func init() {
 		changelog.Command(globalCtx, logger),
 	)
 	go signals()
+}
+
+type Config struct {
+	types.CommonConfig
+	changelog.ChangeLogConfig
+	projects.ProjectsConfig
+}
+
+// Sanitize runs the sanitization logic for the older functions that were
+// always run as part of a bare './release' command. When we deprecate using
+// this command directly in favour of using the subcommands, we can remove the
+// extra hacks to sanitize the settings here.
+func (cfg *Config) Sanitize() error {
+	for _, ccfg := range []*types.CommonConfig{
+		&cfg.ChangeLogConfig.CommonConfig,
+		&cfg.ProjectsConfig.CommonConfig,
+	} {
+		*ccfg = cfg.CommonConfig
+	}
+	for _, fn := range []func() error{
+		cfg.ChangeLogConfig.Sanitize,
+		cfg.ProjectsConfig.Sanitize,
+	} {
+		if err := fn(); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func addFlags(cmd *cobra.Command) {
@@ -92,7 +121,7 @@ func run(logger *log.Logger) {
 		return
 	}
 
-	cl, err := changelog.GenerateReleaseNotes(globalCtx, ghClient, logger, cfg)
+	cl, err := changelog.GenerateReleaseNotes(globalCtx, ghClient, logger, cfg.ChangeLogConfig)
 	if err != nil {
 		logger.Fatalf("%s\n", err)
 	}
