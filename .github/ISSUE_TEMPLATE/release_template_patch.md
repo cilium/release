@@ -116,7 +116,7 @@ assignees: ''
 
 [GitHub PAT tracker]: https://github.com/orgs/community/discussions/36441
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
-[release blockers]: https://github.com/cilium/cilium/issues?q=label%3Arelease-blocker%2FX.Y+label%3Aneeds-backport%2FX.Y
+[release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
 [backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+draft%3Afalse+label%3Abackport%2FX.Y
 [Cilium release-notes tool]: https://github.com/cilium/release
 [Cilium charts]: https://github.com/cilium/charts
