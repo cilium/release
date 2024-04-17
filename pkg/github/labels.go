@@ -15,10 +15,12 @@
 package github
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
-	gh "github.com/google/go-github/v50/github"
+	gh "github.com/google/go-github/v62/github"
+	"golang.org/x/mod/semver"
 )
 
 const (
@@ -149,4 +151,27 @@ func parseGHLabels(ghLabels []*gh.Label) []string {
 		lbls = append(lbls, prLabel.GetName())
 	}
 	return lbls
+}
+
+const (
+	releaseBlockerPrefix = "release-blocker/"
+	backportDonePrefix   = "backport-done/"
+	backportPrefix       = "backport/"
+)
+
+func ReleaseBlockerLabel(version string) string {
+	return fmt.Sprintf("%s%s", releaseBlockerPrefix, MajorMinorErsion(version))
+}
+
+func BackportDoneLabel(version string) string {
+	return fmt.Sprintf("%s%s", backportDonePrefix, MajorMinorErsion(version))
+}
+
+func BackportLabel(version string) string {
+	return fmt.Sprintf("%s%s", backportPrefix, MajorMinorErsion(version))
+}
+
+func MajorMinorErsion(version string) string {
+	majorMinorVersion := semver.MajorMinor(version)
+	return strings.TrimPrefix(majorMinorVersion, "v")
 }

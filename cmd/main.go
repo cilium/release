@@ -24,6 +24,7 @@ import (
 	"github.com/cilium/release/cmd/changelog"
 	"github.com/cilium/release/cmd/checklist"
 	"github.com/cilium/release/cmd/projects"
+	"github.com/cilium/release/cmd/release"
 	"github.com/cilium/release/pkg/github"
 	"github.com/cilium/release/pkg/types"
 
@@ -55,6 +56,7 @@ func init() {
 		changelog.Command(globalCtx, logger),
 		projects.Command(globalCtx, logger),
 		checklist.Command(globalCtx, logger),
+		release.Command(globalCtx, logger),
 	)
 	go signals()
 }
