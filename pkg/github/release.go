@@ -20,7 +20,7 @@ import (
 	"slices"
 	"time"
 
-	gh "github.com/google/go-github/v50/github"
+	gh "github.com/google/go-github/v62/github"
 
 	"github.com/cilium/release/pkg/types"
 )
@@ -63,11 +63,8 @@ func GeneratePatchRelease(
 		foundPR := false
 		for {
 			ctxWithTimeout, cancel := context.WithTimeout(ctx, 45*time.Second)
-			prs, resp, err := ghClient.PullRequests.ListPullRequestsWithCommit(ctxWithTimeout, owner, repo, sha, &gh.PullRequestListOptions{
-				State: "closed",
-				ListOptions: gh.ListOptions{
-					Page: page,
-				},
+			prs, resp, err := ghClient.PullRequests.ListPullRequestsWithCommit(ctxWithTimeout, owner, repo, sha, &gh.ListOptions{
+				Page: page,
 			})
 			cancel()
 			if err != nil {
