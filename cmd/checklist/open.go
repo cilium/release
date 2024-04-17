@@ -12,7 +12,7 @@ import (
 	"github.com/cilium/release/pkg/github"
 	"github.com/cilium/release/pkg/types"
 
-	gh "github.com/google/go-github/v50/github"
+	gh "github.com/google/go-github/v62/github"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
 )

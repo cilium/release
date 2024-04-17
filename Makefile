@@ -10,7 +10,7 @@ tests:
 
 .PHONY: release
 release:
-	CGO_ENABLED=0 go build -mod=vendor -a -installsuffix cgo -o $@ ./cmd/main.go
+	CGO_ENABLED=0 go build -mod=vendor -o $@ ./cmd/main.go
 
 .PHONY: local
 local: release

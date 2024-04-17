@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	gh "github.com/google/go-github/v50/github"
+	gh "github.com/google/go-github/v62/github"
 	"golang.org/x/mod/semver"
 )
 
@@ -73,7 +73,7 @@ func assembleVersionSubstitutions(version string) ([]string, error) {
 		version = versionSub[p]
 		result = append(result, p)
 		result = append(result, strings.TrimPrefix(version, "v"))
-		//fmt.Fprintf(os.Stderr, "Replacing %q with %q...\n", p, version)
+		// fmt.Fprintf(os.Stderr, "Replacing %q with %q...\n", p, version)
 	}
 
 	return result, nil
