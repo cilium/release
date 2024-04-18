@@ -24,6 +24,9 @@ var cfg ReleaseConfig
 type ReleaseConfig struct {
 	types.CommonConfig
 
+	QuayOrg  string
+	QuayRepo string
+
 	TargetVer string
 	DryRun    bool
 	Force     bool
@@ -61,6 +64,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 
 			steps := []Step{
 				NewCheckReleaseBlockers(&cfg),
+				NewImageCVE(&cfg),
 			}
 
 			for i, step := range steps {
@@ -86,6 +90,8 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd.Flags().StringVar(&cfg.RepoName, "repo", "cilium/cilium", "GitHub organization and repository names separated by a slash")
 	cmd.Flags().BoolVar(&cfg.DryRun, "dry-run", false, "Print the template, but do not open an issue on GitHub")
 	cmd.Flags().BoolVar(&cfg.Force, "force", false, "Say yes to all prompts.")
+	cmd.Flags().StringVar(&cfg.QuayOrg, "quay-org", "cilium", "Quay.io organization to check for image vulnerabilities")
+	cmd.Flags().StringVar(&cfg.QuayRepo, "quay-repo", "cilium-ci", "Quay.io repository to check for image vulnerabilities")
 
 	for _, flag := range []string{"target-version", "template"} {
 		cobra.MarkFlagRequired(cmd.Flags(), flag)
