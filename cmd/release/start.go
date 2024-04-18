@@ -65,6 +65,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 			steps := []Step{
 				NewCheckReleaseBlockers(&cfg),
 				NewImageCVE(&cfg),
+				NewProjectsManagement(&cfg),
 			}
 
 			for i, step := range steps {

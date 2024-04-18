@@ -5,6 +5,7 @@ go 1.21
 toolchain go1.22.0
 
 require (
+	github.com/Masterminds/semver v1.5.0
 	github.com/google/go-github/v62 v62.0.0
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
