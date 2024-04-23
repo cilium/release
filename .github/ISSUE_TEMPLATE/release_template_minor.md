@@ -93,6 +93,10 @@ assignees: ''
   - [ ] Make sure to update the `.github/maintainers-little-helper.yaml` so that
         upcoming PRs are tracked correctly for the next release.
   - [ ] Bump the main testsuite to upgrade from vX.Y branch to main
+  - [ ] `echo X.Y.0 > stable.txt`.
+  - [ ] `echo '{"results":[{"slug":"vX.Y"}]}' > Documentation/_static/stable-version.json`.
+  - [ ] Commit / amend the commit to add all of the changes above and push the PR.
+  - [ ] Merge the post-release PR.
 - [ ] Notify #development on Slack that deprecated features may now be removed.
 - [ ] This is the list of links for known external installers that depend on
       the release process. Ideally, work toward updating external tools and
