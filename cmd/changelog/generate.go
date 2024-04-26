@@ -55,6 +55,17 @@ type ChangeLog struct {
 	listOfPrs       types.PullRequests
 }
 
+func filterCommit(cfg ChangeLogConfig, commit *gh.RepositoryCommit) bool {
+	for _, filter := range cfg.FileFilters {
+		for _, file := range commit.Files {
+			if strings.HasPrefix(file.GetFilename(), filter) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger *log.Logger, cfg ChangeLogConfig) (*ChangeLog, error) {
 	var (
 		backportPRs = types.BackportPRs{}
@@ -104,7 +115,19 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 			// since it's already stored in the list of SHAs and continue
 			for i := start; i != 0; i-- {
 				sha := cc.Commits[i].GetSHA()
-				if sha != "" {
+				includeCommit := false
+				if len(cfg.FileFilters) == 0 {
+					includeCommit = true
+				} else {
+					commit, _, err := ghClient.Repositories.GetCommit(globalCtx, cfg.Owner, cfg.Repo, cc.Commits[i].GetSHA(), &gh.ListOptions{})
+					if err != nil {
+						includeCommit = true
+						fmt.Println("Failed to get commit. struggle", err)
+					} else {
+						includeCommit = filterCommit(cfg, commit)
+					}
+				}
+				if sha != "" && includeCommit {
 					shas = append(shas, sha)
 				}
 			}
