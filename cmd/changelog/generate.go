@@ -17,12 +17,13 @@ package changelog
 import (
 	"context"
 	"fmt"
-	"log"
+	"io"
 	"os"
 	"sort"
 	"strings"
 
 	gh "github.com/google/go-github/v62/github"
+	"github.com/schollz/progressbar/v3"
 
 	"github.com/cilium/release/pkg/github"
 	"github.com/cilium/release/pkg/persistence"
@@ -49,13 +50,18 @@ var releaseNotesOrder = []string{
 
 type ChangeLog struct {
 	ChangeLogConfig
-	Logger *log.Logger
+	Logger Printer
 
 	prsWithUpstream types.BackportPRs
 	listOfPrs       types.PullRequests
 }
 
-func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger *log.Logger, cfg ChangeLogConfig) (*ChangeLog, error) {
+type Printer interface {
+	Printf(format string, v ...any)
+	Println(v ...any)
+}
+
+func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger Printer, cfg ChangeLogConfig) (*ChangeLog, error) {
 	var (
 		backportPRs = types.BackportPRs{}
 		listOfPRs   = types.PullRequests{}
@@ -115,10 +121,12 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 	}
 
 	logger.Printf("Found %d commits!\n", len(shas))
+	bar := progressbar.Default(int64(len(shas)), "Preparing Changelog file")
+	defer bar.Finish()
 
 	output := func(foo string) { logger.Println(foo) }
-	prsWithUpstream, listOfPrs, leftShas, err := github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, output, backportPRs, listOfPRs, shas, cfg.LabelFilters)
-	fmt.Println()
+	prsWithUpstream, listOfPrs, leftShas, err := github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, bar, output, backportPRs, listOfPRs, shas, cfg.LabelFilters)
+	logger.Println()
 	if err != nil {
 		logger.Printf("Storing state in %s before exiting due to error...\n", cfg.StateFile)
 	}
@@ -132,7 +140,8 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 		return nil, fmt.Errorf("unable to retrieve PRs for commits: %w\n", err)
 	}
 
-	logger.Printf("\nFound %d PRs and %d backport PRs!\n\n", len(listOfPrs), len(prsWithUpstream))
+	logger.Printf("\n")
+	logger.Printf("Found %d PRs and %d backport PRs!\n\n", len(listOfPrs), len(prsWithUpstream))
 
 	return &ChangeLog{
 		ChangeLogConfig: cfg,
@@ -142,9 +151,9 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 	}, nil
 }
 
-func (cl *ChangeLog) PrintReleaseNotes() {
-	fmt.Println("Summary of Changes")
-	fmt.Println("------------------")
+func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
+	fmt.Fprintln(w, "Summary of Changes")
+	fmt.Fprintln(w, "------------------")
 
 	for _, releaseLabel := range releaseNotesOrder {
 		var changelogItems []string
@@ -155,8 +164,8 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 					continue
 				}
 				if !printedReleaseNoteHeader {
-					fmt.Println()
-					fmt.Println(releaseNotes[releaseLabel])
+					fmt.Fprintln(w)
+					fmt.Fprintln(w, releaseNotes[releaseLabel])
 					printedReleaseNoteHeader = true
 				}
 
@@ -184,8 +193,8 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 				}
 			}
 			if !printedReleaseNoteHeader {
-				fmt.Println()
-				fmt.Println(releaseNotes[releaseLabel])
+				fmt.Fprintln(w)
+				fmt.Fprintln(w, releaseNotes[releaseLabel])
 				printedReleaseNoteHeader = true
 			}
 
@@ -199,7 +208,7 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 			return strings.ToLower(changelogItems[i]) < strings.ToLower(changelogItems[j])
 		})
 		for _, changeLogItem := range changelogItems {
-			fmt.Println(changeLogItem)
+			fmt.Fprintln(w, changeLogItem)
 		}
 	}
 
@@ -233,4 +242,8 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 			cl.Logger.Printf(changeLogItem)
 		}
 	}
+}
+
+func (cl *ChangeLog) PrintReleaseNotes() {
+	cl.PrintReleaseNotesForWriter(os.Stdout)
 }

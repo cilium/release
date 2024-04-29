@@ -27,9 +27,12 @@ type ReleaseConfig struct {
 	QuayOrg  string
 	QuayRepo string
 
-	TargetVer string
-	DryRun    bool
-	Force     bool
+	TargetVer     string
+	DryRun        bool
+	Force         bool
+	RepoDirectory string
+	ProjectNumber int
+	StateFile     string
 }
 
 func (cfg *ReleaseConfig) Sanitize() error {
@@ -66,6 +69,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 				NewCheckReleaseBlockers(&cfg),
 				NewImageCVE(&cfg),
 				NewProjectsManagement(&cfg),
+				NewPrepareCommit(&cfg),
 			}
 
 			for i, step := range steps {
@@ -93,6 +97,8 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd.Flags().BoolVar(&cfg.Force, "force", false, "Say yes to all prompts.")
 	cmd.Flags().StringVar(&cfg.QuayOrg, "quay-org", "cilium", "Quay.io organization to check for image vulnerabilities")
 	cmd.Flags().StringVar(&cfg.QuayRepo, "quay-repo", "cilium-ci", "Quay.io repository to check for image vulnerabilities")
+	cmd.Flags().StringVar(&cfg.RepoDirectory, "repo-dir", "../cilium", "Directory with the source code of Cilium")
+	cmd.Flags().StringVar(&cfg.StateFile, "state-file", "release-state.json", "When set, it will use the already fetched information from a previous run")
 
 	for _, flag := range []string{"target-version", "template"} {
 		cobra.MarkFlagRequired(cmd.Flags(), flag)

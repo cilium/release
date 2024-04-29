@@ -21,6 +21,7 @@ import (
 	"time"
 
 	gh "github.com/google/go-github/v62/github"
+	"github.com/schollz/progressbar/v3"
 
 	"github.com/cilium/release/pkg/types"
 )
@@ -46,6 +47,7 @@ func GeneratePatchRelease(
 	ghClient *gh.Client,
 	owner string,
 	repo string,
+	bar *progressbar.ProgressBar,
 	printer func(msg string),
 	backportPRs types.BackportPRs,
 	listOfPRs types.PullRequests,
@@ -59,6 +61,7 @@ func GeneratePatchRelease(
 ) {
 
 	for i, sha := range commits {
+		bar.Add(1)
 		page := 0
 		foundPR := false
 		for {
@@ -72,8 +75,6 @@ func GeneratePatchRelease(
 			}
 
 			for _, pr := range prs {
-				printer(pr.GetHTMLURL())
-
 				_, ok := listOfPRs[pr.GetNumber()]
 				_, ok2 := backportPRs[pr.GetNumber()]
 				if ok || ok2 {
