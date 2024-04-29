@@ -44,14 +44,15 @@ type ProjectManagement struct {
 	cfg *ReleaseConfig
 }
 
-func (pm *ProjectManagement) findProjects(ctx context.Context, ghClient *gh.Client, curr, next string) (int64, int, int64, error) {
+func (pm *ProjectManagement) findProjects(ctx context.Context, ghClient *gh.Client, curr, next string) (int64, int, int64, int, error) {
 	projs, _, err := ghClient.Repositories.ListProjects(ctx, pm.cfg.Owner, pm.cfg.Repo, &gh.ProjectListOptions{State: "open"})
 	if err != nil {
-		return 0, 0, 0, err
+		return 0, 0, 0, 0, err
 	}
 	currentProjID := int64(-1)
 	currentProjNumber := int(-1)
 	nextProjID := int64(-1)
+	nextProjNumber := int(-1)
 	for _, proj := range projs {
 		if proj.GetName() == curr {
 			currentProjID = proj.GetID()
@@ -59,9 +60,10 @@ func (pm *ProjectManagement) findProjects(ctx context.Context, ghClient *gh.Clie
 		}
 		if proj.GetName() == next {
 			nextProjID = proj.GetID()
+			nextProjNumber = proj.GetNumber()
 		}
 	}
-	return currentProjID, currentProjNumber, nextProjID, nil
+	return currentProjID, currentProjNumber, nextProjID, nextProjNumber, nil
 }
 
 func (pm *ProjectManagement) findColumnIDs(ctx context.Context, ghClient *gh.Client, projID int64, ver string) (needs, pending, done int64, err error) {
@@ -277,7 +279,7 @@ func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, 
 	nextSemVerTargetVersion := semVerTarget.IncPatch()
 	nextTargetVersion := nextSemVerTargetVersion.String()
 
-	currProjID, currProjNumber, nextProjID, err := pm.findProjects(ctx, ghClient, targetVersion, nextTargetVersion)
+	currProjID, currProjNumber, nextProjID, nextProjNumber, err := pm.findProjects(ctx, ghClient, targetVersion, nextTargetVersion)
 	if err != nil {
 		return err
 	}
@@ -310,11 +312,10 @@ func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, 
 		nextDoneColumnID    = int64(-1)
 	)
 	if nextProjID == -1 {
-		var projNumber int
 		io.Fprintf(2, os.Stdout, "%sNext Project %s not found, creating it...\n", dryRunStrPrefix, nextTargetVersion)
 		// create project
 		if !dryRun {
-			nextProjID, projNumber, err = pm.createProject(ctx, ghClient, nextTargetVersion)
+			nextProjID, nextProjNumber, err = pm.createProject(ctx, ghClient, nextTargetVersion)
 			if err != nil {
 				return err
 			}
@@ -328,9 +329,9 @@ func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, 
 			}
 		}
 
-		nextTargetProjectURL := fmt.Sprintf(projectURL, pm.cfg.Owner, pm.cfg.Repo, projNumber)
+		nextTargetProjectURL := fmt.Sprintf(projectURL, pm.cfg.Owner, pm.cfg.Repo, nextProjNumber)
 		io.Fprintf(2, os.Stdout, "%sProject for %s - %s\n", dryRunStrPrefix, nextTargetVersion, nextTargetProjectURL)
-		io.Fprintf(2, os.Stdout, "%sCommand for release: start-release.sh %s %d\n", dryRunStrPrefix, targetVersion, projNumber)
+		io.Fprintf(2, os.Stdout, "%sCommand for release: start-release.sh %s %d\n", dryRunStrPrefix, targetVersion, nextProjNumber)
 	} else {
 		// get columns
 		nextNeedsColumnID, nextPendingColumnID, nextDoneColumnID, err = pm.findColumnIDs(ctx, ghClient, nextProjID, nextTargetVersion)
@@ -356,6 +357,7 @@ func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, 
 			}
 		}
 	}
+	cfg.ProjectNumber = nextProjNumber
 
 	// Move needs backport column cards to the correct columns
 	err = pm.syncCards(ctx, ghClient, dryRun, targetVersion, nextTargetVersion, currNeedsColumnID, nextNeedsColumnID, currDoneColumnID, nextPendingColumnID)
