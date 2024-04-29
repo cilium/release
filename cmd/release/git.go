@@ -66,6 +66,11 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 	localBranch := fmt.Sprintf("pr/prepare-%s", pc.cfg.TargetVer)
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
+	_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
+	if err != nil {
+		return err
+	}
+
 	_, err = execCommand(pc.cfg.RepoDirectory, "git", "checkout", "-b", localBranch, remoteBranch)
 	if err != nil {
 		return err
