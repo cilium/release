@@ -61,7 +61,7 @@ func SyncCommand(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd.Flags().StringVar(&cfg.CurrVer, "current-version", "", "Current version - the one being released")
 	cmd.Flags().StringVar(&cfg.NextVer, "next-dev-version", "", "Next version - the next development cycle")
 	cmd.Flags().StringVar(&cfg.RepoName, "repo", "cilium/cilium", "GitHub organization and repository names separated by a slash")
-	cmd.Flags().BoolVar(&cfg.ForceMovePending, "force-move-pending-backports", false, "Force move pending backports to the next version's project")
+	cmd.Flags().BoolVar(&cfg.ForceMovePending, "force-move-pending-backports", true, "Force move pending backports to the next version's project")
 
 	for _, flag := range []string{"current-version", "repo"} {
 		cobra.MarkFlagRequired(cmd.Flags(), flag)
