@@ -67,11 +67,8 @@ assignees: ''
   - [ ] Get someone to review the PR. Do not trigger the full CI suite, but
         wait for the automatic checks to complete. Merge the PR.
 - [ ] Update helm charts
-  - [ ] Pull latest branch locally into the cilium repository.
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
-        [cilium helm release tool] for the `vX.Y.0` release. Make sure the
-        generated helm charts point to the commit that contains the image
-        digests.
+        [cilium helm release tool] for the `vX.Y.0` release.
   - [ ] Check the output of the [chart workflow] and see if the test was
         successful.
 - [ ] Check [read the docs] configuration:
@@ -117,7 +114,7 @@ assignees: ''
 [releases]: https://github.com/cilium/cilium/releases
 [kops]: https://github.com/kubernetes/kops/
 [kubespray]: https://github.com/kubernetes-sigs/kubespray/
-[cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh
+[cilium helm release tool]: https://github.com/cilium/charts/blob/master/generate_helm_release.sh
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
 [read the docs]: https://readthedocs.org/projects/cilium/
 [active versions]: https://readthedocs.org/projects/cilium/versions/

@@ -125,11 +125,9 @@ assignees: ''
   - [ ] Get someone to review the PR. Do not trigger the full CI suite, but
         wait for the automatic checks to complete. Merge the PR.
 - [ ] Update helm charts
-  - [ ] Pull latest branch locally into the cilium repository.
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
         [cilium helm release tool] for the `vX.Y.Z-rc.W` release and push these
-        changes into the helm repository. Make sure the generated helm charts
-        point to the commit that contains the image digests.
+        changes into the helm repository.
   - [ ] Check the output of the [chart workflow] and see if the test was
         successful.
 - [ ] Check [read the docs] configuration:
@@ -169,7 +167,7 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Abackport%2FX.Y
 [Cilium charts]: https://github.com/cilium/charts
 [releases]: https://github.com/cilium/cilium/releases
-[cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh
+[cilium helm release tool]: https://github.com/cilium/charts/blob/master/generate_helm_release.sh
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
 [read the docs]: https://readthedocs.org/projects/cilium/
 [active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y.Z-rc.W

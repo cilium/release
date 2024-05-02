@@ -84,12 +84,10 @@ assignees: ''
   - [ ] Get someone to review the PR. Do not trigger the full CI suite, but
         wait for the automatic checks to complete. Merge the PR.
 - [ ] Update helm charts
-  - [ ] Pull latest branch locally into the cilium repository.
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
         [cilium helm release tool] for the `vX.Y.Z` release
-        and create a PR with these changes against the charts repository. Make
-        sure the generated helm charts point to the commit that contains the
-        image digests. Note: If you handle several patch releases at once,
+        and create a PR with these changes against the charts repository.
+        Note: If you handle several patch releases at once,
         create one PR per release, to make sure that the corresponding workflow
         action run for each commit. Wait for your PR to be merged before
         creating the other ones for other patch releases, or they will
@@ -121,6 +119,6 @@ assignees: ''
 [Cilium release-notes tool]: https://github.com/cilium/release
 [Cilium charts]: https://github.com/cilium/charts
 [releases]: https://github.com/cilium/cilium/releases
-[cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh
+[cilium helm release tool]: https://github.com/cilium/charts/blob/master/generate_helm_release.sh
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/conformance-gke.yaml
