@@ -84,7 +84,7 @@ func CreateIssue(ctx context.Context, ghClient *gh.Client, cfg ChecklistConfig, 
 		return fmt.Errorf("Failed to create release checklist: %w", err)
 	}
 
-	fmt.Fprintf(os.Stderr, "Created issue at %s", *res.URL)
+	fmt.Fprintf(os.Stderr, "Created issue at %s\n", *res.HTMLURL)
 
 	return nil
 }
