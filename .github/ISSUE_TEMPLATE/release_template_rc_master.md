@@ -57,8 +57,7 @@ assignees: ''
 - [ ] Update helm charts
   - [ ] Create helm charts artifacts in [Cilium charts] repository using
         [cilium helm release tool] for the `vX.Y.Z-rc.W` release and push
-        these changes into the helm repository. Make sure the generated helm
-        charts point to the commit that was tagged.
+        these changes into the helm repository.
   - [ ] Check the output of the [chart workflow] and see if the test was
         successful.
 - [ ] Check [read the docs] configuration:
@@ -96,7 +95,7 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [Cilium charts]: https://github.com/cilium/charts
 [Cilium Image Release builds]: https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22
 [releases]: https://github.com/cilium/cilium/releases
-[cilium helm release tool]: https://github.com/cilium/charts/blob/master/prepare_artifacts.sh
+[cilium helm release tool]: https://github.com/cilium/charts/blob/master/generate_helm_release.sh
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
 [read the docs]: https://readthedocs.org/projects/cilium/
 [active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y.Z-rc.W
