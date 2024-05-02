@@ -73,6 +73,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 				NewSubmitPR(&cfg),
 				// 2nd part
 				NewTagCommit(&cfg),
+				NewPostRelease(&cfg),
 			}
 
 			for i, step := range steps {
