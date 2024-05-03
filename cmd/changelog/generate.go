@@ -191,7 +191,7 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 
 			changelogItems = append(
 				changelogItems,
-				fmt.Sprintf("* %s (#%d, @%s)", pr.ReleaseNote, prID, pr.AuthorName),
+				fmt.Sprintf("* %s (%s#%d, @%s)", pr.ReleaseNote, cl.RepoName, prID, pr.AuthorName),
 			)
 			delete(cl.listOfPrs, prID)
 		}
@@ -222,7 +222,7 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 			}
 			changelogItems = append(
 				changelogItems,
-				fmt.Sprintf("* %s (#%d, @%s)", pr.ReleaseNote, prID, pr.AuthorName),
+				fmt.Sprintf("* %s (%s#%d, @%s)", pr.ReleaseNote, cl.RepoName, prID, pr.AuthorName),
 			)
 			delete(cl.listOfPrs, prID)
 		}
