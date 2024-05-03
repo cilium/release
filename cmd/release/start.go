@@ -27,12 +27,13 @@ type ReleaseConfig struct {
 	QuayOrg  string
 	QuayRepo string
 
-	TargetVer     string
-	DryRun        bool
-	Force         bool
-	RepoDirectory string
-	ProjectNumber int
-	StateFile     string
+	TargetVer         string
+	DryRun            bool
+	Force             bool
+	RepoDirectory     string
+	HelmRepoDirectory string
+	ProjectNumber     int
+	StateFile         string
 }
 
 func (cfg *ReleaseConfig) Sanitize() error {
@@ -75,6 +76,8 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 				NewTagCommit(&cfg),
 				NewPostRelease(&cfg),
 				NewSubmitPostReleasePR(&cfg),
+				// 3rd part
+				NewHelmChart(&cfg),
 			}
 
 			for i, step := range steps {
@@ -103,6 +106,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd.Flags().StringVar(&cfg.QuayOrg, "quay-org", "cilium", "Quay.io organization to check for image vulnerabilities")
 	cmd.Flags().StringVar(&cfg.QuayRepo, "quay-repo", "cilium-ci", "Quay.io repository to check for image vulnerabilities")
 	cmd.Flags().StringVar(&cfg.RepoDirectory, "repo-dir", "../cilium", "Directory with the source code of Cilium")
+	cmd.Flags().StringVar(&cfg.HelmRepoDirectory, "charts-repo-dir", "../charts", "Directory with the source code of Helm charts")
 	cmd.Flags().StringVar(&cfg.StateFile, "state-file", "release-state.json", "When set, it will use the already fetched information from a previous run")
 
 	for _, flag := range []string{"target-version", "template"} {
