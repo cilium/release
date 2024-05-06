@@ -117,7 +117,7 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 	logger.Printf("Found %d commits!\n", len(shas))
 
 	output := func(foo string) { logger.Println(foo) }
-	prsWithUpstream, listOfPrs, leftShas, err := github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, output, backportPRs, listOfPRs, shas)
+	prsWithUpstream, listOfPrs, leftShas, err := github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, output, backportPRs, listOfPRs, shas, cfg.LabelFilters)
 	fmt.Println()
 	if err != nil {
 		logger.Printf("Storing state in %s before exiting due to error...\n", cfg.StateFile)
