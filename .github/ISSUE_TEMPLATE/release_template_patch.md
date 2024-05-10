@@ -40,7 +40,7 @@ assignees: ''
       [this guide](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images).
 - [ ] Check with @cilium/security team if there are any security fixes to include
       in the release.
-- [ ] Execute `release --current-version X.Y.Z --next-dev-version X.Y.W` to
+- [ ] Execute `release projects sync --repo cilium/cilium --current-version X.Y.Z --next-dev-version X.Y.W` to
       automatically move any unresolved issues/PRs from old release project
       into the new project (`W` should be calculation of `Z+1`). The `release`
       binary is located in the [current repository][Cilium release-notes tool].
