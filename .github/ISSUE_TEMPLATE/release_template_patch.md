@@ -31,13 +31,6 @@ assignees: ''
 - [ ] Check that there are no [release blockers] for the targeted release version.
 - [ ] Ensure that outstanding [backport PRs] are merged (these may be skipped on
       case by case basis in coordination with the backporter).
-- [ ] Check whether the base images for the target stable branch need to be rebuilt.
-      See [quay.io/cilium/cilium-ci](https://quay.io/repository/cilium/cilium-ci?tab=tags)
-      and use the search box to filter for `v` to match branch versions.
-      If the target branch has CVEs listed as "fixable" under the "Security Scan"
-      column, then you need to update the runtime images.
-      If rebuild is required (for example due to CVEs reported in current images), follow
-      [this guide](https://docs.cilium.io/en/latest/contributing/development/images/#update-cilium-builder-and-cilium-runtime-images).
 - [ ] Check with @cilium/security team if there are any security fixes to include
       in the release.
 - [ ] Execute `release projects sync --repo cilium/cilium --current-version X.Y.Z --next-dev-version X.Y.W` to
