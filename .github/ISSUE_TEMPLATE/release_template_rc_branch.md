@@ -167,9 +167,9 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Abackport%2FX.Y
 [Cilium charts]: https://github.com/cilium/charts
 [releases]: https://github.com/cilium/cilium/releases
-[cilium helm release tool]: https://github.com/cilium/charts/blob/master/generate_helm_release.sh
+[cilium helm release tool]: https://github.com/cilium/charts/blob/master/RELEASE.md
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
 [read the docs]: https://readthedocs.org/projects/cilium/
 [active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y.Z-rc.W
 [docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
-[chart workflow]: https://github.com/cilium/charts/actions/workflows/conformance-gke.yaml
+[chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
