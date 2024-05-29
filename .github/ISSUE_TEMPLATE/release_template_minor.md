@@ -114,7 +114,7 @@ assignees: ''
 [releases]: https://github.com/cilium/cilium/releases
 [kops]: https://github.com/kubernetes/kops/
 [kubespray]: https://github.com/kubernetes-sigs/kubespray/
-[cilium helm release tool]: https://github.com/cilium/charts/blob/master/generate_helm_release.sh
+[cilium helm release tool]: https://github.com/cilium/charts/blob/master/RELEASE.md
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
 [read the docs]: https://readthedocs.org/projects/cilium/
 [active versions]: https://readthedocs.org/projects/cilium/versions/
@@ -124,4 +124,4 @@ assignees: ''
 [network policy]: https://kubernetes.io/docs/tasks/administer-cluster/network-policy-provider/cilium-network-policy/
 [cluster administration networking]: https://kubernetes.io/docs/concepts/cluster-administration/networking/
 [cluster administration addons]: https://kubernetes.io/docs/concepts/cluster-administration/addons/
-[chart workflow]: https://github.com/cilium/charts/actions/workflows/conformance-gke.yaml
+[chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml

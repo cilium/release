@@ -112,6 +112,6 @@ assignees: ''
 [Cilium release-notes tool]: https://github.com/cilium/release
 [Cilium charts]: https://github.com/cilium/charts
 [releases]: https://github.com/cilium/cilium/releases
-[cilium helm release tool]: https://github.com/cilium/charts/blob/master/generate_helm_release.sh
+[cilium helm release tool]: https://github.com/cilium/charts/blob/master/RELEASE.md
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
-[chart workflow]: https://github.com/cilium/charts/actions/workflows/conformance-gke.yaml
+[chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
