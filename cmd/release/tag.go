@@ -40,15 +40,19 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 		return err
 	}
 
-	// TODO REMOVE ME
-	remoteName = "origin"
 	_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
 	if err != nil {
 		return err
 	}
 
 	// Find release commit in the remote branch
-	branch := semver.MajorMinor(pc.cfg.TargetVer)
+	var branch string
+	// FIXME: also check if there isn't a branch already
+	if semver.Prerelease(pc.cfg.TargetVer) != "" {
+		branch = "main"
+	} else {
+		branch = semver.MajorMinor(pc.cfg.TargetVer)
+	}
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
 	commitTitle := fmt.Sprintf("^Prepare for release %s$", pc.cfg.TargetVer)
