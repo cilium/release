@@ -32,6 +32,7 @@ import (
 
 	semver2 "github.com/Masterminds/semver"
 	"github.com/cilium/release/cmd/changelog"
+	"github.com/cilium/release/pkg/github"
 	io2 "github.com/cilium/release/pkg/io"
 	gh "github.com/google/go-github/v62/github"
 	progressbar "github.com/schollz/progressbar/v3"
@@ -62,7 +63,16 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 	if err != nil {
 		return err
 	}
-	branch := semver.MajorMinor(pc.cfg.TargetVer)
+
+	var branch string
+	// FIXME: we need to check if it's a pre-release AND if we don't have a branch
+	// created
+	if semver.Prerelease(pc.cfg.TargetVer) != "" {
+		branch = "main"
+	} else {
+		branch = semver.MajorMinor(pc.cfg.TargetVer)
+	}
+
 	localBranch := fmt.Sprintf("pr/prepare-%s", pc.cfg.TargetVer)
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
@@ -135,8 +145,13 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 	}
 
 	// $DIR/../../Documentation/check-crd-compat-table.sh "$target_branch" --update
+	//
+	targetBranch := branch
+	if branch == "main" {
+		targetBranch = ""
+	}
 	io2.Fprintf(2, os.Stdout, "Updating check-crd-compat-table.sh\n")
-	_, err = execCommand(pc.cfg.RepoDirectory, "Documentation/check-crd-compat-table.sh", branch, "--update")
+	_, err = execCommand(pc.cfg.RepoDirectory, "Documentation/check-crd-compat-table.sh", targetBranch, "--update")
 	if err != nil {
 		return err
 	}
@@ -151,16 +166,39 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 	// Commit all changes
 	io2.Fprintf(2, os.Stdout, "Committing files\n")
 	commitFiles := []string{
-		".github/maintainers-little-helper.yaml",
 		"AUTHORS",
+		"Documentation/network/kubernetes/compatibility-table.rst",
+	}
+	// Create an "update authors and update docs" for pre-releases
+	if semver.Prerelease(pc.cfg.TargetVer) != "" {
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", append([]string{"add"}, commitFiles...)...)
+		if err != nil {
+			return err
+		}
+
+		commitMsg := fmt.Sprintf("update AUTHORS and Documentation")
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", "commit", "-sm", commitMsg)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Commit the remaining files for patch releases
+	commitFiles = append(commitFiles,
+		".github/maintainers-little-helper.yaml",
 		"CHANGELOG.md",
 		"Documentation/helm-values.rst",
-		"Documentation/network/kubernetes/compatibility-table.rst",
 		"VERSION",
-		"install/kubernetes/Makefile.digests",
 		"install/kubernetes/cilium/Chart.yaml",
 		"install/kubernetes/cilium/README.md",
 		"install/kubernetes/cilium/values.yaml",
+	)
+	// If it's not a prerelease, then add the branch-specific files.
+	// FIXME: check if this is a pre-release from main branch or not
+	if semver.Prerelease(pc.cfg.TargetVer) == "" {
+		commitFiles = append(commitFiles,
+			"install/kubernetes/Makefile.digests",
+		)
 	}
 	_, err = execCommand(pc.cfg.RepoDirectory, "git", append([]string{"add"}, commitFiles...)...)
 	if err != nil {
@@ -173,14 +211,61 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 		return err
 	}
 
+	// Revert the "Prepare for release" commit since that commit will only be
+	// used for a tag.
+	if semver.Prerelease(pc.cfg.TargetVer) != "" {
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", "revert", "-s", "--no-edit", "HEAD")
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
+func (pc *PrepareCommit) getTags(ctx context.Context, ghClient *gh.Client) ([]string, error) {
+	nextPage := 0
+	var repositoryTags []string
+	for {
+		tags, resp, err := ghClient.Repositories.ListTags(ctx, pc.cfg.Owner, pc.cfg.Repo, &gh.ListOptions{
+			Page: nextPage,
+		})
+		if err != nil {
+			return nil, err
+		}
+		nextPage = resp.NextPage
+		if nextPage == 0 {
+			break
+		}
+		for _, t := range tags {
+			repositoryTags = append(repositoryTags, t.GetName())
+		}
+	}
+	return repositoryTags, nil
+}
+
 func (pc *PrepareCommit) generateChangeLog(ctx context.Context, branch string, err error, ghClient *gh.Client) error {
-	semVerTarget := semver2.MustParse(pc.cfg.TargetVer)
-	// Decrement the patch version by one.
-	previousPatch := semVerTarget.Patch() - 1
-	previousPatchVersion := fmt.Sprintf("%s.%d", branch, previousPatch)
+	var previousPatchVersion string
+	if semver.Prerelease(pc.cfg.TargetVer) != "" {
+		allTags, err := pc.getTags(ctx, ghClient)
+		if err != nil {
+			return err
+		}
+
+		allTags = append(allTags, pc.cfg.TargetVer)
+
+		sortedTags, err := github.SortTags(allTags)
+		if err != nil {
+			return err
+		}
+
+		previousPatchVersion = github.PreviousTagOf(sortedTags, pc.cfg.TargetVer)
+	} else {
+		semVerTarget := semver2.MustParse(pc.cfg.TargetVer)
+		// Decrement the patch version by one.
+		previousPatch := semVerTarget.Patch() - 1
+		previousPatchVersion = fmt.Sprintf("%s.%d", branch, previousPatch)
+	}
 
 	o, err := execCommand(pc.cfg.RepoDirectory, "git", "rev-parse", "HEAD")
 	if err != nil {
@@ -224,7 +309,11 @@ func (pc *PrepareCommit) generateChangeLog(ctx context.Context, branch string, e
 	changelogFile := filepath.Join(pc.cfg.RepoDirectory, "CHANGELOG.md")
 	changelogContent, err := os.Open(changelogFile)
 	if err != nil {
-		return fmt.Errorf("error reading CHANGELOG.md file: %w", err)
+		if !os.IsNotExist(err) {
+			return fmt.Errorf("error reading CHANGELOG.md file: %w", err)
+		} else {
+			changelogContent, err = os.Create(changelogFile)
+		}
 	}
 	defer changelogContent.Close()
 
