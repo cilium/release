@@ -67,8 +67,10 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 			ghClient := github.NewClient(os.Getenv("GITHUB_TOKEN"))
 
 			steps := []Step{
+				// Pre-release
 				NewCheckReleaseBlockers(&cfg),
 				NewImageCVE(&cfg),
+				// 1st part
 				NewProjectsManagement(&cfg),
 				NewPrepareCommit(&cfg),
 				NewSubmitPR(&cfg),
