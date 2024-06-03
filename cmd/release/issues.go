@@ -31,6 +31,12 @@ func (c *CheckReleaseBlockers) Name() string {
 }
 
 func (c *CheckReleaseBlockers) Run(ctx context.Context, force, dryRun bool, ghClient *gh.Client) error {
+	if semver.Prerelease(c.cfg.TargetVer) != "" {
+		io.Fprintf(1, os.Stdout, "On Pre-Releases there aren't 'release blockers'."+
+			" Continuing with the release process.\n")
+		return nil
+	}
+
 	releaseBlockerLabel := github.ReleaseBlockerLabel(c.cfg.TargetVer)
 	backportDoneLabel := github.BackportDoneLabel(c.cfg.TargetVer)
 
