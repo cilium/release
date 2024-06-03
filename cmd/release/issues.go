@@ -69,10 +69,12 @@ func (c *CheckReleaseBlockers) Run(ctx context.Context, force, dryRun bool, ghCl
 		"and for closed GH Pull Requests with that same label that are not backported yet but got merged "+
 		"in the '%s' branch after '%s': \n"+
 		"   https://github.com/%s/%s/labels/%s\n"+
+		"   https://github.com/%s/%s/issues?q=is%%3Aopen+label:%s+-is%%3Adraft\n"+
 		"   https://github.com/%s/%s/issues?q=%s\n",
 		releaseBlockerLabel,
 		baseBranch,
 		releaseDate,
+		c.cfg.Owner, c.cfg.Repo, releaseBlockerLabel,
 		c.cfg.Owner, c.cfg.Repo, releaseBlockerLabel,
 		c.cfg.Owner, c.cfg.Repo,
 		url.PathEscape(prBlockedQuery))
@@ -205,7 +207,7 @@ func (c *CheckReleaseBlockers) checkGHBlockers(ctx context.Context, ghClient *gh
 	queries := []string{
 		// Check all GH issues and PRs that are opened with the release blocker label
 		fmt.Sprintf("is:open is:issue label:%s repo:%s/%s", releaseBlockerLabel, c.cfg.Owner, c.cfg.Repo),
-		fmt.Sprintf("is:open is:pull-request label:%s repo:%s/%s", releaseBlockerLabel, c.cfg.Owner, c.cfg.Repo),
+		fmt.Sprintf("is:open is:pull-request -is:draft label:%s repo:%s/%s", releaseBlockerLabel, c.cfg.Owner, c.cfg.Repo),
 		// Check all PRs that are closed to main, marked as a release blocked
 		// and haven't been backported yet.
 		prQuery,
