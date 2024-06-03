@@ -14,6 +14,7 @@ import (
 	semver2 "github.com/Masterminds/semver"
 	"github.com/cilium/release/pkg/io"
 	gh "github.com/google/go-github/v62/github"
+	"golang.org/x/mod/semver"
 )
 
 const (
@@ -266,6 +267,11 @@ func (pm *ProjectManagement) Name() string {
 }
 
 func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *gh.Client) error {
+	if semver.Prerelease(pm.cfg.TargetVer) != "" {
+		io.Fprintf(1, os.Stdout, "Pre-Releases don't have a project."+
+			" Continuing with the release process.\n")
+		return nil
+	}
 	var dryRunStrPrefix string
 	if dryRun {
 		dryRunStrPrefix = "[🙅 🙅 DRY RUN - OPERATION WILL NOT BE DONE 🙅 🙅] "
