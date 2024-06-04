@@ -29,6 +29,7 @@ type ReleaseConfig struct {
 
 	TargetVer         string
 	PreviousVer       string
+	RemoteBranchName  string
 	DryRun            bool
 	Force             bool
 	RepoDirectory     string
@@ -46,6 +47,12 @@ func (cfg *ReleaseConfig) Sanitize() error {
 		return fmt.Errorf("invalid --target-version=%s. Expected form 'vX.Y.Z(-rc.W|-pre.N)'", cfg.TargetVer)
 	}
 	return nil
+}
+
+// HasStableBranch returns true if there is a major.minor branch for the release
+// we are doing.
+func (cfg *ReleaseConfig) HasStableBranch() bool {
+	return cfg.RemoteBranchName != ""
 }
 
 type Step interface {
@@ -67,6 +74,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 
 			ghClient := github.NewClient(os.Getenv("GITHUB_TOKEN"))
 
+			// Auto detect previous version
 			if cfg.PreviousVer == "" {
 				previousVer, err := previousVersion(ctx, ghClient, cfg.Owner, cfg.Repo, cfg.TargetVer)
 				if err != nil {
@@ -86,6 +94,13 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 				}
 				cfg.PreviousVer = previousVer
 			}
+
+			remoteBranchName, err := getRemoteBranch(ctx, ghClient, cfg.Owner, cfg.Repo, cfg.TargetVer)
+			if err != nil {
+				return err
+			}
+
+			cfg.RemoteBranchName = remoteBranchName
 
 			steps := []Step{
 				// Pre-release

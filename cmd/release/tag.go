@@ -12,7 +12,6 @@ import (
 
 	io2 "github.com/cilium/release/pkg/io"
 	gh "github.com/google/go-github/v62/github"
-	"golang.org/x/mod/semver"
 )
 
 type TagCommit struct {
@@ -46,12 +45,9 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	}
 
 	// Find release commit in the remote branch
-	var branch string
-	// FIXME: also check if there isn't a branch already
-	if semver.Prerelease(pc.cfg.TargetVer) != "" {
+	branch := pc.cfg.RemoteBranchName
+	if !pc.cfg.HasStableBranch() {
 		branch = "main"
-	} else {
-		branch = semver.MajorMinor(pc.cfg.TargetVer)
 	}
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 

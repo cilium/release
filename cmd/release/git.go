@@ -34,7 +34,6 @@ import (
 	io2 "github.com/cilium/release/pkg/io"
 	gh "github.com/google/go-github/v62/github"
 	progressbar "github.com/schollz/progressbar/v3"
-	"golang.org/x/mod/semver"
 )
 
 type PrepareCommit struct {
@@ -62,13 +61,11 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 		return err
 	}
 
-	var branch string
-	// FIXME: we need to check if it's a pre-release AND if we don't have a branch
-	// created
-	if semver.Prerelease(pc.cfg.TargetVer) != "" {
+	// If we are doing a pre-release from the main branch then the remote
+	// branch doesn't exist.
+	branch := pc.cfg.RemoteBranchName
+	if !pc.cfg.HasStableBranch() {
 		branch = "main"
-	} else {
-		branch = semver.MajorMinor(pc.cfg.TargetVer)
 	}
 
 	localBranch := fmt.Sprintf("pr/prepare-%s", pc.cfg.TargetVer)
@@ -156,7 +153,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 
 	// $DIR/prep-changelog.sh "$old_version" "$version"
 	io2.Fprintf(2, os.Stdout, "Preparing Changelog\n")
-	err = pc.generateChangeLog(ctx, branch, err, ghClient)
+	err = pc.generateChangeLog(ctx, ghClient)
 	if err != nil {
 		return err
 	}
@@ -167,8 +164,9 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 		"AUTHORS",
 		"Documentation/network/kubernetes/compatibility-table.rst",
 	}
-	// Create an "update authors and update docs" for pre-releases
-	if semver.Prerelease(pc.cfg.TargetVer) != "" {
+	// Create an "update authors and update docs" but only pre-releases created
+	// from the main branch.
+	if !pc.cfg.HasStableBranch() {
 		_, err = execCommand(pc.cfg.RepoDirectory, "git", append([]string{"add"}, commitFiles...)...)
 		if err != nil {
 			return err
@@ -192,8 +190,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 		"install/kubernetes/cilium/values.yaml",
 	)
 	// If it's not a prerelease, then add the branch-specific files.
-	// FIXME: check if this is a pre-release from main branch or not
-	if semver.Prerelease(pc.cfg.TargetVer) == "" {
+	if pc.cfg.HasStableBranch() {
 		commitFiles = append(commitFiles,
 			"install/kubernetes/Makefile.digests",
 		)
@@ -211,7 +208,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 
 	// Revert the "Prepare for release" commit since that commit will only be
 	// used for a tag.
-	if semver.Prerelease(pc.cfg.TargetVer) != "" {
+	if !pc.cfg.HasStableBranch() {
 		_, err = execCommand(pc.cfg.RepoDirectory, "git", "revert", "-s", "--no-edit", "HEAD")
 		if err != nil {
 			return err
@@ -221,7 +218,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 	return nil
 }
 
-func (pc *PrepareCommit) generateChangeLog(ctx context.Context, branch string, err error, ghClient *gh.Client) error {
+func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *gh.Client) error {
 	previousPatchVersion := pc.cfg.PreviousVer
 
 	o, err := execCommand(pc.cfg.RepoDirectory, "git", "rev-parse", "HEAD")
