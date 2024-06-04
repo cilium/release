@@ -28,6 +28,7 @@ type ReleaseConfig struct {
 	QuayRepo string
 
 	TargetVer         string
+	PreviousVer       string
 	DryRun            bool
 	Force             bool
 	RepoDirectory     string
@@ -66,6 +67,26 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 
 			ghClient := github.NewClient(os.Getenv("GITHUB_TOKEN"))
 
+			if cfg.PreviousVer == "" {
+				previousVer, err := previousVersion(ctx, ghClient, cfg.Owner, cfg.Repo, cfg.TargetVer)
+				if err != nil {
+					return err
+				}
+
+				if !cfg.Force {
+					err = io.ContinuePrompt(
+						fmt.Sprintf("💡 The PREVIOUS released version was %s, continue?", previousVer),
+						"✋ Wrong version detected, stopping the release process",
+					)
+					if err != nil {
+						return err
+					}
+				} else {
+					io.Fprintf(0, os.Stdout, "💡 The PREVIOUS released version was %s\n", previousVer)
+				}
+				cfg.PreviousVer = previousVer
+			}
+
 			steps := []Step{
 				// Pre-release
 				NewCheckReleaseBlockers(&cfg),
@@ -102,6 +123,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&cfg.TargetVer, "target-version", "", "Target version to release")
+	cmd.Flags().StringVar(&cfg.PreviousVer, "previous-version", "", "Previous released version (manually specify if the auto detection doesn't work properly)")
 	cmd.Flags().StringVar(&cfg.RepoName, "repo", "cilium/cilium", "GitHub organization and repository names separated by a slash")
 	cmd.Flags().BoolVar(&cfg.DryRun, "dry-run", false, "Print the template, but do not open an issue on GitHub")
 	cmd.Flags().BoolVar(&cfg.Force, "force", false, "Say yes to all prompts.")
