@@ -30,9 +30,7 @@ import (
 	"sync"
 	"syscall"
 
-	semver2 "github.com/Masterminds/semver"
 	"github.com/cilium/release/cmd/changelog"
-	"github.com/cilium/release/pkg/github"
 	io2 "github.com/cilium/release/pkg/io"
 	gh "github.com/google/go-github/v62/github"
 	progressbar "github.com/schollz/progressbar/v3"
@@ -223,49 +221,8 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 	return nil
 }
 
-func (pc *PrepareCommit) getTags(ctx context.Context, ghClient *gh.Client) ([]string, error) {
-	nextPage := 0
-	var repositoryTags []string
-	for {
-		tags, resp, err := ghClient.Repositories.ListTags(ctx, pc.cfg.Owner, pc.cfg.Repo, &gh.ListOptions{
-			Page: nextPage,
-		})
-		if err != nil {
-			return nil, err
-		}
-		nextPage = resp.NextPage
-		if nextPage == 0 {
-			break
-		}
-		for _, t := range tags {
-			repositoryTags = append(repositoryTags, t.GetName())
-		}
-	}
-	return repositoryTags, nil
-}
-
 func (pc *PrepareCommit) generateChangeLog(ctx context.Context, branch string, err error, ghClient *gh.Client) error {
-	var previousPatchVersion string
-	if semver.Prerelease(pc.cfg.TargetVer) != "" {
-		allTags, err := pc.getTags(ctx, ghClient)
-		if err != nil {
-			return err
-		}
-
-		allTags = append(allTags, pc.cfg.TargetVer)
-
-		sortedTags, err := github.SortTags(allTags)
-		if err != nil {
-			return err
-		}
-
-		previousPatchVersion = github.PreviousTagOf(sortedTags, pc.cfg.TargetVer)
-	} else {
-		semVerTarget := semver2.MustParse(pc.cfg.TargetVer)
-		// Decrement the patch version by one.
-		previousPatch := semVerTarget.Patch() - 1
-		previousPatchVersion = fmt.Sprintf("%s.%d", branch, previousPatch)
-	}
+	previousPatchVersion := pc.cfg.PreviousVer
 
 	o, err := execCommand(pc.cfg.RepoDirectory, "git", "rev-parse", "HEAD")
 	if err != nil {

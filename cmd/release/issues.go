@@ -45,20 +45,7 @@ func (c *CheckReleaseBlockers) Run(ctx context.Context, force, dryRun bool, ghCl
 		return err
 	}
 
-	allTags, err := c.getTags(ctx, ghClient)
-	if err != nil {
-		return err
-	}
-
-	allTags = append(allTags, c.cfg.TargetVer)
-
-	sortedTags, err := github.SortTags(allTags)
-	if err != nil {
-		return err
-	}
-
-	previousTag := github.PreviousTagOf(sortedTags, c.cfg.TargetVer)
-	releaseDate, err := c.getTagReleaseDate(ctx, ghClient, previousTag)
+	releaseDate, err := c.getTagReleaseDate(ctx, ghClient, c.cfg.PreviousVer)
 	if err != nil {
 		return err
 	}
@@ -150,27 +137,6 @@ func (c *CheckReleaseBlockers) getBaseBranch(ctx context.Context, ghClient *gh.C
 		return "", fmt.Errorf("unable to get base branch for repository %s. The base branch is empty", c.cfg.RepoName)
 	}
 	return baseBranch, nil
-}
-
-func (c *CheckReleaseBlockers) getTags(ctx context.Context, ghClient *gh.Client) ([]string, error) {
-	nextPage := 0
-	var repositoryTags []string
-	for {
-		tags, resp, err := ghClient.Repositories.ListTags(ctx, c.cfg.Owner, c.cfg.Repo, &gh.ListOptions{
-			Page: nextPage,
-		})
-		if err != nil {
-			return nil, err
-		}
-		nextPage = resp.NextPage
-		if nextPage == 0 {
-			break
-		}
-		for _, t := range tags {
-			repositoryTags = append(repositoryTags, t.GetName())
-		}
-	}
-	return repositoryTags, nil
 }
 
 func (c *CheckReleaseBlockers) checkBackports(ctx context.Context, ghClient *gh.Client, query string) (bool, error) {
