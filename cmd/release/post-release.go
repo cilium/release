@@ -40,7 +40,14 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 	if err != nil {
 		return err
 	}
-	branch := semver.MajorMinor(pc.cfg.TargetVer)
+
+	var branch string
+	// FIXME: also check if there isn't a branch already
+	if semver.Prerelease(pc.cfg.TargetVer) != "" {
+		branch = "main"
+	} else {
+		branch = semver.MajorMinor(pc.cfg.TargetVer)
+	}
 	localBranch := fmt.Sprintf("pr/%s-digests", pc.cfg.TargetVer)
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
@@ -58,12 +65,16 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 	io2.Fprintf(2, os.Stdout, "⬇️ Fetching branch\n")
 
 	// TODO REMOVE ME
-	runURL := "https://github.com/cilium/cilium/actions/runs/8930294457"
+	runURL := "https://github.com/cilium/cilium/actions/runs/9357681504"
 
 	_, err = execCommand(pc.cfg.RepoDirectory, "./contrib/release/pull-docker-manifests.sh", runURL, pc.cfg.TargetVer)
 	if err != nil {
 		return err
 	}
+
+	// FIXME add support for pre-releases in here because we need to
+	// update-helm-values from the tagged commit, not from the reverted commit.
+
 	// Pull docker manifests from RUN URL
 	io2.Fprintf(2, os.Stdout, "⬇️ Fetching branch\n")
 	_, err = execCommand(pc.cfg.RepoDirectory, "make", "-C", "Documentation", "update-helm-values")
