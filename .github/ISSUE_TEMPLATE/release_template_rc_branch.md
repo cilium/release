@@ -94,7 +94,7 @@ assignees: ''
       - `git commit -sam "Prepare vX.Y stable branch"`
       - `gh pr create -B vX.Y`
 - [ ] Push a PR including the changes necessary for the new release:
-  - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rc.W`
+  - [ ] Run `../release/internal/start-release.sh vX.Y.Z-rc.W`
         Note that this script produces some files at the root of the Cilium
         repository, and that these files are required at a later step for
         tagging the release.
@@ -105,12 +105,12 @@ assignees: ''
         get the real names instead of GitHub usernames.
   - [ ] Add the generated `CHANGELOG.md` file and commit all remaining changes
         with the title `Prepare for release vX.Y.Z-rc.W`
-  - [ ] Submit PR (`contrib/release/submit-release.sh`)
+  - [ ] Submit PR (`../release/internal/submit-release.sh`)
 - [ ] Merge PR
 - [ ] Ping current top-hat that PRs can be merged again.
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z-rc.W`, `X.Y.Z-rc.W`)
   - Pull latest branch locally.
-  - Check out the release commit and run `contrib/release/tag-release.sh`
+  - Check out the release commit and run `../release/internal/tag-release.sh`
     against that commit.
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
@@ -119,7 +119,7 @@ assignees: ''
         `make -C install/kubernetes/ RELEASE=yes CILIUM_BRANCH=vX.Y check-docker-images`
 - [ ] Get the image digests from the build process and make a commit and PR with
       these digests.
-  - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
+  - [ ] Run `../release/internal/post-release.sh URL` to fetch the image
         digests and submit a PR to update these, use the `URL` of the GitHub
         run here
   - [ ] Get someone to review the PR. Do not trigger the full CI suite, but
@@ -159,7 +159,7 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 ```
 - [ ] Bump the development snapshot version in `README.rst` on the main branch
       to point to this release
-- [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`.
+- [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
 - [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst) for any features that changed status.
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags

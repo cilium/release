@@ -38,7 +38,7 @@ assignees: ''
   - [ ] Pull latest changes from the branch being released
   - [ ] The next step will generate a `CHANGELOG.md` that will not be correct.
         That is expected, and it is fixed with a follow-up step. Don't worry.
-  - [ ] Run `contrib/release/start-release.sh X.Y.0 <GH-PROJECT> X.Y-1`
+  - [ ] Run `../release/internal/start-release.sh X.Y.0 <GH-PROJECT> X.Y-1`
         Note that this script produces some files at the root of the Cilium
         repository, and that these files are required at a later step for
         tagging the release.
@@ -49,11 +49,11 @@ assignees: ''
   - [ ] Add the 'stable' tag as part of the GitHub workflow and remove the
         'stable' tag from the last stable branch.
   - [ ] Commit all changes with title `Prepare for release vX.Y.0`
-  - [ ] Submit PR (`contrib/release/submit-release.sh`)
+  - [ ] Submit PR (`../release/internal/submit-release.sh`)
   - [ ] Submit a PR that removes the 'stable' tag from the last stable branch.
 - [ ] Merge PR
 - [ ] Create and push *both* tags to GitHub (`vX.Y.0`, `X.Y.0`)
-  - [ ] Pull latest branch locally and run `contrib/release/tag-release.sh`.
+  - [ ] Pull latest branch locally and run `../release/internal/tag-release.sh`.
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
       [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
@@ -61,7 +61,7 @@ assignees: ''
         `make -C install/kubernetes/ check-docker-images`
 - [ ] Get the image digests from the build process and make a commit and PR with
       these digests.
-  - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
+  - [ ] Run `../release/internal/post-release.sh URL` to fetch the image
         digests and submit a PR to update these, use the `URL` of the GitHub
         run here
   - [ ] Get someone to review the PR. Do not trigger the full CI suite, but
@@ -86,7 +86,7 @@ assignees: ''
 
 - [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst) for any features that changed status.
 - [ ] For new minor version update [security policy]
-- [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`
+- [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`
   - [ ] Make sure to update the `.github/maintainers-little-helper.yaml` so that
         upcoming PRs are tracked correctly for the next release.
   - [ ] Bump the main testsuite to upgrade from vX.Y branch to main
