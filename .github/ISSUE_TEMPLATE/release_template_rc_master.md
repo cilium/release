@@ -24,7 +24,7 @@ assignees: ''
 - [ ] Change directory to the local copy of Cilium repository.
 - [ ] Check that there are no [release blockers] for the targeted release version
 - [ ] Push a PR including the changes necessary for the new release:
-  - [ ] Run `./contrib/release/start-release.sh vX.Y.Z-rc.W`
+  - [ ] Run `../release/internal/start-release.sh vX.Y.Z-rc.W`
         Note that this script produces some files at the root of the Cilium
         repository, and that these files are required at a later step for
         tagging the release.
@@ -34,7 +34,7 @@ assignees: ''
         previous step with title `update AUTHORS and Documentation`.
   - [ ] Add the generated `CHANGELOG.md` file and commit all remaining changes
         with the title `Prepare for release vX.Y.Z-rc.W`
-  - [ ] Submit PR (`contrib/release/submit-release.sh`)
+  - [ ] Submit PR (`../release/internal/submit-release.sh`)
   - [ ] Allow the CI to sanity-check the PR (GitHub actions are enough) and get
         review.
         Note that it's likely that the "helm-charts" will fail since the GH 
@@ -45,13 +45,13 @@ assignees: ''
 - [ ] Ping current top-hat that PRs can be merged again.
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z-rc.W`, `X.Y.Z-rc.W`)
   - Pull latest branch locally.
-  - Check out the commit before the revert and run `contrib/release/tag-release.sh`
+  - Check out the commit before the revert and run `../release/internal/tag-release.sh`
     against that commit.
 - [ ] Ask a maintainer to approve the build in the following link:
       [Cilium Image Release builds]
   - [ ] Check if all docker images are available before announcing the release:
         `make -C install/kubernetes/ RELEASE=yes CILIUM_BRANCH=main check-docker-images`
-  - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
+  - [ ] Run `../release/internal/post-release.sh URL` to fetch the image
         digests and submit draft release to the [releases] page. Use the `URL`
         of the GitHub run here.
 - [ ] Update helm charts
@@ -88,7 +88,7 @@ https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
 Thank you for the testing and contributing to the previous pre-releases. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
-- [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`.
+- [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
 
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
 [release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y

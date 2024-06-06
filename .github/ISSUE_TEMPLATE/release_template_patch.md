@@ -44,7 +44,7 @@ assignees: ''
 - [ ] Push a PR to cilium/cilium including the changes necessary for the new release:
   - [ ] Change directory to the local copy of cilium/cilium repository and pull latest
         changes from the branch being released
-  - [ ] Run `contrib/release/start-release.sh X.Y.Z N`, where `N` is the id of
+  - [ ] Run `../release/internal/start-release.sh X.Y.Z N`, where `N` is the id of
         the GitHub project created at the previous step. You can ignore
         warnings about commits with no related PR found.
         Note that this script produces some files at the root of the Cilium
@@ -54,7 +54,7 @@ assignees: ''
         generated files, such as release-state.json and vX.Y.Z-changes.txt
         should not be committed. Tip: use `git add -p` to review the changes and
         compare them with the previous release PR.
-  - [ ] Submit PR (`contrib/release/submit-release.sh`). Note that only the smoke tests
+  - [ ] Submit PR (`../release/internal/submit-release.sh`). Note that only the smoke tests
         need to succeed in order to merge this PR. Full e2e test runs are not required.
 - [ ] Merge PR
 - [ ] Ask a maintainer if there are any known issues that should hold up the release
@@ -63,7 +63,7 @@ assignees: ''
       the helm chart, users will face issues while trying out our documentation.
 - [ ] Create and push *both* tags to GitHub (`vX.Y.Z`, `X.Y.Z`)
   - [ ] Pull latest `upstream/vX.Y` branch locally
-  - [ ] Run `contrib/release/tag-release.sh`.
+  - [ ] Run `../release/internal/tag-release.sh`.
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
       [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
@@ -71,7 +71,7 @@ assignees: ''
         `make -C install/kubernetes/ check-docker-images`
 - [ ] Get the image digests from the build process and make a commit and PR with
       these digests.
-  - [ ] Run `contrib/release/post-release.sh URL` to fetch the image
+  - [ ] Run `../release/internal/post-release.sh URL` to fetch the image
         digests and submit a PR to update these, use the `URL` of the GitHub
         run here
   - [ ] Get someone to review the PR. Do not trigger the full CI suite, but
@@ -103,7 +103,7 @@ assignees: ''
 
 ## Post-release
 
-- [ ] Prepare post-release changes to main branch using `contrib/release/bump-readme.sh`.
+- [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
 
 [GitHub PAT tracker]: https://github.com/orgs/community/discussions/36441
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
