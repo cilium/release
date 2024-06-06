@@ -138,10 +138,10 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	}
 	remoteBranchName := strings.TrimSpace(string(commitShaRaw))
 
-	// hub api user --flat | awk '/.login/ {print $2}'
+	// gh api user --flat | jq -r '.login'
 	user, err := pipeCommands(ctx, false, pc.cfg.RepoDirectory,
-		"hub", []string{"api", "user", "--flat"},
-		"awk", []string{"/.login/ {print $2}"},
+		"gh", []string{"api", "user"},
+		"jq", []string{"-r '.login'"},
 	)
 	if err != nil {
 		return err
@@ -163,11 +163,11 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	}
 
 	_, err = execCommand(pc.cfg.RepoDirectory,
-		"hub",
-		"pull-request",
-		"-o",
-		"--no-edit",
-		"-b", baseBranch,
+		"gh",
+		"pr",
+		"create",
+		"-B",
+		baseBranch,
 		"-l", "backport/"+github.MajorMinorErsion(baseBranch))
 	if err != nil {
 		return err
