@@ -102,19 +102,38 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 
 			cfg.RemoteBranchName = remoteBranchName
 
+			// FIXME: check if docker is running before starting the release process
+
 			steps := []Step{
 				// Pre-release
+				// Audited
+				// Tested for pre-release
 				NewCheckReleaseBlockers(&cfg),
+				// Audited
+				// Tested for pre-release
 				NewImageCVE(&cfg),
 				// 1st part
+				// Audited
+				// Tested for pre-release
 				NewProjectsManagement(&cfg),
+				// Audited
+				// Tested for pre-release
 				NewPrepareCommit(&cfg),
+				// Audited
+				// Tested for pre-release
 				NewSubmitPR(&cfg),
 				// 2nd part
+				// Audited
+				// Tested for pre-release
 				NewTagCommit(&cfg),
-				NewPostRelease(&cfg),
-				NewSubmitPostReleasePR(&cfg),
 				// 3rd part
+				// Audited
+				// Tested for pre-release
+				NewPostRelease(&cfg),
+				// Audited
+				// Tested for pre-release
+				NewSubmitPostReleasePR(&cfg),
+				// 4th part
 				NewHelmChart(&cfg),
 			}
 
@@ -140,7 +159,9 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd.Flags().StringVar(&cfg.TargetVer, "target-version", "", "Target version to release")
 	cmd.Flags().StringVar(&cfg.PreviousVer, "previous-version", "", "Previous released version (manually specify if the auto detection doesn't work properly)")
 	cmd.Flags().StringVar(&cfg.RepoName, "repo", "cilium/cilium", "GitHub organization and repository names separated by a slash")
-	cmd.Flags().BoolVar(&cfg.DryRun, "dry-run", false, "Print the template, but do not open an issue on GitHub")
+	cmd.Flags().BoolVar(&cfg.DryRun, "dry-run", false, "If enabled, it will not perform irreversible operations into GitHub such as: "+
+		"syncing GH projects, pushing tags. All changes that are done locally as well as creating and pushing PRs "+
+		"are also considered reversible and therefore not affected by this flag's value.")
 	cmd.Flags().BoolVar(&cfg.Force, "force", false, "Say yes to all prompts.")
 	cmd.Flags().StringVar(&cfg.QuayOrg, "quay-org", "cilium", "Quay.io organization to check for image vulnerabilities")
 	cmd.Flags().StringVar(&cfg.QuayRepo, "quay-repo", "cilium-ci", "Quay.io repository to check for image vulnerabilities")
