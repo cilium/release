@@ -67,4 +67,4 @@ LABELS="kind/release"
 if [ "$BRANCH" != "main" ]; then
     LABELS="$LABELS,backport/$(echo $BRANCH | sed 's/^v//')"
 fi
-gh pr create -b "$BRANCH" -l "$LABELS" -F $SUMMARY -t "$(head -n 1 $SUMMARY)"
+gh pr create -B "$BRANCH" -l "$LABELS" -F $SUMMARY -t "$(head -n 1 $SUMMARY)"
