@@ -272,6 +272,9 @@ func (pm *ProjectManagement) SyncProjects(ctx context.Context, currVer, nextVer 
 		fmt.Fprintf(os.Stdout, "Next project %q not found, creating it...\n", nextVer)
 		// create project
 		nextProjID, projNumber, err = pm.createProject(ctx, nextVer)
+		if err != nil {
+			return err
+		}
 		fmt.Fprintf(os.Stdout, "Project created for %q, command for release: start-release.sh %s %d\n", nextVer, currVer, projNumber)
 
 		// create all 3 columns
