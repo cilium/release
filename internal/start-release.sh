@@ -103,7 +103,7 @@ main() {
         target_branch=$(echo "$old_version" | sed "$BRANCH_REGEX")
         old_branch="$target_branch"
     fi
-    $DIR/../../Documentation/check-crd-compat-table.sh "$target_branch" --update
+    Documentation/check-crd-compat-table.sh "$target_branch" --update
     if [ "${old_branch}" != "" ]; then
       $DIR/prep-changelog.sh "$old_version" "$version" "$old_branch"
     else
