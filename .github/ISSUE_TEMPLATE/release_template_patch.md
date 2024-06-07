@@ -23,29 +23,20 @@ assignees: ''
 
 ## Pre-release
 
-- [ ] Announce in Cilium slack channel #launchpad: `Starting vX.Y.Z release process :ship:`
-  - [ ] Create a thread for that message and ping the current backporter to merge the
-        outstanding [backport PRs] and stop merging any new backport PRs until the release
-        process is complete (to avoid generating incomplete release notes).
-- [ ] Change directory to the local copy of cilium/release repository.
+- [ ] When you create a GitHub issue using this issue template, GitHub Slack app posts a
+      message in #launchpad Slack channel. Create a thread for that message and ping the
+      current backporter to merge the outstanding [backport PRs] and stop merging any new
+      backport PRs until the GitHub issue is closed (to avoid generating incomplete
+      release notes).
 - [ ] Check that there are no [release blockers] for the targeted release version.
 - [ ] Ensure that outstanding [backport PRs] are merged (these may be skipped on
       case by case basis in coordination with the backporter).
 - [ ] Check with @cilium/security team if there are any security fixes to include
       in the release.
-- [ ] Execute `release projects sync --repo cilium/cilium --current-version X.Y.Z --next-dev-version X.Y.W` to
-      automatically move any unresolved issues/PRs from old release project
-      into the new project (`W` should be calculation of `Z+1`). The `release`
-      binary is located in the [current repository][Cilium release-notes tool].
-  - [ ] Check through the list of PRs in the output for any old, unmerged/closed PRs with
-        lingering `needs-backport` labels. Remove the label from any PRs that are no longer
-        valid and need backporting. Remove the PR from the new Github Project created for
-        the next release.
 - [ ] Push a PR to cilium/cilium including the changes necessary for the new release:
   - [ ] Change directory to the local copy of cilium/cilium repository and pull latest
         changes from the branch being released
-  - [ ] Run `../release/internal/start-release.sh X.Y.Z N`, where `N` is the id of
-        the GitHub project created at the previous step. You can ignore
+  - [ ] Run `../release/internal/start-release.sh X.Y.Z`. You can ignore
         warnings about commits with no related PR found.
         Note that this script produces some files at the root of the Cilium
         repository, and that these files are required at a later step for
