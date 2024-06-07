@@ -5,6 +5,9 @@ package release
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"time"
 
 	"github.com/cilium/release/pkg/github"
 	gh "github.com/google/go-github/v62/github"
@@ -72,4 +75,63 @@ func previousVersion(ctx context.Context, ghClient *gh.Client, owner, repo, curr
 	}
 
 	return github.PreviousTagOf(sortedTags, currentVersion), nil
+}
+
+// getTagDate returns the release date in YYYY-MM-DD format of the target tag
+// version.
+func getTagDate(ctx context.Context, ghClient *gh.Client, owner, repo, tagVersion string) (string, error) {
+	ref, _, err := ghClient.Git.GetRef(ctx, owner, repo, "refs/tags/"+tagVersion)
+	if err != nil {
+		return "", err
+	}
+	tagSHA := ref.GetObject().GetSHA()
+
+	tag, _, err := ghClient.Git.GetTag(ctx, owner, repo, tagSHA)
+	if err != nil {
+		return "", err
+	}
+
+	minorReleaseDate := tag.GetTagger().GetDate().Format(time.DateOnly)
+	return minorReleaseDate, nil
+}
+
+// getDefaultBranch returns the base branch for the repository in the configuration.
+func getDefaultBranch(ctx context.Context, ghClient *gh.Client, owner, repo string) (string, error) {
+	repository, _, err := ghClient.Repositories.Get(ctx, owner, repo)
+	if err != nil {
+		return "", fmt.Errorf("unable to fetch repository for %s/%s: %s", owner, repo, err)
+	}
+	baseBranch := repository.GetDefaultBranch()
+	if baseBranch == "" {
+		return "", fmt.Errorf("unable to get base branch for repository %s/%s. The base branch is empty", owner, repo)
+	}
+	return baseBranch, nil
+}
+
+// getWFRunForTag returns the WF run HTMLURL of the given tag for the given
+// workflowFileName.
+func getWFRunForTag(ctx context.Context, ghClient *gh.Client, owner, repo, workflowFileName, targetVersion string) string {
+	page := 0
+	for {
+		runs, resp, err := ghClient.Actions.ListWorkflowRunsByFileName(ctx, owner, repo, workflowFileName, &gh.ListWorkflowRunsOptions{
+			ExcludePullRequests: true,
+			ListOptions: gh.ListOptions{
+				Page: page,
+			},
+		})
+		if err != nil {
+			log.Fatalf("Error listing workflow runs: %v", err)
+		}
+
+		for _, run := range runs.WorkflowRuns {
+			if run.GetHeadBranch() == targetVersion {
+				return run.GetHTMLURL()
+			}
+		}
+		page = resp.NextPage
+		if page == 0 {
+			break
+		}
+	}
+	return ""
 }

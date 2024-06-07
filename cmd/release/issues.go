@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-	"time"
 
 	"github.com/cilium/release/pkg/github"
 	"github.com/cilium/release/pkg/io"
@@ -30,7 +29,7 @@ func (c *CheckReleaseBlockers) Name() string {
 	return "checking for release blockers"
 }
 
-func (c *CheckReleaseBlockers) Run(ctx context.Context, force, dryRun bool, ghClient *gh.Client) error {
+func (c *CheckReleaseBlockers) Run(ctx context.Context, force, _ bool, ghClient *gh.Client) error {
 	if !c.cfg.HasStableBranch() {
 		io.Fprintf(1, os.Stdout, "On Pre-Releases there aren't 'release blockers'."+
 			" Continuing with the release process.\n")
@@ -40,12 +39,12 @@ func (c *CheckReleaseBlockers) Run(ctx context.Context, force, dryRun bool, ghCl
 	releaseBlockerLabel := github.ReleaseBlockerLabel(c.cfg.TargetVer)
 	backportDoneLabel := github.BackportDoneLabel(c.cfg.TargetVer)
 
-	baseBranch, err := c.getBaseBranch(ctx, ghClient)
+	baseBranch, err := getDefaultBranch(ctx, ghClient, c.cfg.Owner, c.cfg.Repo)
 	if err != nil {
 		return err
 	}
 
-	releaseDate, err := c.getTagReleaseDate(ctx, ghClient, c.cfg.PreviousVer)
+	releaseDate, err := getTagDate(ctx, ghClient, c.cfg.Owner, c.cfg.Repo, c.cfg.PreviousVer)
 	if err != nil {
 		return err
 	}
@@ -80,8 +79,9 @@ func (c *CheckReleaseBlockers) Run(ctx context.Context, force, dryRun bool, ghCl
 	backportLabel := github.BackportLabel(c.cfg.TargetVer)
 	openedBackportPRsQuery := openedBackportPRsQuery(branchName, backportLabel, c.cfg.Owner, c.cfg.Repo)
 
-	io.Fprintf(1, os.Stdout, "👀 Checking for outstanding backport PRs in: "+
-		"https://github.com/%s/%s/issues?q=%s\n",
+	io.Fprintf(1, os.Stdout,
+		"👀 Checking for outstanding backport PRs in: "+
+			"https://github.com/%s/%s/issues?q=%s\n",
 		c.cfg.Owner, c.cfg.Repo,
 		url.PathEscape(openedBackportPRsQuery))
 
@@ -106,37 +106,6 @@ func (c *CheckReleaseBlockers) Run(ctx context.Context, force, dryRun bool, ghCl
 	}
 
 	return nil
-}
-
-// getTagReleaseDate returns the release date in YYYY-MM-DD format of the target
-// version.
-func (c *CheckReleaseBlockers) getTagReleaseDate(ctx context.Context, ghClient *gh.Client, targetVersion string) (string, error) {
-	ref, _, err := ghClient.Git.GetRef(ctx, c.cfg.Owner, c.cfg.Repo, "refs/tags/"+targetVersion)
-	if err != nil {
-		return "", err
-	}
-	tagSHA := ref.GetObject().GetSHA()
-
-	tag, _, err := ghClient.Git.GetTag(ctx, c.cfg.Owner, c.cfg.Repo, tagSHA)
-	if err != nil {
-		return "", err
-	}
-
-	minorReleaseDate := tag.GetTagger().GetDate().Format(time.DateOnly)
-	return minorReleaseDate, nil
-}
-
-// getBaseBranch returns the base branch for the repository in the configuration.
-func (c *CheckReleaseBlockers) getBaseBranch(ctx context.Context, ghClient *gh.Client) (string, error) {
-	repository, _, err := ghClient.Repositories.Get(ctx, c.cfg.Owner, c.cfg.Repo)
-	if err != nil {
-		return "", fmt.Errorf("unable to fetch repository for %s: %s", c.cfg.RepoName, err)
-	}
-	baseBranch := repository.GetDefaultBranch()
-	if baseBranch == "" {
-		return "", fmt.Errorf("unable to get base branch for repository %s. The base branch is empty", c.cfg.RepoName)
-	}
-	return baseBranch, nil
 }
 
 func (c *CheckReleaseBlockers) checkBackports(ctx context.Context, ghClient *gh.Client, query string) (bool, error) {
