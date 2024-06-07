@@ -36,7 +36,7 @@ func (c *ImageCVEChecker) Name() string {
 	return "checking for quay.io image vulnerabilities"
 }
 
-func (c *ImageCVEChecker) Run(ctx context.Context, force, dryRun bool, _ *gh.Client) error {
+func (c *ImageCVEChecker) Run(ctx context.Context, force, _ bool, _ *gh.Client) error {
 	majorMinor := semver.MajorMinor(c.cfg.TargetVer)
 	imageURL := fmt.Sprintf("quay.io/%s/%s", c.cfg.QuayOrg, c.cfg.QuayRepo)
 

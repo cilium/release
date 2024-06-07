@@ -29,8 +29,12 @@ func (pc *TagCommit) Name() string {
 }
 
 func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *gh.Client) error {
+	var dryRunStrPrefix string
+	if dryRun {
+		dryRunStrPrefix = "[🙅 🙅 DRY RUN - OPERATION WILL NOT BE DONE 🙅 🙅] "
+	}
 
-	io2.Fprintf(1, os.Stdout, "📤 Submitting changes to a PR\n")
+	io2.Fprintf(1, os.Stdout, "📤 Tagging a release\n")
 
 	// Fetch remote branch
 	io2.Fprintf(2, os.Stdout, "⬇️ Fetching branch\n")
@@ -47,7 +51,10 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	// Find release commit in the remote branch
 	branch := pc.cfg.RemoteBranchName
 	if !pc.cfg.HasStableBranch() {
-		branch = "main"
+		branch, err = getDefaultBranch(ctx, ghClient, pc.cfg.Owner, pc.cfg.Repo)
+		if err != nil {
+			return err
+		}
 	}
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
@@ -107,7 +114,7 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 		fmt.Printf("⏩ Skipping prompts, continuing with the release process.\n")
 	} else {
 		err := io2.ContinuePrompt(
-			fmt.Sprintf("Push tags %q and %q to %s?", pc.cfg.TargetVer, ersion, remoteName),
+			fmt.Sprintf("%sPush tags %q and %q to %s?", dryRunStrPrefix, pc.cfg.TargetVer, ersion, remoteName),
 			"Stopping release preparation.",
 		)
 		if err != nil {
@@ -115,9 +122,11 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 		}
 	}
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", remoteName, ersion, pc.cfg.TargetVer)
-	if err != nil {
-		return err
+	if !dryRun {
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", remoteName, ersion, pc.cfg.TargetVer)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -9,10 +9,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	io2 "github.com/cilium/release/pkg/io"
 	gh "github.com/google/go-github/v62/github"
-	"golang.org/x/mod/semver"
 )
 
 type PostRelease struct {
@@ -29,10 +29,13 @@ func (pc *PostRelease) Name() string {
 	return "post release step"
 }
 
-func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *gh.Client) error {
-	buildURL := ""
-
+func (pc *PostRelease) Run(ctx context.Context, _, _ bool, ghClient *gh.Client) error {
 	io2.Fprintf(1, os.Stdout, "📤 Fetching image digests and updating helm charts\n")
+
+	buildURL := getWFRunForTag(ctx, ghClient, pc.cfg.Owner, pc.cfg.Repo, "build-images-releases.yaml", pc.cfg.TargetVer)
+	if buildURL == "" {
+		return fmt.Errorf("unable to find GitHub workflow run for %s", pc.cfg.TargetVer)
+	}
 
 	// Fetch remote branch
 	io2.Fprintf(2, os.Stdout, "⬇️ Fetching branch\n")
@@ -41,16 +44,18 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 		return err
 	}
 
-	var branch string
-	// FIXME: also check if there isn't a branch already
-	if semver.Prerelease(pc.cfg.TargetVer) != "" {
-		branch = "main"
-	} else {
-		branch = semver.MajorMinor(pc.cfg.TargetVer)
+	branch := pc.cfg.RemoteBranchName
+	if !pc.cfg.HasStableBranch() {
+		branch, err = getDefaultBranch(ctx, ghClient, pc.cfg.Owner, pc.cfg.Repo)
+		if err != nil {
+			return err
+		}
 	}
+
 	localBranch := fmt.Sprintf("pr/%s-digests", pc.cfg.TargetVer)
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
+	// Pull docker manifests from RUN URL
 	_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
 	if err != nil {
 		return err
@@ -62,24 +67,44 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 	}
 
 	// Pull docker manifests from RUN URL
-	io2.Fprintf(2, os.Stdout, "⬇️ Fetching branch\n")
+	if !pc.cfg.HasStableBranch() {
+		io2.Fprintf(2, os.Stdout, "🧪 Detected pre-release from default branch. Checking out to commit with release...\n")
+		commitTitle := fmt.Sprintf("^Prepare for release %s$", pc.cfg.TargetVer)
+		o, err := execCommand(pc.cfg.RepoDirectory, "git", "log", "--format=%H", "--grep", commitTitle, remoteBranch)
+		if err != nil {
+			return err
+		}
+		commitShaRaw, err := io.ReadAll(o)
+		if err != nil {
+			return err
+		}
+		commitSha := strings.TrimSpace(string(commitShaRaw))
+		if len(commitSha) == 0 {
+			return fmt.Errorf("commit not merged into branch %s. Refusing to tag release", remoteBranch)
+		}
 
-	// TODO REMOVE ME
-	runURL := "https://github.com/cilium/cilium/actions/runs/9357681504"
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", "checkout", commitSha)
+		if err != nil {
+			return err
+		}
+	}
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "./contrib/release/pull-docker-manifests.sh", runURL, pc.cfg.TargetVer)
+	io2.Fprintf(2, os.Stdout, "⬇️ Fetching docker digests from workflow run\n")
+	_, err = execCommand(pc.cfg.RepoDirectory, "../release/internal/pull-docker-manifests.sh", buildURL, pc.cfg.TargetVer)
 	if err != nil {
 		return err
 	}
 
-	// FIXME add support for pre-releases in here because we need to
-	// update-helm-values from the tagged commit, not from the reverted commit.
-
-	// Pull docker manifests from RUN URL
-	io2.Fprintf(2, os.Stdout, "⬇️ Fetching branch\n")
+	io2.Fprintf(2, os.Stdout, "✍️ Updating helm values with image digests\n")
 	_, err = execCommand(pc.cfg.RepoDirectory, "make", "-C", "Documentation", "update-helm-values")
 	if err != nil {
 		return err
+	}
+
+	if !pc.cfg.HasStableBranch() {
+		io2.Fprintf(2, os.Stdout, "✍️ Helm values successfully generated. Since there is not a stable branch, the files will not"+
+			" be committed as they are only intended to be used on helm charts repository.\n")
+		return nil
 	}
 
 	// Commit all changes
@@ -105,11 +130,8 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 		"Generated from %s\n"+
 		string(digests), pc.cfg.TargetVer, buildURL)
 	_, err = execCommand(pc.cfg.RepoDirectory, "git", "commit", "-sm", commitMsg)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 func (pc *PostRelease) commitInUpstream(ctx context.Context, commitSha, branch string) (bool, error) {

@@ -34,6 +34,7 @@ import (
 	io2 "github.com/cilium/release/pkg/io"
 	gh "github.com/google/go-github/v62/github"
 	progressbar "github.com/schollz/progressbar/v3"
+	"golang.org/x/mod/semver"
 )
 
 type PrepareCommit struct {
@@ -50,8 +51,7 @@ func (pc *PrepareCommit) Name() string {
 	return "preparing release commit"
 }
 
-func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *gh.Client) error {
-
+func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *gh.Client) error {
 	io2.Fprintf(1, os.Stdout, "📤 Submitting changes to a PR\n")
 
 	// Fetch remote branch
@@ -64,8 +64,12 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 	// If we are doing a pre-release from the main branch then the remote
 	// branch doesn't exist.
 	branch := pc.cfg.RemoteBranchName
+	defaultBranch, err := getDefaultBranch(ctx, ghClient, pc.cfg.Owner, pc.cfg.Repo)
+	if err != nil {
+		return err
+	}
 	if !pc.cfg.HasStableBranch() {
-		branch = "main"
+		branch = defaultBranch
 	}
 
 	localBranch := fmt.Sprintf("pr/prepare-%s", pc.cfg.TargetVer)
@@ -104,9 +108,8 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 	}
 
 	// Update helm values file
-	ciliumBranch := fmt.Sprintf("CILIUM_BRANCH=%s", branch)
 	io2.Fprintf(2, os.Stdout, "Updating helm values files\n")
-
+	ciliumBranch := fmt.Sprintf("CILIUM_BRANCH=%s", branch)
 	_, err = execCommand(pc.cfg.RepoDirectory, "make", "RELEASE=yes", ciliumBranch, "-C", "install/kubernetes", "all", "USE_DIGESTS=false")
 	if err != nil {
 		return err
@@ -141,12 +144,9 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 
 	// $DIR/../../Documentation/check-crd-compat-table.sh "$target_branch" --update
 	//
-	targetBranch := branch
-	if branch == "main" {
-		targetBranch = ""
-	}
 	io2.Fprintf(2, os.Stdout, "Updating check-crd-compat-table.sh\n")
-	_, err = execCommand(pc.cfg.RepoDirectory, "Documentation/check-crd-compat-table.sh", targetBranch, "--update")
+	crdBranch := semver.MajorMinor(pc.cfg.TargetVer)
+	_, err = execCommand(pc.cfg.RepoDirectory, "Documentation/check-crd-compat-table.sh", crdBranch, "--update")
 	if err != nil {
 		return err
 	}
@@ -163,10 +163,13 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 	commitFiles := []string{
 		"AUTHORS",
 		"Documentation/network/kubernetes/compatibility-table.rst",
+		"pkg/k8s/apis/cilium.io/register.go",
 	}
-	// Create an "update authors and update docs" but only pre-releases created
-	// from the main branch.
+	// Create an "update authors and update docs" commit but only pre-releases
+	// created from the main branch. The pre-releases that are done from stable
+	// branches will have everything in a single commit.
 	if !pc.cfg.HasStableBranch() {
+		io2.Fprintf(2, os.Stdout, "🧪 Detected pre-release from default branch, creating a separate commit for AUTHORS and Documentation files\n")
 		_, err = execCommand(pc.cfg.RepoDirectory, "git", append([]string{"add"}, commitFiles...)...)
 		if err != nil {
 			return err
@@ -189,7 +192,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 		"install/kubernetes/cilium/README.md",
 		"install/kubernetes/cilium/values.yaml",
 	)
-	// If it's not a prerelease, then add the branch-specific files.
+	// If this release has a stable then add the branch-specific files.
 	if pc.cfg.HasStableBranch() {
 		commitFiles = append(commitFiles,
 			"install/kubernetes/Makefile.digests",
@@ -209,6 +212,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 	// Revert the "Prepare for release" commit since that commit will only be
 	// used for a tag.
 	if !pc.cfg.HasStableBranch() {
+		io2.Fprintf(2, os.Stdout, "🧪 Detected pre-release from default branch, reverting commit with helm changes.\n")
 		_, err = execCommand(pc.cfg.RepoDirectory, "git", "revert", "-s", "--no-edit", "HEAD")
 		if err != nil {
 			return err
@@ -219,6 +223,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghCl
 }
 
 func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *gh.Client) error {
+	// Retrieve the SHA for the previous release.
 	previousPatchVersion := pc.cfg.PreviousVer
 
 	o, err := execCommand(pc.cfg.RepoDirectory, "git", "rev-parse", "HEAD")
@@ -231,6 +236,7 @@ func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *gh.Cli
 	}
 	commitSha := strings.TrimSpace(string(commitShaRaw))
 
+	// Generate the CHANGELOG from previous release to current release.
 	io2.Fprintf(3, os.Stdout, "✍️ Generating CHANGELOG.md from %s to %s\n", previousPatchVersion, commitSha)
 	clCfg := changelog.ChangeLogConfig{
 		CommonConfig: pc.cfg.CommonConfig,
@@ -245,17 +251,19 @@ func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *gh.Cli
 	lg := &Logger{
 		depth: 3,
 	}
-	cl, err := changelog.GenerateReleaseNotes(ctx, ghClient, lg, clCfg)
+	releaseNotes, err := changelog.GenerateReleaseNotes(ctx, ghClient, lg, clCfg)
 	if err != nil {
 		return err
 	}
-	var changeLogOutput bytes.Buffer
-	changeLogOutput.WriteString(fmt.Sprintf("# Changelog\n\n## %s\n\n", pc.cfg.TargetVer))
-	cl.PrintReleaseNotesForWriter(&changeLogOutput)
-	changeLogOutput.WriteRune('\n')
 
-	versionChanges := filepath.Join(pc.cfg.RepoDirectory, fmt.Sprintf("%s-changes.txt", pc.cfg.TargetVer))
-	err = writeFile(versionChanges, changeLogOutput.Bytes())
+	var changeLogBuf bytes.Buffer
+	changeLogBuf.WriteString(fmt.Sprintf("# Changelog\n\n## %s\n\n", pc.cfg.TargetVer))
+	releaseNotes.PrintReleaseNotesForWriter(&changeLogBuf)
+	changeLogBuf.WriteRune('\n')
+
+	versionChangesFileName := fmt.Sprintf("%s-changes.txt", pc.cfg.TargetVer)
+	versionChanges := filepath.Join(pc.cfg.RepoDirectory, versionChangesFileName)
+	err = writeFile(versionChanges, changeLogBuf.Bytes())
 	if err != nil {
 		return err
 	}
@@ -277,13 +285,9 @@ func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *gh.Cli
 		if i < 2 {
 			continue
 		}
-		changeLogOutput.Write(append(scanner.Bytes(), byte('\n')))
+		changeLogBuf.Write(append(scanner.Bytes(), byte('\n')))
 	}
-	err = writeFile(changelogFile, changeLogOutput.Bytes())
-	if err != nil {
-		return err
-	}
-	return nil
+	return writeFile(changelogFile, changeLogBuf.Bytes())
 }
 
 type Logger struct {

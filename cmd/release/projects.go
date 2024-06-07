@@ -265,7 +265,7 @@ func (pm *ProjectManagement) Name() string {
 	return "managing projects"
 }
 
-func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *gh.Client) error {
+func (pm *ProjectManagement) Run(ctx context.Context, _, dryRun bool, ghClient *gh.Client) error {
 	if !pm.cfg.HasStableBranch() {
 		io.Fprintf(1, os.Stdout, "Pre-Releases don't have a project."+
 			" Continuing with the release process.\n")

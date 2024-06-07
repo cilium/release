@@ -34,6 +34,7 @@ func (pc *PustPostPullRequest) Name() string {
 }
 
 func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *gh.Client) error {
+	io2.Fprintf(1, os.Stdout, "📜 Generating a DRAFT GitHub Release\n")
 	// Generate release summary
 	changelogFile := filepath.Join(pc.cfg.RepoDirectory, "CHANGELOG.md")
 	changelogContent, err := os.Open(changelogFile)
@@ -91,6 +92,7 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	}
 
 	ersion := strings.TrimPrefix(pc.cfg.TargetVer, "v")
+	// TODO: replacement with ghClient.Repositories.CreateRelease
 	_, err = execCommand(pc.cfg.RepoDirectory,
 		"gh",
 		"release",
@@ -138,11 +140,7 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	}
 	remoteBranchName := strings.TrimSpace(string(commitShaRaw))
 
-	// gh api user --flat | jq -r '.login'
-	user, err := pipeCommands(ctx, false, pc.cfg.RepoDirectory,
-		"gh", []string{"api", "user"},
-		"jq", []string{"-r '.login'"},
-	)
+	user, err := execCommand(pc.cfg.RepoDirectory, "gh", "api", "user", "--jq", ".login")
 	if err != nil {
 		return err
 	}
@@ -162,18 +160,19 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 		return err
 	}
 
+	labels := []string{"kind/release"}
+	if pc.cfg.HasStableBranch() {
+		labels = append(labels, github.BackportLabel(pc.cfg.TargetVer))
+	}
 	_, err = execCommand(pc.cfg.RepoDirectory,
 		"gh",
 		"pr",
 		"create",
 		"-B",
 		baseBranch,
-		"-l", "backport/"+github.MajorMinorErsion(baseBranch))
-	if err != nil {
-		return err
-	}
+		"-l", strings.Join(labels, ","))
 
-	return nil
+	return err
 }
 
 func (pc *PustPostPullRequest) Revert(ctx context.Context, dryRun bool, ghClient *gh.Client) error {
