@@ -75,7 +75,7 @@ func GeneratePatchRelease(
 			}
 
 			for _, pr := range prs {
-				printer(".")
+				printer(pr.GetHTMLURL())
 
 				_, ok := listOfPRs[pr.GetNumber()]
 				_, ok2 := backportPRs[pr.GetNumber()]
