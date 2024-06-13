@@ -16,7 +16,6 @@ import (
 
 	"github.com/cilium/release/pkg/docker"
 	"github.com/cilium/release/pkg/io"
-	gh "github.com/google/go-github/v62/github"
 	"golang.org/x/mod/semver"
 )
 
@@ -36,7 +35,7 @@ func (c *ImageCVEChecker) Name() string {
 	return "checking for quay.io image vulnerabilities"
 }
 
-func (c *ImageCVEChecker) Run(ctx context.Context, force, _ bool, _ *gh.Client) error {
+func (c *ImageCVEChecker) Run(ctx context.Context, yesToPrompt, _ bool, _ *GHClient) error {
 	majorMinor := semver.MajorMinor(c.cfg.TargetVer)
 	imageURL := fmt.Sprintf("quay.io/%s/%s", c.cfg.QuayOrg, c.cfg.QuayRepo)
 
@@ -80,7 +79,7 @@ func (c *ImageCVEChecker) Run(ctx context.Context, force, _ bool, _ *gh.Client) 
 			io.Fprintf(3, w, "%s\t%s\t%s\t%s\t%s\n", row.Advisory, row.Severity, row.Package, row.CurrentVersion, row.FixedInVersion)
 		}
 		w.Flush()
-		if force {
+		if yesToPrompt {
 			fmt.Printf("⏩ Skipping prompts, continuing with the release process.\n")
 		} else {
 			err := io.ContinuePrompt(
@@ -117,7 +116,7 @@ func getFixedVulnerabilities(data ImageVulnerabilitiesInfo) []tableRow {
 	return rows
 }
 
-func (c *ImageCVEChecker) Revert(ctx context.Context, dryRun bool, ghClient *gh.Client) error {
+func (c *ImageCVEChecker) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
 	return nil
 }
 

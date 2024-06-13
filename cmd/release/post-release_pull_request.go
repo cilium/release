@@ -15,7 +15,6 @@ import (
 
 	"github.com/cilium/release/pkg/github"
 	io2 "github.com/cilium/release/pkg/io"
-	gh "github.com/google/go-github/v62/github"
 	"golang.org/x/mod/semver"
 )
 
@@ -33,7 +32,7 @@ func (pc *PustPostPullRequest) Name() string {
 	return "Creating Pull Request"
 }
 
-func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *gh.Client) error {
+func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *GHClient) error {
 	io2.Fprintf(1, os.Stdout, "📜 Generating a DRAFT GitHub Release\n")
 	// Generate release summary
 	changelogFile := filepath.Join(pc.cfg.RepoDirectory, "CHANGELOG.md")
@@ -175,6 +174,6 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	return err
 }
 
-func (pc *PustPostPullRequest) Revert(ctx context.Context, dryRun bool, ghClient *gh.Client) error {
+func (pc *PustPostPullRequest) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
 	return fmt.Errorf("Not implemented")
 }

@@ -15,7 +15,6 @@ import (
 
 	"github.com/cilium/release/pkg/github"
 	io2 "github.com/cilium/release/pkg/io"
-	gh "github.com/google/go-github/v62/github"
 )
 
 type PushPullRequest struct {
@@ -32,13 +31,13 @@ func (pc *PushPullRequest) Name() string {
 	return "Creating Pull Request"
 }
 
-func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *gh.Client) error {
+func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *GHClient) error {
 	io2.Fprintf(1, os.Stdout, "📤 Submitting changes to a PR\n")
 
 	baseBranch := pc.cfg.RemoteBranchName
 	if !pc.cfg.HasStableBranch() {
 		var err error
-		baseBranch, err = getDefaultBranch(ctx, ghClient, pc.cfg.Owner, pc.cfg.Repo)
+		baseBranch, err = ghClient.getDefaultBranch(ctx, pc.cfg.Owner, pc.cfg.Repo)
 		if err != nil {
 			return err
 		}
@@ -111,7 +110,7 @@ func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *gh.Clie
 	return err
 }
 
-func (pc *PushPullRequest) Revert(ctx context.Context, dryRun bool, ghClient *gh.Client) error {
+func (pc *PushPullRequest) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
 	return fmt.Errorf("Not implemented")
 }
 

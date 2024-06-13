@@ -14,12 +14,22 @@ import (
 	"golang.org/x/mod/semver"
 )
 
+type GHClient struct {
+	ghClient *gh.Client
+}
+
+func NewGHClient(ghToken string) *GHClient {
+	return &GHClient{
+		ghClient: github.NewClient(ghToken),
+	}
+}
+
 // Returns all tags for the given owner and repo.
-func getTags(ctx context.Context, ghClient *gh.Client, owner, repo string) ([]string, error) {
+func (ghClient *GHClient) getTags(ctx context.Context, owner, repo string) ([]string, error) {
 	nextPage := 0
 	var repositoryTags []string
 	for {
-		tags, resp, err := ghClient.Repositories.ListTags(ctx, owner, repo, &gh.ListOptions{
+		tags, resp, err := ghClient.ghClient.Repositories.ListTags(ctx, owner, repo, &gh.ListOptions{
 			Page: nextPage,
 		})
 		if err != nil {
@@ -36,10 +46,10 @@ func getTags(ctx context.Context, ghClient *gh.Client, owner, repo string) ([]st
 	return repositoryTags, nil
 }
 
-func getRemoteBranch(ctx context.Context, ghClient *gh.Client, owner, repo, targetVer string) (string, error) {
+func (ghClient *GHClient) getRemoteBranch(ctx context.Context, owner, repo, targetVer string) (string, error) {
 	page := 0
 	for {
-		branches, resp, err := ghClient.Repositories.ListBranches(ctx, owner, repo, &gh.BranchListOptions{
+		branches, resp, err := ghClient.ghClient.Repositories.ListBranches(ctx, owner, repo, &gh.BranchListOptions{
 			Protected: func() *bool { a := true; return &a }(),
 			ListOptions: gh.ListOptions{
 				Page: page,
@@ -61,8 +71,8 @@ func getRemoteBranch(ctx context.Context, ghClient *gh.Client, owner, repo, targ
 	}
 }
 
-func previousVersion(ctx context.Context, ghClient *gh.Client, owner, repo, currentVersion string) (string, error) {
-	allTags, err := getTags(ctx, ghClient, owner, repo)
+func (ghClient *GHClient) previousVersion(ctx context.Context, owner, repo, currentVersion string) (string, error) {
+	allTags, err := ghClient.getTags(ctx, owner, repo)
 	if err != nil {
 		return "", err
 	}
@@ -79,14 +89,14 @@ func previousVersion(ctx context.Context, ghClient *gh.Client, owner, repo, curr
 
 // getTagDate returns the release date in YYYY-MM-DD format of the target tag
 // version.
-func getTagDate(ctx context.Context, ghClient *gh.Client, owner, repo, tagVersion string) (string, error) {
-	ref, _, err := ghClient.Git.GetRef(ctx, owner, repo, "refs/tags/"+tagVersion)
+func (ghClient *GHClient) getTagDate(ctx context.Context, owner, repo, tagVersion string) (string, error) {
+	ref, _, err := ghClient.ghClient.Git.GetRef(ctx, owner, repo, "refs/tags/"+tagVersion)
 	if err != nil {
 		return "", err
 	}
 	tagSHA := ref.GetObject().GetSHA()
 
-	tag, _, err := ghClient.Git.GetTag(ctx, owner, repo, tagSHA)
+	tag, _, err := ghClient.ghClient.Git.GetTag(ctx, owner, repo, tagSHA)
 	if err != nil {
 		return "", err
 	}
@@ -96,8 +106,8 @@ func getTagDate(ctx context.Context, ghClient *gh.Client, owner, repo, tagVersio
 }
 
 // getDefaultBranch returns the base branch for the repository in the configuration.
-func getDefaultBranch(ctx context.Context, ghClient *gh.Client, owner, repo string) (string, error) {
-	repository, _, err := ghClient.Repositories.Get(ctx, owner, repo)
+func (ghClient *GHClient) getDefaultBranch(ctx context.Context, owner, repo string) (string, error) {
+	repository, _, err := ghClient.ghClient.Repositories.Get(ctx, owner, repo)
 	if err != nil {
 		return "", fmt.Errorf("unable to fetch repository for %s/%s: %s", owner, repo, err)
 	}
@@ -110,10 +120,10 @@ func getDefaultBranch(ctx context.Context, ghClient *gh.Client, owner, repo stri
 
 // getWFRunForTag returns the WF run HTMLURL of the given tag for the given
 // workflowFileName.
-func getWFRunForTag(ctx context.Context, ghClient *gh.Client, owner, repo, workflowFileName, targetVersion string) string {
+func (ghClient *GHClient) getWFRunForTag(ctx context.Context, owner, repo, workflowFileName, targetVersion string) string {
 	page := 0
 	for {
-		runs, resp, err := ghClient.Actions.ListWorkflowRunsByFileName(ctx, owner, repo, workflowFileName, &gh.ListWorkflowRunsOptions{
+		runs, resp, err := ghClient.ghClient.Actions.ListWorkflowRunsByFileName(ctx, owner, repo, workflowFileName, &gh.ListWorkflowRunsOptions{
 			ExcludePullRequests: true,
 			ListOptions: gh.ListOptions{
 				Page: page,

@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 
 	io2 "github.com/cilium/release/pkg/io"
-	gh "github.com/google/go-github/v62/github"
 )
 
 type HelmChart struct {
@@ -27,7 +26,7 @@ func (pc *HelmChart) Name() string {
 	return "helm chart"
 }
 
-func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *gh.Client) error {
+func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *GHClient) error {
 	io2.Fprintf(1, os.Stdout, "☸️ Generating helm charts\n")
 
 	_, err := execCommand(pc.cfg.HelmRepoDirectory, "git", "diff", "--quiet", "HEAD")
@@ -85,6 +84,6 @@ func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	return nil
 }
 
-func (pc *HelmChart) Revert(ctx context.Context, dryRun bool, ghClient *gh.Client) error {
+func (pc *HelmChart) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
 	return fmt.Errorf("Not implemented")
 }

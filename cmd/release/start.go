@@ -10,11 +10,8 @@ import (
 	"os"
 	"slices"
 
-	"github.com/cilium/release/pkg/github"
 	"github.com/cilium/release/pkg/io"
 	"github.com/cilium/release/pkg/types"
-
-	gh "github.com/google/go-github/v62/github"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
 )
@@ -58,8 +55,8 @@ func (cfg *ReleaseConfig) HasStableBranch() bool {
 
 type Step interface {
 	Name() string
-	Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *gh.Client) error
-	Revert(ctx context.Context, dryRun bool, ghClient *gh.Client) error
+	Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *GHClient) error
+	Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error
 }
 
 func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
@@ -76,11 +73,11 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 				cfg.StateFile = fmt.Sprintf("release-state-%s-%s-%s.json", cfg.Repo, cfg.Owner, cfg.TargetVer)
 			}
 
-			ghClient := github.NewClient(os.Getenv("GITHUB_TOKEN"))
+			ghClient := NewGHClient(os.Getenv("GITHUB_TOKEN"))
 
 			// Auto detect previous version
 			if cfg.PreviousVer == "" {
-				previousVer, err := previousVersion(ctx, ghClient, cfg.Owner, cfg.Repo, cfg.TargetVer)
+				previousVer, err := ghClient.previousVersion(ctx, cfg.Owner, cfg.Repo, cfg.TargetVer)
 				if err != nil {
 					return err
 				}
@@ -99,7 +96,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 				cfg.PreviousVer = previousVer
 			}
 
-			remoteBranchName, err := getRemoteBranch(ctx, ghClient, cfg.Owner, cfg.Repo, cfg.TargetVer)
+			remoteBranchName, err := ghClient.getRemoteBranch(ctx, cfg.Owner, cfg.Repo, cfg.TargetVer)
 			if err != nil {
 				return err
 			}
