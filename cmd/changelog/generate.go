@@ -54,6 +54,7 @@ type ChangeLog struct {
 
 	prsWithUpstream types.BackportPRs
 	listOfPrs       types.PullRequests
+	graphQLNodeIDs  types.NodeIDs
 }
 
 type Printer interface {
@@ -65,6 +66,7 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 	var (
 		backportPRs = types.BackportPRs{}
 		listOfPRs   = types.PullRequests{}
+		nodeIDs     = types.NodeIDs{}
 		shas        []string
 	)
 
@@ -72,7 +74,7 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 		logger.Printf("Found state file, resuming from stored state\n")
 
 		var err error
-		backportPRs, listOfPRs, shas, err = persistence.LoadState(cfg.StateFile)
+		backportPRs, listOfPRs, nodeIDs, shas, err = persistence.LoadState(cfg.StateFile)
 		if err != nil {
 			return nil, fmt.Errorf("Unable to read persistence file: %w", err)
 		}
@@ -125,12 +127,13 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 	defer bar.Finish()
 
 	output := func(foo string) { logger.Println(foo) }
-	prsWithUpstream, listOfPrs, leftShas, err := github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, bar, output, backportPRs, listOfPRs, shas, cfg.LabelFilters)
+	prsWithUpstream, listOfPrs, nodeIDs, leftShas, err :=
+		github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, bar, output, backportPRs, listOfPRs, nodeIDs, shas, cfg.LabelFilters)
 	logger.Println()
 	if err != nil {
 		logger.Printf("Storing state in %s before exiting due to error...\n", cfg.StateFile)
 	}
-	err2 := persistence.StoreState(cfg.StateFile, prsWithUpstream, listOfPrs, leftShas)
+	err2 := persistence.StoreState(cfg.StateFile, prsWithUpstream, listOfPrs, nodeIDs, leftShas)
 	if err2 == nil {
 		logger.Printf("State stored successful in %s, please use --state-file=%s in the next run to continue\n", cfg.StateFile, cfg.StateFile)
 	} else {
@@ -148,6 +151,7 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 		Logger:          logger,
 		prsWithUpstream: prsWithUpstream,
 		listOfPrs:       listOfPrs,
+		graphQLNodeIDs:  nodeIDs,
 	}, nil
 }
 
@@ -249,4 +253,21 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 
 func (cl *ChangeLog) PrintReleaseNotes() {
 	cl.PrintReleaseNotesForWriter(os.Stdout)
+}
+
+// AllPRs returns all PRs that are part the changelog.
+func (cl *ChangeLog) AllPRs() (map[int]struct{}, types.NodeIDs) {
+	setOfPRs := map[int]struct{}{}
+
+	for prNumber := range cl.listOfPrs {
+		setOfPRs[prNumber] = struct{}{}
+	}
+	for backportPR, upstreamedPRs := range cl.prsWithUpstream {
+		for upstreamPR := range upstreamedPRs {
+			setOfPRs[upstreamPR] = struct{}{}
+		}
+		setOfPRs[backportPR] = struct{}{}
+	}
+
+	return setOfPRs, cl.graphQLNodeIDs
 }

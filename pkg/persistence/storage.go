@@ -24,16 +24,18 @@ import (
 type State struct {
 	BackportPRs  types.BackportPRs
 	PullRequests types.PullRequests
+	NodeIDs      types.NodeIDs
 	SHAs         []string
 }
 
-func StoreState(file string, backportPRs types.BackportPRs, prs types.PullRequests, shas []string) error {
+func StoreState(file string, backportPRs types.BackportPRs, prs types.PullRequests, nodesIDs types.NodeIDs, shas []string) error {
 	s := State{
 		BackportPRs:  backportPRs,
 		PullRequests: prs,
+		NodeIDs:      nodesIDs,
 		SHAs:         shas,
 	}
-	data, err := json.Marshal(s)
+	data, err := json.MarshalIndent(s, "", " ")
 	if err != nil {
 		return err
 	}
@@ -41,16 +43,16 @@ func StoreState(file string, backportPRs types.BackportPRs, prs types.PullReques
 	return ioutil.WriteFile(file, data, 0664)
 }
 
-func LoadState(file string) (types.BackportPRs, types.PullRequests, []string, error) {
+func LoadState(file string) (types.BackportPRs, types.PullRequests, types.NodeIDs, []string, error) {
 	data, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 	s := State{}
 	err = json.Unmarshal(data, &s)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 
-	return s.BackportPRs, s.PullRequests, s.SHAs, nil
+	return s.BackportPRs, s.PullRequests, s.NodeIDs, s.SHAs, nil
 }
