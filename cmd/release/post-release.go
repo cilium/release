@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	io2 "github.com/cilium/release/pkg/io"
-	gh "github.com/google/go-github/v62/github"
 )
 
 type PostRelease struct {
@@ -29,10 +28,10 @@ func (pc *PostRelease) Name() string {
 	return "post release step"
 }
 
-func (pc *PostRelease) Run(ctx context.Context, _, _ bool, ghClient *gh.Client) error {
+func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *GHClient) error {
 	io2.Fprintf(1, os.Stdout, "📤 Fetching image digests and updating helm charts\n")
 
-	buildURL := getWFRunForTag(ctx, ghClient, pc.cfg.Owner, pc.cfg.Repo, "build-images-releases.yaml", pc.cfg.TargetVer)
+	buildURL := ghClient.getWFRunForTag(ctx, pc.cfg.Owner, pc.cfg.Repo, "build-images-releases.yaml", pc.cfg.TargetVer)
 	if buildURL == "" {
 		return fmt.Errorf("unable to find GitHub workflow run for %s", pc.cfg.TargetVer)
 	}
@@ -46,7 +45,7 @@ func (pc *PostRelease) Run(ctx context.Context, _, _ bool, ghClient *gh.Client) 
 
 	branch := pc.cfg.RemoteBranchName
 	if !pc.cfg.HasStableBranch() {
-		branch, err = getDefaultBranch(ctx, ghClient, pc.cfg.Owner, pc.cfg.Repo)
+		branch, err = ghClient.getDefaultBranch(ctx, pc.cfg.Owner, pc.cfg.Repo)
 		if err != nil {
 			return err
 		}
@@ -150,6 +149,6 @@ func (pc *PostRelease) commitInUpstream(ctx context.Context, commitSha, branch s
 	return true, nil
 }
 
-func (pc *PostRelease) Revert(ctx context.Context, dryRun bool, ghClient *gh.Client) error {
+func (pc *PostRelease) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
 	return fmt.Errorf("Not implemented")
 }

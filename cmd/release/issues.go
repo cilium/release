@@ -29,7 +29,7 @@ func (c *CheckReleaseBlockers) Name() string {
 	return "checking for release blockers"
 }
 
-func (c *CheckReleaseBlockers) Run(ctx context.Context, force, _ bool, ghClient *gh.Client) error {
+func (c *CheckReleaseBlockers) Run(ctx context.Context, yesToPrompt, _ bool, ghClient *GHClient) error {
 	if !c.cfg.HasStableBranch() {
 		io.Fprintf(1, os.Stdout, "On Pre-Releases there aren't 'release blockers'."+
 			" Continuing with the release process.\n")
@@ -39,12 +39,12 @@ func (c *CheckReleaseBlockers) Run(ctx context.Context, force, _ bool, ghClient 
 	releaseBlockerLabel := github.ReleaseBlockerLabel(c.cfg.TargetVer)
 	backportDoneLabel := github.BackportDoneLabel(c.cfg.TargetVer)
 
-	baseBranch, err := getDefaultBranch(ctx, ghClient, c.cfg.Owner, c.cfg.Repo)
+	baseBranch, err := ghClient.getDefaultBranch(ctx, c.cfg.Owner, c.cfg.Repo)
 	if err != nil {
 		return err
 	}
 
-	releaseDate, err := getTagDate(ctx, ghClient, c.cfg.Owner, c.cfg.Repo, c.cfg.PreviousVer)
+	releaseDate, err := ghClient.getTagDate(ctx, c.cfg.Owner, c.cfg.Repo, c.cfg.PreviousVer)
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (c *CheckReleaseBlockers) Run(ctx context.Context, force, _ bool, ghClient 
 		return err
 	}
 	if found {
-		if force {
+		if yesToPrompt {
 			fmt.Printf("⏩ Skipping prompts, continuing with the release process.\n")
 		} else {
 			err := io.ContinuePrompt(
@@ -108,11 +108,11 @@ func (c *CheckReleaseBlockers) Run(ctx context.Context, force, _ bool, ghClient 
 	return nil
 }
 
-func (c *CheckReleaseBlockers) checkBackports(ctx context.Context, ghClient *gh.Client, query string) (bool, error) {
+func (c *CheckReleaseBlockers) checkBackports(ctx context.Context, ghClient *GHClient, query string) (bool, error) {
 	page := 0
 	var found bool
 	for {
-		ghIssues, resp, err := ghClient.Search.Issues(ctx, query, &gh.SearchOptions{
+		ghIssues, resp, err := ghClient.ghClient.Search.Issues(ctx, query, &gh.SearchOptions{
 			TextMatch: true,
 			ListOptions: gh.ListOptions{
 				Page: page,
@@ -136,7 +136,7 @@ func (c *CheckReleaseBlockers) checkBackports(ctx context.Context, ghClient *gh.
 	return found, nil
 }
 
-func (c *CheckReleaseBlockers) checkGHBlockers(ctx context.Context, ghClient *gh.Client, releaseBlockerLabel, prQuery string) (bool, error) {
+func (c *CheckReleaseBlockers) checkGHBlockers(ctx context.Context, ghClient *GHClient, releaseBlockerLabel, prQuery string) (bool, error) {
 	page := 0
 	var found bool
 	queries := []string{
@@ -149,7 +149,7 @@ func (c *CheckReleaseBlockers) checkGHBlockers(ctx context.Context, ghClient *gh
 	}
 	for _, q := range queries {
 		for {
-			ghIssues, resp, err := ghClient.Search.Issues(ctx, q, &gh.SearchOptions{
+			ghIssues, resp, err := ghClient.ghClient.Search.Issues(ctx, q, &gh.SearchOptions{
 				TextMatch: true,
 				ListOptions: gh.ListOptions{
 					Page: page,
@@ -208,6 +208,6 @@ func openedBackportPRsQuery(branchName, backportLabel, owner, repo string) strin
 	)
 }
 
-func (c *CheckReleaseBlockers) Revert(ctx context.Context, dryRun bool, ghClient *gh.Client) error {
+func (c *CheckReleaseBlockers) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
 	return nil
 }

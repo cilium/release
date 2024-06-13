@@ -31,7 +31,6 @@ import (
 
 	"github.com/cilium/release/cmd/changelog"
 	io2 "github.com/cilium/release/pkg/io"
-	gh "github.com/google/go-github/v62/github"
 	progressbar "github.com/schollz/progressbar/v3"
 	"golang.org/x/mod/semver"
 )
@@ -50,7 +49,7 @@ func (pc *PrepareCommit) Name() string {
 	return "preparing release commit"
 }
 
-func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *gh.Client) error {
+func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient) error {
 	io2.Fprintf(1, os.Stdout, "📤 Submitting changes to a PR\n")
 
 	// Fetch remote branch
@@ -63,7 +62,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *gh.Client
 	// If we are doing a pre-release from the main branch then the remote
 	// branch doesn't exist.
 	branch := pc.cfg.RemoteBranchName
-	defaultBranch, err := getDefaultBranch(ctx, ghClient, pc.cfg.Owner, pc.cfg.Repo)
+	defaultBranch, err := ghClient.getDefaultBranch(ctx, pc.cfg.Owner, pc.cfg.Repo)
 	if err != nil {
 		return err
 	}
@@ -210,7 +209,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *gh.Client
 	return nil
 }
 
-func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *gh.Client) error {
+func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *GHClient) error {
 	// Retrieve the SHA for the previous release.
 	previousPatchVersion := pc.cfg.PreviousVer
 
@@ -239,7 +238,7 @@ func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *gh.Cli
 	lg := &Logger{
 		depth: 3,
 	}
-	releaseNotes, err := changelog.GenerateReleaseNotes(ctx, ghClient, lg, clCfg)
+	releaseNotes, err := changelog.GenerateReleaseNotes(ctx, ghClient.ghClient, lg, clCfg)
 	if err != nil {
 		return err
 	}
@@ -306,7 +305,7 @@ func execCommand(dir, name string, args ...string) (io.Reader, error) {
 	return &stdout, nil
 }
 
-func (pc *PrepareCommit) Revert(ctx context.Context, dryRun bool, ghClient *gh.Client) error {
+func (pc *PrepareCommit) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
 	return fmt.Errorf("Not implemented")
 }
 
