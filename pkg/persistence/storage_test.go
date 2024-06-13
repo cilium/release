@@ -43,7 +43,7 @@ func TestStoreState(t *testing.T) {
 			name: "existing file but empty",
 			args: args{
 				file: name.Name(),
-				backportPRs: map[int]map[int]types.PullRequest{
+				backportPRs: types.BackportPRs{
 					1: {
 						2: types.PullRequest{
 							ReleaseNote:  "BarFoo",
@@ -52,7 +52,7 @@ func TestStoreState(t *testing.T) {
 						},
 					},
 				},
-				prs: map[int]types.PullRequest{
+				prs: types.PullRequests{
 					3: {
 						ReleaseNote:  "FooBar",
 						ReleaseLabel: "release-note/minor",

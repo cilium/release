@@ -155,11 +155,14 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 	fmt.Fprintln(w, "Summary of Changes")
 	fmt.Fprintln(w, "------------------")
 
+	listOfPRs := cl.listOfPrs.DeepCopy()
+	prsWithUpstream := cl.prsWithUpstream.DeepCopy()
+
 	for _, releaseLabel := range releaseNotesOrder {
 		var changelogItems []string
 		printedReleaseNoteHeader := false
-		for backportPR, listOfPrs := range cl.prsWithUpstream {
-			for prID, pr := range listOfPrs {
+		for backportPR, listOfPRsUpstream := range prsWithUpstream {
+			for prID, pr := range listOfPRsUpstream {
 				if pr.ReleaseLabel != releaseLabel {
 					continue
 				}
@@ -174,10 +177,10 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 					fmt.Sprintf("* %s (Backport PR #%d, Upstream PR #%d, @%s)",
 						pr.ReleaseNote, backportPR, prID, pr.AuthorName),
 				)
-				delete(listOfPrs, prID)
+				delete(listOfPRsUpstream, prID)
 			}
 		}
-		for prID, pr := range cl.listOfPrs {
+		for prID, pr := range listOfPRs {
 			if pr.ReleaseLabel != releaseLabel {
 				continue
 			}
@@ -202,7 +205,7 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 				changelogItems,
 				fmt.Sprintf("* %s (%s#%d, @%s)", pr.ReleaseNote, cl.RepoName, prID, pr.AuthorName),
 			)
-			delete(cl.listOfPrs, prID)
+			delete(listOfPRs, prID)
 		}
 		sort.Slice(changelogItems, func(i, j int) bool {
 			return strings.ToLower(changelogItems[i]) < strings.ToLower(changelogItems[j])
@@ -212,7 +215,7 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 		}
 	}
 
-	if len(cl.listOfPrs) == 0 {
+	if len(listOfPRs) == 0 {
 		return
 	}
 	cl.Logger.Printf("\n\033[1mNOTICE\033[0m: The following PRs were not included in the "+
@@ -221,7 +224,7 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 	for _, releaseLabel := range releaseNotesOrder {
 		var changelogItems []string
 		printedReleaseNoteHeader := false
-		for prID, pr := range cl.listOfPrs {
+		for prID, pr := range listOfPRs {
 			if pr.ReleaseLabel != releaseLabel {
 				continue
 			}
@@ -233,7 +236,7 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 				changelogItems,
 				fmt.Sprintf("* %s (%s#%d, @%s)", pr.ReleaseNote, cl.RepoName, prID, pr.AuthorName),
 			)
-			delete(cl.listOfPrs, prID)
+			delete(listOfPRs, prID)
 		}
 		sort.Slice(changelogItems, func(i, j int) bool {
 			return strings.ToLower(changelogItems[i]) < strings.ToLower(changelogItems[j])
