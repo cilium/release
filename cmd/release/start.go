@@ -19,6 +19,8 @@ import (
 	"golang.org/x/mod/semver"
 )
 
+const defaultStateFileValue = "release-state-${owner}-${repo}-${target-version}.json"
+
 var cfg ReleaseConfig
 
 type ReleaseConfig struct {
@@ -70,6 +72,9 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 			if err := cfg.Sanitize(); err != nil {
 				cmd.Usage()
 				return fmt.Errorf("Failed to validate configuration: %s", err)
+			}
+			if defaultStateFileValue == cfg.StateFile {
+				cfg.StateFile = fmt.Sprintf("release-state-%s-%s-%s.json", cfg.Repo, cfg.Owner, cfg.TargetVer)
 			}
 
 			ghClient := github.NewClient(os.Getenv("GITHUB_TOKEN"))
@@ -167,7 +172,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd.Flags().StringVar(&cfg.QuayRepo, "quay-repo", "cilium-ci", "Quay.io repository to check for image vulnerabilities")
 	cmd.Flags().StringVar(&cfg.RepoDirectory, "repo-dir", "../cilium", "Directory with the source code of Cilium")
 	cmd.Flags().StringVar(&cfg.HelmRepoDirectory, "charts-repo-dir", "../charts", "Directory with the source code of Helm charts")
-	cmd.Flags().StringVar(&cfg.StateFile, "state-file", "release-state.json", "When set, it will use the already fetched information from a previous run")
+	cmd.Flags().StringVar(&cfg.StateFile, "state-file", defaultStateFileValue, "When set, it will use the already fetched information from a previous run")
 
 	for _, flag := range []string{"target-version", "template"} {
 		cobra.MarkFlagRequired(cmd.Flags(), flag)
