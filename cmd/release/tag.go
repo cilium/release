@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	io2 "github.com/cilium/release/pkg/io"
-	gh "github.com/google/go-github/v62/github"
 )
 
 type TagCommit struct {
@@ -28,7 +27,7 @@ func (pc *TagCommit) Name() string {
 	return "tagging release commit"
 }
 
-func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *gh.Client) error {
+func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *GHClient) error {
 	var dryRunStrPrefix string
 	if dryRun {
 		dryRunStrPrefix = "[🙅 🙅 DRY RUN - OPERATION WILL NOT BE DONE 🙅 🙅] "
@@ -51,7 +50,7 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	// Find release commit in the remote branch
 	branch := pc.cfg.RemoteBranchName
 	if !pc.cfg.HasStableBranch() {
-		branch, err = getDefaultBranch(ctx, ghClient, pc.cfg.Owner, pc.cfg.Repo)
+		branch, err = ghClient.getDefaultBranch(ctx, pc.cfg.Owner, pc.cfg.Repo)
 		if err != nil {
 			return err
 		}
@@ -148,6 +147,6 @@ func (pc *TagCommit) commitInUpstream(ctx context.Context, commitSha, branch str
 	return true, nil
 }
 
-func (pc *TagCommit) Revert(ctx context.Context, dryRun bool, ghClient *gh.Client) error {
+func (pc *TagCommit) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
 	return fmt.Errorf("Not implemented")
 }
