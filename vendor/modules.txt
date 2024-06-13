@@ -25,6 +25,14 @@ github.com/rivo/uniseg
 # github.com/schollz/progressbar/v3 v3.14.3
 ## explicit; go 1.13
 github.com/schollz/progressbar/v3
+# github.com/shurcooL/githubv4 v0.0.0-20240429030203-be2daab69064
+## explicit; go 1.19
+github.com/shurcooL/githubv4
+# github.com/shurcooL/graphql v0.0.0-20230722043721-ed46e5a46466
+## explicit; go 1.19
+github.com/shurcooL/graphql
+github.com/shurcooL/graphql/ident
+github.com/shurcooL/graphql/internal/jsonutil
 # github.com/spf13/cobra v1.8.0
 ## explicit; go 1.15
 github.com/spf13/cobra
