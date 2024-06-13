@@ -11,16 +11,29 @@ import (
 
 	"github.com/cilium/release/pkg/github"
 	gh "github.com/google/go-github/v62/github"
+	"github.com/shurcooL/githubv4"
 	"golang.org/x/mod/semver"
+	"golang.org/x/oauth2"
 )
 
 type GHClient struct {
-	ghClient *gh.Client
+	ghClient    *gh.Client
+	ghGQLClient *githubv4.Client
 }
 
 func NewGHClient(ghToken string) *GHClient {
 	return &GHClient{
 		ghClient: github.NewClient(ghToken),
+		ghGQLClient: githubv4.NewClient(
+			oauth2.NewClient(
+				context.Background(),
+				oauth2.StaticTokenSource(
+					&oauth2.Token{
+						AccessToken: ghToken,
+					},
+				),
+			),
+		),
 	}
 }
 
