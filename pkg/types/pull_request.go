@@ -23,6 +23,8 @@ type PullRequest struct {
 	BackportBranches []string
 }
 
+// NodeIDs maps a Pull Request number to its graphql node_id
+type NodeIDs map[int]string
 
 // BackportPRs maps a backport type PR to the upstream PRs
 type BackportPRs map[int]PullRequests

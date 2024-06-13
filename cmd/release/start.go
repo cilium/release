@@ -106,33 +106,36 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 			// FIXME: check if docker is running before starting the release process
 
 			steps := []Step{
-				// Pre-release
+				// // Pre-release
+				// // Audited
+				// // Tested for pre-release
+				// NewCheckReleaseBlockers(&cfg),
+				// // Audited
+				// // Tested for pre-release
+				// NewImageCVE(&cfg),
+				// // 1st part
+				// // Audited
+				// // Tested for pre-release
+				// NewPrepareCommit(&cfg),
+				// // Audited
+				// // Tested for pre-release
+				// NewSubmitPR(&cfg),
+				// // 2nd part
+				// // Audited
+				// // Tested for pre-release
+				// NewTagCommit(&cfg),
+				// // 3rd part
+				// // Audited
+				// // Tested for pre-release
+				// NewPostRelease(&cfg),
+				// // Audited
+				// // Tested for pre-release
+				// NewSubmitPostReleasePR(&cfg),
+				// // 4th part
+				// NewHelmChart(&cfg),
 				// Audited
 				// Tested for pre-release
-				NewCheckReleaseBlockers(&cfg),
-				// Audited
-				// Tested for pre-release
-				NewImageCVE(&cfg),
-				// 1st part
-				// Audited
-				// Tested for pre-release
-				NewPrepareCommit(&cfg),
-				// Audited
-				// Tested for pre-release
-				NewSubmitPR(&cfg),
-				// 2nd part
-				// Audited
-				// Tested for pre-release
-				NewTagCommit(&cfg),
-				// 3rd part
-				// Audited
-				// Tested for pre-release
-				NewPostRelease(&cfg),
-				// Audited
-				// Tested for pre-release
-				NewSubmitPostReleasePR(&cfg),
-				// 4th part
-				NewHelmChart(&cfg),
+				NewProjectsManagement(&cfg),
 			}
 
 			for i, step := range steps {

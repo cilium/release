@@ -53,11 +53,13 @@ func GeneratePatchRelease(
 	printer func(msg string),
 	backportPRs types.BackportPRs,
 	listOfPRs types.PullRequests,
+	nodeIDs types.NodeIDs,
 	commits []string,
 	labelFilters []string,
 ) (
 	types.BackportPRs,
 	types.PullRequests,
+	types.NodeIDs,
 	[]string,
 	error,
 ) {
@@ -73,7 +75,7 @@ func GeneratePatchRelease(
 			})
 			cancel()
 			if err != nil {
-				return backportPRs, listOfPRs, commits[i:], err
+				return backportPRs, listOfPRs, nodeIDs, commits[i:], err
 			}
 
 			for _, pr := range prs {
@@ -99,6 +101,7 @@ func GeneratePatchRelease(
 						AuthorName:       pr.GetUser().GetLogin(),
 						BackportBranches: getBackportBranches(lbls),
 					}
+					nodeIDs[pr.GetNumber()] = pr.GetNodeID()
 					continue
 				}
 				backportPRs[pr.GetNumber()] = map[int]types.PullRequest{}
@@ -117,7 +120,7 @@ func GeneratePatchRelease(
 							continue
 						}
 						delete(backportPRs, pr.GetNumber())
-						return backportPRs, listOfPRs, commits[i:], err
+						return backportPRs, listOfPRs, nodeIDs, commits[i:], err
 					}
 					lbls := parseGHLabels(upstreamPR.Labels)
 					if !filterByLabels(lbls, labelFilters) {
@@ -128,6 +131,8 @@ func GeneratePatchRelease(
 						ReleaseLabel: getReleaseLabel(lbls),
 						AuthorName:   upstreamPR.GetUser().GetLogin(),
 					}
+					nodeIDs[pr.GetNumber()] = pr.GetNodeID()
+					nodeIDs[upstreamPR.GetNumber()] = upstreamPR.GetNodeID()
 				}
 			}
 
@@ -140,5 +145,5 @@ func GeneratePatchRelease(
 			printer(fmt.Sprintf("WARNING: PR not found for commit %s!\n", sha))
 		}
 	}
-	return backportPRs, listOfPRs, nil, nil
+	return backportPRs, listOfPRs, nodeIDs, nil, nil
 }

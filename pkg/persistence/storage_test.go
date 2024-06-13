@@ -32,6 +32,7 @@ func TestStoreState(t *testing.T) {
 		file        string
 		backportPRs types.BackportPRs
 		prs         types.PullRequests
+		nodeIDs     types.NodeIDs
 		shas        []string
 	}
 	tests := []struct {
@@ -62,6 +63,9 @@ func TestStoreState(t *testing.T) {
 						},
 					},
 				},
+				nodeIDs: types.NodeIDs{
+					3: "abcdef",
+				},
 				shas: []string{
 					"9ba79ef2517ede0ece6c1d1a7798c57d33d24f77",
 					"9ba79ef2517ede0ece6c1d1a7798c57d33d24f72",
@@ -73,10 +77,10 @@ func TestStoreState(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := StoreState(tt.args.file, tt.args.backportPRs, tt.args.prs, tt.args.shas); (err != nil) != tt.wantErr {
+			if err := StoreState(tt.args.file, tt.args.backportPRs, tt.args.prs, tt.args.nodeIDs, tt.args.shas); (err != nil) != tt.wantErr {
 				t.Errorf("StoreState() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			backportPRs, prs, shas, err := LoadState(tt.args.file)
+			backportPRs, prs, nodeIDs, shas, err := LoadState(tt.args.file)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("LoadState() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -86,6 +90,9 @@ func TestStoreState(t *testing.T) {
 			}
 			if !reflect.DeepEqual(prs, tt.args.prs) {
 				t.Errorf("LoadState() prs = %v, want %v", prs, tt.args.prs)
+			}
+			if !reflect.DeepEqual(nodeIDs, tt.args.nodeIDs) {
+				t.Errorf("LoadState() nodeIDs = %v, want %v", nodeIDs, tt.args.nodeIDs)
 			}
 			if !reflect.DeepEqual(shas, tt.args.shas) {
 				t.Errorf("LoadState() shas = %v, want %v", shas, tt.args.shas)
