@@ -36,7 +36,6 @@ type ReleaseConfig struct {
 	Force             bool
 	RepoDirectory     string
 	HelmRepoDirectory string
-	ProjectNumber     int
 	StateFile         string
 }
 
@@ -118,9 +117,6 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 				// Tested for pre-release
 				NewImageCVE(&cfg),
 				// 1st part
-				// Audited
-				// Tested for pre-release
-				NewProjectsManagement(&cfg),
 				// Audited
 				// Tested for pre-release
 				NewPrepareCommit(&cfg),

@@ -25,7 +25,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -129,17 +128,6 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *gh.Client
 	err = pc.updateAuthors(ctx, authorsPath, authorsAux)
 	if err != nil {
 		return err
-	}
-
-	// Update projects
-	// sed -i 's/\(projects\/\)[0-9]\+/\1'$new_proj'/g' $ACTS_YAML
-	if pc.cfg.ProjectNumber != 0 {
-		io2.Fprintf(2, os.Stdout, "Updating maintainers little helper config file\n")
-		mlhYaml := filepath.Join(pc.cfg.RepoDirectory, ".github/maintainers-little-helper.yaml")
-		err := updateProject(mlhYaml, pc.cfg.ProjectNumber)
-		if err != nil {
-			return err
-		}
 	}
 
 	// $DIR/../../Documentation/check-crd-compat-table.sh "$target_branch" --update
@@ -301,21 +289,6 @@ func (l *Logger) Printf(format string, v ...any) {
 func (l *Logger) Println(v ...any) {
 	s := fmt.Sprintln(v...)
 	io2.Fprintf(l.depth, os.Stdout, "%s", s)
-}
-
-func updateProject(projectFile string, newProjectNumber int) error {
-	makefileContent, err := os.ReadFile(projectFile)
-	if err != nil {
-		return fmt.Errorf("error reading %q file: %w", projectFile, err)
-	}
-	re := regexp.MustCompile(`(projects/)[0-9]+`)
-	modifiedContent := re.ReplaceAll(makefileContent, []byte("${1}"+strconv.Itoa(newProjectNumber)))
-	err = writeFile(projectFile, modifiedContent)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func execCommand(dir, name string, args ...string) (io.Reader, error) {
