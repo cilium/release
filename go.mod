@@ -5,7 +5,6 @@ go 1.21
 toolchain go1.22.0
 
 require (
-	github.com/Masterminds/semver v1.5.0
 	github.com/blang/semver/v4 v4.0.0
 	github.com/google/go-github/v62 v62.0.0
 	github.com/schollz/progressbar/v3 v3.14.3
