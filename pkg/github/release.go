@@ -16,7 +16,9 @@ package github
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 	"time"
 
@@ -109,6 +111,11 @@ func GeneratePatchRelease(
 					upstreamPR, _, err := ghClient.PullRequests.Get(ctxWithTimeout, owner, repo, upstreamPRNumber)
 					cancel()
 					if err != nil {
+						var ghErrRespon *gh.ErrorResponse
+						if errors.As(err, &ghErrRespon) && ghErrRespon.Response.StatusCode == http.StatusNotFound {
+							printer(fmt.Sprintf("WARNING: PR not found %d!\n", upstreamPRNumber))
+							continue
+						}
 						delete(backportPRs, pr.GetNumber())
 						return backportPRs, listOfPRs, commits[i:], err
 					}
