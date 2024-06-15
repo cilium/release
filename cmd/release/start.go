@@ -36,6 +36,7 @@ type ReleaseConfig struct {
 	HelmRepoDirectory string
 	StateFile         string
 	Groups            []string
+	DefaultBranch     string
 }
 
 func (cfg *ReleaseConfig) Sanitize() error {
@@ -166,6 +167,13 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 					io.Fprintf(0, os.Stdout, "💡 The PREVIOUS released version was %s\n", previousVer)
 				}
 				cfg.PreviousVer = previousVer
+			}
+
+			// Auto detect default branch
+			var err error
+			cfg.DefaultBranch, err = ghClient.getDefaultBranch(ctx, cfg.Owner, cfg.Repo)
+			if err != nil {
+				return err
 			}
 
 			remoteBranchName, err := ghClient.getRemoteBranch(ctx, cfg.Owner, cfg.Repo, cfg.TargetVer)

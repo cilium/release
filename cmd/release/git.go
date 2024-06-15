@@ -62,12 +62,8 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient)
 	// If we are doing a pre-release from the main branch then the remote
 	// branch doesn't exist.
 	branch := pc.cfg.RemoteBranchName
-	defaultBranch, err := ghClient.getDefaultBranch(ctx, pc.cfg.Owner, pc.cfg.Repo)
-	if err != nil {
-		return err
-	}
 	if !pc.cfg.HasStableBranch() {
-		branch = defaultBranch
+		branch = pc.cfg.DefaultBranch
 	}
 
 	localBranch := fmt.Sprintf("pr/prepare-%s", pc.cfg.TargetVer)
