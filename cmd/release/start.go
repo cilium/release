@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"slices"
+	"strings"
 
 	"github.com/cilium/release/pkg/io"
 	"github.com/cilium/release/pkg/types"
@@ -34,6 +35,7 @@ type ReleaseConfig struct {
 	RepoDirectory     string
 	HelmRepoDirectory string
 	StateFile         string
+	Groups            []string
 }
 
 func (cfg *ReleaseConfig) Sanitize() error {
@@ -57,6 +59,76 @@ type Step interface {
 	Name() string
 	Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *GHClient) error
 	Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error
+}
+
+// GroupStep contains a list of steps that should run.
+type GroupStep struct {
+	name  string
+	steps []Step
+}
+
+var (
+	groups        []GroupStep
+	allGroupNames []string
+)
+
+func init() {
+	groups = []GroupStep{
+		{
+			name: "1-pre-release",
+			steps: []Step{
+				// Audited
+				// Tested for pre-release
+				NewCheckReleaseBlockers(&cfg),
+				// Audited
+				// Tested for pre-release
+				NewImageCVE(&cfg),
+			},
+		},
+		{
+			name: "2-prepare-commit",
+			steps: []Step{
+				// Audited
+				// Tested for pre-release
+				NewPrepareCommit(&cfg),
+				// Audited
+				// Tested for pre-release
+				NewSubmitPR(&cfg),
+			},
+		},
+		{
+			name: "3-tag",
+			steps: []Step{
+				// Audited
+				// Tested for pre-release
+				NewTagCommit(&cfg),
+			},
+		},
+		{
+			name: "4-post-release",
+			steps: []Step{
+				// Audited
+				// Tested for pre-release
+				NewPostRelease(&cfg),
+				// Audited
+				// Tested for pre-release
+				NewSubmitPostReleasePR(&cfg),
+			},
+		},
+		{
+			name: "5-publish-helm",
+			steps: []Step{
+				NewHelmChart(&cfg),
+				// Audited
+				// Tested for pre-release
+				NewProjectsManagement(&cfg),
+			},
+		},
+	}
+
+	for _, group := range groups {
+		allGroupNames = append(allGroupNames, group.name)
+	}
 }
 
 func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
@@ -105,54 +177,38 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 
 			// FIXME: check if docker is running before starting the release process
 
-			steps := []Step{
-				// // Pre-release
-				// // Audited
-				// // Tested for pre-release
-				// NewCheckReleaseBlockers(&cfg),
-				// // Audited
-				// // Tested for pre-release
-				// NewImageCVE(&cfg),
-				// // 1st part
-				// // Audited
-				// // Tested for pre-release
-				// NewPrepareCommit(&cfg),
-				// // Audited
-				// // Tested for pre-release
-				// NewSubmitPR(&cfg),
-				// // 2nd part
-				// // Audited
-				// // Tested for pre-release
-				// NewTagCommit(&cfg),
-				// // 3rd part
-				// // Audited
-				// // Tested for pre-release
-				// NewPostRelease(&cfg),
-				// // Audited
-				// // Tested for pre-release
-				// NewSubmitPostReleasePR(&cfg),
-				// // 4th part
-				// NewHelmChart(&cfg),
-				// Audited
-				// Tested for pre-release
-				NewProjectsManagement(&cfg),
-			}
-
-			for i, step := range steps {
-				io.Fprintf(0, os.Stdout, "🏃 Running step %q\n", step.Name())
-				err := step.Run(ctx, cfg.Force, cfg.DryRun, ghClient)
-				if err != nil {
-					io.Fprintf(0, os.Stdout, "😩 Error while running step %q: %s. Reverting previous steps...\n", step.Name(), err)
-					revertSteps := steps[:i]
-					slices.Reverse(revertSteps)
-					for _, revertStep := range revertSteps {
-						err := revertStep.Revert(ctx, cfg.DryRun, ghClient)
-						if err != nil {
-							io.Fprintf(0, os.Stdout, "😩 Unrecoverable error while reverting step %q: %s\n", revertStep.Name(), err)
-						}
+			for _, group := range groups {
+				run := false
+				for _, runGroup := range cfg.Groups {
+					if group.name == runGroup ||
+						// Also accept alias based on the number
+						(len(runGroup) == 1 && strings.HasPrefix(group.name, runGroup)) {
+						run = true
+						break
 					}
-					return err
 				}
+				if !run {
+					continue
+				}
+				io.Fprintf(0, os.Stdout, "🏃 Running group %q\n", group.name)
+				steps := group.steps
+				for i, step := range steps {
+					io.Fprintf(0, os.Stdout, "🏃 Running step %q\n", step.Name())
+					err := step.Run(ctx, cfg.Force, cfg.DryRun, ghClient)
+					if err != nil {
+						io.Fprintf(0, os.Stdout, "😩 Error while running step %q: %s. Reverting previous steps...\n", step.Name(), err)
+						revertSteps := steps[:i]
+						slices.Reverse(revertSteps)
+						for _, revertStep := range revertSteps {
+							err := revertStep.Revert(ctx, cfg.DryRun, ghClient)
+							if err != nil {
+								io.Fprintf(0, os.Stdout, "😩 Unrecoverable error while reverting step %q: %s\n", revertStep.Name(), err)
+							}
+						}
+						return err
+					}
+				}
+				io.Fprintf(0, os.Stdout, "All groups successfully ran\n")
 			}
 			return nil
 		},
@@ -169,6 +225,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd.Flags().StringVar(&cfg.RepoDirectory, "repo-dir", "../cilium", "Directory with the source code of Cilium")
 	cmd.Flags().StringVar(&cfg.HelmRepoDirectory, "charts-repo-dir", "../charts", "Directory with the source code of Helm charts")
 	cmd.Flags().StringVar(&cfg.StateFile, "state-file", defaultStateFileValue, "When set, it will use the already fetched information from a previous run")
+	cmd.Flags().StringSliceVar(&cfg.Groups, "groups", allGroupNames, "Specify which groups should be executed for the release. You can also simply pass the numbers of the groups '1,2'")
 
 	for _, flag := range []string{"target-version", "template"} {
 		cobra.MarkFlagRequired(cmd.Flags(), flag)
