@@ -50,10 +50,7 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	// Find release commit in the remote branch
 	branch := pc.cfg.RemoteBranchName
 	if !pc.cfg.HasStableBranch() {
-		branch, err = ghClient.getDefaultBranch(ctx, pc.cfg.Owner, pc.cfg.Repo)
-		if err != nil {
-			return err
-		}
+		branch = pc.cfg.DefaultBranch
 	}
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 

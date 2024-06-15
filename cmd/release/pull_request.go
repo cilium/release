@@ -36,11 +36,7 @@ func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *GHClien
 
 	baseBranch := pc.cfg.RemoteBranchName
 	if !pc.cfg.HasStableBranch() {
-		var err error
-		baseBranch, err = ghClient.getDefaultBranch(ctx, pc.cfg.Owner, pc.cfg.Repo)
-		if err != nil {
-			return err
-		}
+		baseBranch = pc.cfg.DefaultBranch
 	}
 
 	user, err := execCommand(pc.cfg.RepoDirectory, "gh", "api", "user", "--jq", ".login")
