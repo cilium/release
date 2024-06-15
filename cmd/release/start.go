@@ -13,6 +13,7 @@ import (
 
 	"github.com/cilium/release/pkg/io"
 	"github.com/cilium/release/pkg/types"
+	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
 )
@@ -120,9 +121,9 @@ func init() {
 			},
 		},
 		{
-			name: "5-publish-helm",
+			name:  "5-publish-helm",
 			steps: []Step{
-				NewHelmChart(&cfg),
+				// NewHelmChart(&cfg),
 			},
 		},
 	}
@@ -144,6 +145,18 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 			}
 			if defaultStateFileValue == cfg.StateFile {
 				cfg.StateFile = fmt.Sprintf("release-state-%s-%s-%s.json", cfg.Repo, cfg.Owner, cfg.TargetVer)
+			}
+
+			// check if docker is running before starting the release process
+			cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+			if err != nil {
+				return fmt.Errorf("Error creating Docker client: %w", err)
+			}
+
+			ctx := context.Background()
+			_, err = cli.Ping(ctx)
+			if err != nil {
+				return fmt.Errorf("Docker is not running or not accessible: %w", err)
 			}
 
 			ghClient := NewGHClient(os.Getenv("GITHUB_TOKEN"))
@@ -170,7 +183,6 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 			}
 
 			// Auto detect default branch
-			var err error
 			cfg.DefaultBranch, err = ghClient.getDefaultBranch(ctx, cfg.Owner, cfg.Repo)
 			if err != nil {
 				return err
@@ -182,8 +194,6 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 			}
 
 			cfg.RemoteBranchName = remoteBranchName
-
-			// FIXME: check if docker is running before starting the release process
 
 			for _, group := range groups {
 				run := false
