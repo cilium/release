@@ -45,10 +45,7 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 
 	branch := pc.cfg.RemoteBranchName
 	if !pc.cfg.HasStableBranch() {
-		branch, err = ghClient.getDefaultBranch(ctx, pc.cfg.Owner, pc.cfg.Repo)
-		if err != nil {
-			return err
-		}
+		branch = pc.cfg.DefaultBranch
 	}
 
 	localBranch := fmt.Sprintf("pr/%s-digests", pc.cfg.TargetVer)

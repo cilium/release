@@ -39,10 +39,7 @@ func (c *CheckReleaseBlockers) Run(ctx context.Context, yesToPrompt, _ bool, ghC
 	releaseBlockerLabel := github.ReleaseBlockerLabel(c.cfg.TargetVer)
 	backportDoneLabel := github.BackportDoneLabel(c.cfg.TargetVer)
 
-	baseBranch, err := ghClient.getDefaultBranch(ctx, c.cfg.Owner, c.cfg.Repo)
-	if err != nil {
-		return err
-	}
+	baseBranch := c.cfg.DefaultBranch
 
 	releaseDate, err := ghClient.getTagDate(ctx, c.cfg.Owner, c.cfg.Repo, c.cfg.PreviousVer)
 	if err != nil {
