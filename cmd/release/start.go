@@ -114,15 +114,15 @@ func init() {
 				// Audited
 				// Tested for pre-release
 				NewSubmitPostReleasePR(&cfg),
+				// Audited
+				// Tested for pre-release
+				NewProjectsManagement(&cfg),
 			},
 		},
 		{
 			name: "5-publish-helm",
 			steps: []Step{
 				NewHelmChart(&cfg),
-				// Audited
-				// Tested for pre-release
-				NewProjectsManagement(&cfg),
 			},
 		},
 	}
