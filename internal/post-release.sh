@@ -69,7 +69,7 @@ main() {
 
     # Grab the release notes for the current release, stop before the next
     # release. The start of line `## vX.Y.Z` lines will match in command.
-    tail -n+4 CHANGELOG.md | sed '/^## v.*$/q' > $version-release-summary.txt
+    tail -n+4 CHANGELOG.md | sed '/^## v.*$/q' | grep -v '^##' > $version-release-summary.txt
     tail -n+2 digest-$version.txt >> $version-release-summary.txt
     logecho "Creating Github draft release"
     prerelease=""
