@@ -1,4 +1,4 @@
-all: local
+all: tests local
 
 docker-image:
 	docker build -t cilium/release:${VERSION} .
@@ -6,7 +6,7 @@ docker-image:
 tests:
 	go test -mod=vendor ./...
 
-release: tests
+release:
 	CGO_ENABLED=0 go build -mod=vendor -a -installsuffix cgo -o $@ ./cmd/main.go
 
 local: release
