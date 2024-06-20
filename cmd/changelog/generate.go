@@ -160,11 +160,7 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 					printedReleaseNoteHeader = true
 				}
 
-				changelogItems = append(
-					changelogItems,
-					fmt.Sprintf("* %s (Backport PR #%d, Upstream PR #%d, @%s)",
-						pr.ReleaseNote, backportPR, prID, pr.AuthorName),
-				)
+				changelogItems = append(changelogItems, cl.prReleaseNote(pr, prID, &backportPR))
 				delete(listOfPrs, prID)
 			}
 		}
@@ -189,10 +185,7 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 				printedReleaseNoteHeader = true
 			}
 
-			changelogItems = append(
-				changelogItems,
-				fmt.Sprintf("* %s (%s#%d, @%s)", pr.ReleaseNote, cl.RepoName, prID, pr.AuthorName),
-			)
+			changelogItems = append(changelogItems, cl.prReleaseNote(pr, prID, nil))
 			delete(cl.listOfPrs, prID)
 		}
 		sort.Slice(changelogItems, func(i, j int) bool {
@@ -220,10 +213,8 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 				cl.Logger.Printf(releaseNotes[releaseLabel])
 				printedReleaseNoteHeader = true
 			}
-			changelogItems = append(
-				changelogItems,
-				fmt.Sprintf("* %s (%s#%d, @%s)", pr.ReleaseNote, cl.RepoName, prID, pr.AuthorName),
-			)
+
+			changelogItems = append(changelogItems, cl.prReleaseNote(pr, prID, nil))
 			delete(cl.listOfPrs, prID)
 		}
 		sort.Slice(changelogItems, func(i, j int) bool {
@@ -233,4 +224,17 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 			cl.Logger.Printf(changeLogItem)
 		}
 	}
+}
+
+// prReleaseNote returns the release note for a given pull request.
+func (cl *ChangeLog) prReleaseNote(pr types.PullRequest, prNumber int, upstreamPRNumber *int) string {
+	text := fmt.Sprintf("* %s", pr.ReleaseNote)
+	if !cl.ExcludePRReferences {
+		if upstreamPRNumber != nil {
+			text += fmt.Sprintf("(Backport PR #%d, Upstream PR #%d, @%s)", prNumber, *upstreamPRNumber, pr.AuthorName)
+		} else {
+			text += fmt.Sprintf("(%s#%d, @%s)", cl.RepoName, prNumber, pr.AuthorName)
+		}
+	}
+	return text
 }
