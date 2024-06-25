@@ -79,51 +79,35 @@ func init() {
 		{
 			name: "1-pre-release",
 			steps: []Step{
-				// Audited
-				// Tested for pre-release
 				NewCheckReleaseBlockers(&cfg),
-				// Audited
-				// Tested for pre-release
 				NewImageCVE(&cfg),
 			},
 		},
 		{
 			name: "2-prepare-commit",
 			steps: []Step{
-				// Audited
-				// Tested for pre-release
 				NewPrepareCommit(&cfg),
-				// Audited
-				// Tested for pre-release
 				NewSubmitPR(&cfg),
 			},
 		},
 		{
 			name: "3-tag",
 			steps: []Step{
-				// Audited
-				// Tested for pre-release
 				NewTagCommit(&cfg),
 			},
 		},
 		{
 			name: "4-post-release",
 			steps: []Step{
-				// Audited
-				// Tested for pre-release
 				NewPostRelease(&cfg),
-				// Audited
-				// Tested for pre-release
 				NewSubmitPostReleasePR(&cfg),
-				// Audited
-				// Tested for pre-release
 				NewProjectsManagement(&cfg),
 			},
 		},
 		{
-			name:  "5-publish-helm",
+			name: "5-publish-helm",
 			steps: []Step{
-				// NewHelmChart(&cfg),
+				NewHelmChart(&cfg),
 			},
 		},
 	}
