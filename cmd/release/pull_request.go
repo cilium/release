@@ -39,15 +39,19 @@ func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *GHClien
 		baseBranch = pc.cfg.DefaultBranch
 	}
 
+	// Default to "owner" if we can't get the user from gh api
+	userRemote := pc.cfg.Owner
+
 	user, err := execCommand(pc.cfg.RepoDirectory, "gh", "api", "user", "--jq", ".login")
-	if err != nil {
-		return err
+	if err == nil {
+		userRaw, err := io.ReadAll(user)
+		if err != nil {
+			return err
+		}
+		userRemote = strings.TrimSpace(string(userRaw))
+	} else {
+		io2.Fprintf(3, os.Stdout, "⚠️ Unable to get GH user, falling back to %q\n", userRemote)
 	}
-	userRaw, err := io.ReadAll(user)
-	if err != nil {
-		return err
-	}
-	userRemote := strings.TrimSpace(string(userRaw))
 
 	remoteName, err := getRemote(pc.cfg.RepoDirectory, userRemote, pc.cfg.Repo)
 	if err != nil {
