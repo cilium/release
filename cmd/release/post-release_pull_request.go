@@ -15,6 +15,7 @@ import (
 
 	"github.com/cilium/release/pkg/github"
 	io2 "github.com/cilium/release/pkg/io"
+	gh "github.com/google/go-github/v62/github"
 	"golang.org/x/mod/semver"
 )
 
@@ -85,29 +86,28 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	}
 	releaseSummaryFileContent.Close()
 
-	var preRelease string
-	if semver.Prerelease(pc.cfg.TargetVer) != "" {
-		preRelease = "-p"
-	}
-
-	ersion := strings.TrimPrefix(pc.cfg.TargetVer, "v")
-	// TODO: replacement with ghClient.Repositories.CreateRelease
-	_, err = execCommand(pc.cfg.RepoDirectory,
-		"gh",
-		"release",
-		"create",
-		"--draft",
-		preRelease,
-		"--notes-file",
-		releaseSummaryFileName,
-		pc.cfg.TargetVer,
-		"--title",
-		ersion,
-	)
-
+	releaseSummaryFileContentBytes, err := os.ReadFile(releaseSummaryFile)
 	if err != nil {
 		return err
 	}
+
+	releaseSummaryFileContentStr := string(releaseSummaryFileContentBytes)
+
+	ersion := strings.TrimPrefix(pc.cfg.TargetVer, "v")
+	_, _, err = ghClient.ghClient.Repositories.CreateRelease(
+		ctx,
+		pc.cfg.Owner,
+		pc.cfg.Repo,
+		&gh.RepositoryRelease{
+			TagName:              &pc.cfg.TargetVer,
+			Name:                 &ersion,
+			Body:                 &releaseSummaryFileContentStr,
+			Draft:                func() *bool { a := true; return &a }(),
+			Prerelease:           func() *bool { a := semver.Prerelease(pc.cfg.TargetVer) != ""; return &a }(),
+			MakeLatest:           func() *string { a := "false"; return &a }(),
+			GenerateReleaseNotes: func() *bool { a := false; return &a }(),
+		},
+	)
 
 	if !pc.cfg.HasStableBranch() {
 		io2.Fprintf(1, os.Stdout, "Pre-Releases don't need to have a post pull request done "+
