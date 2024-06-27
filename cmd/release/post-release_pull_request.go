@@ -158,7 +158,7 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 		return err
 	}
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", remoteName, remoteBranchName)
+	_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", "-f", remoteName, remoteBranchName)
 	if err != nil {
 		return err
 	}
