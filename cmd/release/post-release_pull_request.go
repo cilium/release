@@ -171,6 +171,7 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 		"gh",
 		"pr",
 		"create",
+		"--fill",
 		"-B",
 		baseBranch,
 		"-l", strings.Join(labels, ","))
