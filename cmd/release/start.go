@@ -4,6 +4,7 @@
 package release
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -36,7 +37,7 @@ type ReleaseConfig struct {
 	RepoDirectory     string
 	HelmRepoDirectory string
 	StateFile         string
-	Groups            []string
+	Steps             []string
 	DefaultBranch     string
 }
 
@@ -65,13 +66,14 @@ type Step interface {
 
 // GroupStep contains a list of steps that should run.
 type GroupStep struct {
-	name  string
-	steps []Step
+	name        string
+	steps       []Step
+	permissions map[Location]Permission
 }
 
 var (
-	groups        []GroupStep
-	allGroupNames []string
+	groups             []GroupStep
+	allGroupStepsNames []string
 )
 
 func init() {
@@ -82,18 +84,31 @@ func init() {
 				NewCheckReleaseBlockers(&cfg),
 				NewImageCVE(&cfg),
 			},
+			permissions: map[Location]Permission{
+				LocationGitHubUpstream: PermissionRead,
+				LocationQuayIO:         PermissionRead,
+			},
 		},
 		{
-			name: "2-prepare-commit",
+			name: "2-prepare-release",
 			steps: []Step{
 				NewPrepareCommit(&cfg),
 				NewSubmitPR(&cfg),
+			},
+			permissions: map[Location]Permission{
+				LocationLocalDisk:      PermissionRead | PermissionWrite,
+				LocationGitHubUpstream: PermissionRead | PermissionPullRequest,
+				LocationGitHubFork:     PermissionWrite,
 			},
 		},
 		{
 			name: "3-tag",
 			steps: []Step{
 				NewTagCommit(&cfg),
+			},
+			permissions: map[Location]Permission{
+				LocationLocalDisk:      PermissionRead | PermissionWrite,
+				LocationGitHubUpstream: PermissionRead | PermissionWrite,
 			},
 		},
 		{
@@ -103,17 +118,27 @@ func init() {
 				NewSubmitPostReleasePR(&cfg),
 				NewProjectsManagement(&cfg),
 			},
+			permissions: map[Location]Permission{
+				LocationLocalDisk:      PermissionRead | PermissionWrite,
+				LocationGitHubUpstream: PermissionRead | PermissionPullRequest,
+				LocationGitHubFork:     PermissionWrite,
+				LocationGitHubProjects: PermissionRead | PermissionWrite,
+			},
 		},
 		{
 			name: "5-publish-helm",
 			steps: []Step{
 				NewHelmChart(&cfg),
 			},
+			permissions: map[Location]Permission{
+				LocationLocalDisk:       PermissionRead | PermissionWrite,
+				LocationGitHubHelmChart: PermissionRead | PermissionWrite,
+			},
 		},
 	}
 
 	for _, group := range groups {
-		allGroupNames = append(allGroupNames, group.name)
+		allGroupStepsNames = append(allGroupStepsNames, group.name)
 	}
 }
 
@@ -121,6 +146,60 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "start",
 		Short: "Start the release process",
+		Long: func() string {
+			var buf bytes.Buffer
+			buf.WriteString(
+				`Release Process
+This tool is designed to perform Cilium releases.
+
+Each step in the release process should be run separately. These steps perform
+logical operations and can be executed independently. Each step has a soft
+dependency on the previous one.
+
+This tool handles pre-releases, release candidates (RCs), and patch releases.
+
+1. pre-release:
+Checks for any release blockers and fixable CVEs in quay.io.
+
+2. prepare-release:
+Prepares a commit in the local git repository by modifying necessary files and
+pushing a PR once the files are committed.
+
+3. tag:
+Fetches the repository from upstream and tags the release commit with the
+appropriate tag.
+
+4. post-release:
+Populates the Helm charts with the image digests and creates a Pull Request with
+these changes.
+Creates a GitHub release in draft mode for later publishing.
+Moves all Pull Requests that are part of this release to their respective
+project.
+
+5. publish-helm:
+Prepares the Helm chart in the local repository and pushes the changes directly
+to the main branch.
+
+Below is a table summarizing the permissions required for this tool.
+`)
+			PrintPermTable(&buf)
+			buf.WriteString(`
+
+Requirements:
+- docker
+- gh CLI tool
+- GITHUB_TOKEN with:
+    - Read access to actions, issues, and metadata
+    - Read and write access to code, organization projects, and pull requests
+	- Direct link in https://github.com/settings/tokens/new?scopes=project,write:org,repo
+- Local Cilium repository
+- Local Cilium Chart repository
+
+To start, run
+./release start --target-version vX.Y.Z[-(pre|rc).W] --steps 1
+`)
+			return buf.String()
+		}(),
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			cfg.TargetVer = semver.Canonical(cfg.TargetVer)
 			if err := cfg.Sanitize(); err != nil {
@@ -181,7 +260,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 
 			for _, group := range groups {
 				run := false
-				for _, runGroup := range cfg.Groups {
+				for _, runGroup := range cfg.Steps {
 					if group.name == runGroup ||
 						// Also accept alias based on the number
 						(len(runGroup) == 1 && strings.HasPrefix(group.name, runGroup)) {
@@ -227,7 +306,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd.Flags().StringVar(&cfg.RepoDirectory, "repo-dir", "../cilium", "Directory with the source code of Cilium")
 	cmd.Flags().StringVar(&cfg.HelmRepoDirectory, "charts-repo-dir", "../charts", "Directory with the source code of Helm charts")
 	cmd.Flags().StringVar(&cfg.StateFile, "state-file", defaultStateFileValue, "When set, it will use the already fetched information from a previous run")
-	cmd.Flags().StringSliceVar(&cfg.Groups, "groups", allGroupNames, "Specify which groups should be executed for the release. You can also simply pass the numbers of the groups '1,2'")
+	cmd.Flags().StringSliceVar(&cfg.Steps, "steps", allGroupStepsNames, "Specify which steps should be executed for the release. You can also simply pass the numbers of the steps, e.g. '1,2'")
 
 	for _, flag := range []string{"target-version", "template"} {
 		cobra.MarkFlagRequired(cmd.Flags(), flag)
