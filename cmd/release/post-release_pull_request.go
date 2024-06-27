@@ -16,6 +16,7 @@ import (
 	"github.com/cilium/release/pkg/github"
 	io2 "github.com/cilium/release/pkg/io"
 	gh "github.com/google/go-github/v62/github"
+	github2 "github.com/google/go-github/v62/github"
 	"golang.org/x/mod/semver"
 )
 
@@ -167,14 +168,27 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	if pc.cfg.HasStableBranch() {
 		labels = append(labels, github.BackportLabel(pc.cfg.TargetVer))
 	}
-	_, err = execCommand(pc.cfg.RepoDirectory,
-		"gh",
-		"pr",
-		"create",
-		"--fill",
-		"-B",
-		baseBranch,
-		"-l", strings.Join(labels, ","))
+	// Check if PR already exists for this branch.
+	prs, _, err := ghClient.ghClient.PullRequests.List(ctx, pc.cfg.Owner, pc.cfg.Repo, &github2.PullRequestListOptions{
+		State: "open",
+		Head:  fmt.Sprintf("%s:%s", userRemote, remoteBranchName),
+		Base:  baseBranch,
+	})
+	if err != nil {
+		return err
+	}
+	if len(prs) > 0 {
+		io2.Fprintf(2, os.Stdout, "📤 Pull request is already open: %s\n", prs[0].GetHTMLURL())
+	} else {
+		_, err = execCommand(pc.cfg.RepoDirectory,
+			"gh",
+			"pr",
+			"create",
+			"--fill",
+			"-B",
+			baseBranch,
+			"-l", strings.Join(labels, ","))
+	}
 
 	return err
 }
