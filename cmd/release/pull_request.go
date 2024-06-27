@@ -15,6 +15,7 @@ import (
 
 	"github.com/cilium/release/pkg/github"
 	io2 "github.com/cilium/release/pkg/io"
+	github2 "github.com/google/go-github/v62/github"
 )
 
 type PushPullRequest struct {
@@ -93,19 +94,32 @@ func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *GHClien
 		labels = append(labels, github.BackportLabel(pc.cfg.TargetVer))
 	}
 
-	io2.Fprintf(2, os.Stdout, "📤 Creating PR...\n")
-	// Sleep 10 seconds, otherwise we are too fast for github to detect there's
-	// a branch already created and use that branch to create the PR.
-	time.Sleep(10 * time.Second)
-	_, err = execCommand(pc.cfg.RepoDirectory,
-		"gh",
-		"pr",
-		"create",
-		"--base",
-		baseBranch,
-		"--label", strings.Join(labels, ","),
-		"--body-file", prBodyFile,
-		"--title", prTitle)
+	// Check if PR already exists for this branch.
+	prs, _, err := ghClient.ghClient.PullRequests.List(ctx, pc.cfg.Owner, pc.cfg.Repo, &github2.PullRequestListOptions{
+		State: "open",
+		Head:  fmt.Sprintf("%s:%s", userRemote, localBranch),
+		Base:  baseBranch,
+	})
+	if err != nil {
+		return err
+	}
+	if len(prs) > 0 {
+		io2.Fprintf(2, os.Stdout, "📤 Pull request is already open: %s\n", prs[0].GetHTMLURL())
+	} else {
+		io2.Fprintf(2, os.Stdout, "📤 Creating PR...\n")
+		// Sleep 10 seconds, otherwise we are too fast for github to detect there's
+		// a branch already created and use that branch to create the PR.
+		time.Sleep(10 * time.Second)
+		_, err = execCommand(pc.cfg.RepoDirectory,
+			"gh",
+			"pr",
+			"create",
+			"--base",
+			baseBranch,
+			"--label", strings.Join(labels, ","),
+			"--body-file", prBodyFile,
+			"--title", prTitle)
+	}
 
 	return err
 }
