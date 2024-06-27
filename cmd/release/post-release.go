@@ -86,7 +86,7 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 	}
 
 	io2.Fprintf(2, os.Stdout, "⬇️ Fetching docker digests from workflow run\n")
-	_, err = execCommand(pc.cfg.RepoDirectory, "../release/internal/pull-docker-manifests.sh", buildURL, pc.cfg.TargetVer)
+	_, err = execCommand(pc.cfg.RepoDirectory, "../release/internal/pull-docker-manifests.sh", buildURL, pc.cfg.TargetVer, pc.cfg.Owner)
 	if err != nil {
 		return err
 	}
