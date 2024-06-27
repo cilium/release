@@ -66,9 +66,9 @@ func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *GHClien
 	// used for a tag.
 	if !pc.cfg.HasStableBranch() {
 		io2.Fprintf(2, os.Stdout, "🧪 Detected pre-release from default branch, pushing HEAD^ changes before creating PR\n")
-		_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", remoteName, "HEAD^:refs/heads/"+localBranch)
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", "-f", remoteName, "HEAD^:refs/heads/"+localBranch)
 	} else {
-		_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", remoteName, localBranch)
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", "-f", remoteName, localBranch)
 	}
 	if err != nil {
 		return err
