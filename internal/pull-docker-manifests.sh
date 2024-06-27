@@ -69,7 +69,6 @@ main() {
     ersion="$(echo ${2:-$(cat VERSION)} | sed 's/^v//')"
     version="v${ersion}"
     username=$(get_user_remote ${3:-})
-    upstream_remote="$(get_remote)"
 
     if [ ! -e "${PWD}/install/kubernetes/Makefile.digests" ]; then
         >&2 echo "Cannot find install/kubernetes/Makefile.digests"
