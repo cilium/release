@@ -76,17 +76,16 @@ main() {
         return 1
     fi
 
-    makefile_digest=$(get_digest_output "${username}" "${run_url_id}" "${version}" Makefile.digests)
     >&2 echo "Adding image SHAs to install/kubernetes/Makefile.digests"
     >&2 echo ""
-    cp "${makefile_digest}" "${PWD}/install/kubernetes/Makefile.digests"
+    cp "${PWD}/../release/Makefile.digests" "${PWD}/install/kubernetes/Makefile.digests"
     make -C install/kubernetes/ RELEASE=yes
 
     >&2 echo "Generating manifest text for release notes"
     >&2 echo ""
-    image_digest_output=$(get_digest_output "${username}" "${run_url_id}" "${version}" image-digest-output.txt)
+    #image_digest_output=$(get_digest_output "${username}" "${run_url_id}" "${version}" image-digest-output.txt)
     echo > "${PWD}/digest-${version}.txt"
-    cat "${image_digest_output}" >> "${PWD}/digest-${version}.txt"
+    cat "${PWD}/../release/digest-${version}.txt" >> "${PWD}/digest-${version}.txt"
     >&2 echo "Image digests available at ${PWD}/digest-${version}.txt"
 }
 
