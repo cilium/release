@@ -155,7 +155,13 @@ func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, 
 	if !dryRun {
 		err = pm.publishProject(ctx, ghClient, currProjID)
 		if err != nil {
-			return fmt.Errorf("unable to publish project: %w", err)
+			// TODO this is a confirmed limitation of GH as it doesn't allow an
+			//  app to publish the projects. They are addressing this bug.
+			io.Fprintf(1, os.Stdout, "⚠️⚠️ ERR: %s. Unable to publish the project!\n", err)
+			io.Fprintf(1, os.Stdout, "⚠️⚠️ You need to manually close it and mark it as public/private depending if\n")
+			io.Fprintf(1, os.Stdout, "⚠️⚠️ the repository is public or private.\n")
+			io.Fprintf(1, os.Stdout, "⚠️⚠️ The project is under https://github.com/orgs/%s/projects/%d\n", pm.cfg.Owner, currProjNumber)
+			// return fmt.Errorf("unable to publish project: %w", err)
 		}
 	}
 	return nil
@@ -341,7 +347,7 @@ func (pm *ProjectManagement) publishProject(ctx context.Context, gqlGHClient *GH
 	} else {
 		publicOrPrivate = "public"
 	}
-	io.Fprintf(2, os.Stdout, "Publishing project as 'closed' and marking at %s\n", publicOrPrivate)
+	io.Fprintf(2, os.Stdout, "Publishing project as 'closed' and marking it as %q\n", publicOrPrivate)
 
 	return gqlGHClient.ghGQLClient.Mutate(ctx, &m, upi, nil)
 }
