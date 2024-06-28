@@ -306,7 +306,9 @@ To start, run
 	cmd.Flags().StringVar(&cfg.RepoDirectory, "repo-dir", "../cilium", "Directory with the source code of Cilium")
 	cmd.Flags().StringVar(&cfg.HelmRepoDirectory, "charts-repo-dir", "../charts", "Directory with the source code of Helm charts")
 	cmd.Flags().StringVar(&cfg.StateFile, "state-file", defaultStateFileValue, "When set, it will use the already fetched information from a previous run")
-	cmd.Flags().StringSliceVar(&cfg.Steps, "steps", allGroupStepsNames, "Specify which steps should be executed for the release. You can also simply pass the numbers of the steps, e.g. '1,2'")
+	cmd.Flags().StringSliceVar(&cfg.Steps, "steps", []string{"1"},
+		fmt.Sprintf("Specify which steps should be executed for the release. Steps numbers are also allowed, e.g. '1,2'. Accepted values: %s", strings.Join(allGroupStepsNames, ", ")),
+	)
 
 	for _, flag := range []string{"target-version", "template"} {
 		cobra.MarkFlagRequired(cmd.Flags(), flag)
