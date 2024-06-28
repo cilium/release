@@ -79,7 +79,7 @@ var (
 func init() {
 	groups = []GroupStep{
 		{
-			name: "1-pre-release",
+			name: "1-pre-check",
 			steps: []Step{
 				NewCheckReleaseBlockers(&cfg),
 				NewImageCVE(&cfg),
@@ -158,7 +158,7 @@ dependency on the previous one.
 
 This tool handles pre-releases, release candidates (RCs), and patch releases.
 
-1. pre-release:
+1. pre-check:
 Checks for any release blockers and fixable CVEs in quay.io.
 
 2. prepare-release:
