@@ -15,10 +15,14 @@
 package github
 
 import (
+	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
-	gh "github.com/google/go-github/v50/github"
+	blang_semver "github.com/blang/semver/v4"
+	gh "github.com/google/go-github/v62/github"
+	"golang.org/x/mod/semver"
 )
 
 const (
@@ -149,4 +153,71 @@ func parseGHLabels(ghLabels []*gh.Label) []string {
 		lbls = append(lbls, prLabel.GetName())
 	}
 	return lbls
+}
+
+const (
+	releaseBlockerPrefix = "release-blocker/"
+	backportDonePrefix   = "backport-done/"
+	backportPrefix       = "backport/"
+)
+
+func ReleaseBlockerLabel(version string) string {
+	return fmt.Sprintf("%s%s", releaseBlockerPrefix, MajorMinorErsion(version))
+}
+
+func BackportDoneLabel(version string) string {
+	return fmt.Sprintf("%s%s", backportDonePrefix, MajorMinorErsion(version))
+}
+
+func BackportLabel(version string) string {
+	return fmt.Sprintf("%s%s", backportPrefix, MajorMinorErsion(version))
+}
+
+func MajorMinorErsion(version string) string {
+	majorMinorVersion := semver.MajorMinor(version)
+	return strings.TrimPrefix(majorMinorVersion, "v")
+}
+
+// Custom version type that includes semver.Version
+type customVersion struct {
+	Version  blang_semver.Version
+	Original string
+}
+
+func SortTags(tags []string) ([]string, error) {
+	versions := make([]customVersion, len(tags))
+
+	for i, tag := range tags {
+		if !strings.HasPrefix(tag, "v") {
+			continue
+		}
+		v, err := blang_semver.ParseTolerant(tag[1:])
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse tag %s: %w", tag, err)
+		}
+		versions[i] = customVersion{Version: v, Original: tag}
+	}
+
+	sort.Slice(versions, func(i, j int) bool {
+		return versions[i].Version.LT(versions[j].Version)
+	})
+
+	sortedTags := make([]string, len(tags))
+	for i, v := range versions {
+		sortedTags[i] = v.Original
+	}
+
+	return sortedTags, nil
+}
+
+func PreviousTagOf(tags []string, tag string) string {
+	for i := range tags {
+		if tag == tags[i] {
+			if i == 0 {
+				return ""
+			}
+			return tags[i-1]
+		}
+	}
+	return ""
 }

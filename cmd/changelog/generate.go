@@ -17,12 +17,13 @@ package changelog
 import (
 	"context"
 	"fmt"
-	"log"
+	"io"
 	"os"
 	"sort"
 	"strings"
 
-	gh "github.com/google/go-github/v50/github"
+	gh "github.com/google/go-github/v62/github"
+	"github.com/schollz/progressbar/v3"
 
 	"github.com/cilium/release/pkg/github"
 	"github.com/cilium/release/pkg/persistence"
@@ -49,16 +50,23 @@ var releaseNotesOrder = []string{
 
 type ChangeLog struct {
 	ChangeLogConfig
-	Logger *log.Logger
+	Logger Printer
 
 	prsWithUpstream types.BackportPRs
 	listOfPrs       types.PullRequests
+	graphQLNodeIDs  types.NodeIDs
 }
 
-func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger *log.Logger, cfg ChangeLogConfig) (*ChangeLog, error) {
+type Printer interface {
+	Printf(format string, v ...any)
+	Println(v ...any)
+}
+
+func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger Printer, cfg ChangeLogConfig) (*ChangeLog, error) {
 	var (
 		backportPRs = types.BackportPRs{}
 		listOfPRs   = types.PullRequests{}
+		nodeIDs     = types.NodeIDs{}
 		shas        []string
 	)
 
@@ -66,7 +74,7 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 		logger.Printf("Found state file, resuming from stored state\n")
 
 		var err error
-		backportPRs, listOfPRs, shas, err = persistence.LoadState(cfg.StateFile)
+		backportPRs, listOfPRs, nodeIDs, shas, err = persistence.LoadState(cfg.StateFile)
 		if err != nil {
 			return nil, fmt.Errorf("Unable to read persistence file: %w", err)
 		}
@@ -115,14 +123,17 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 	}
 
 	logger.Printf("Found %d commits!\n", len(shas))
+	bar := progressbar.Default(int64(len(shas)), "Preparing Changelog file")
+	defer bar.Finish()
 
 	output := func(foo string) { logger.Println(foo) }
-	prsWithUpstream, listOfPrs, leftShas, err := github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, output, backportPRs, listOfPRs, shas, cfg.LabelFilters)
-	fmt.Println()
+	prsWithUpstream, listOfPrs, nodeIDs, leftShas, err :=
+		github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, bar, output, backportPRs, listOfPRs, nodeIDs, shas, cfg.LabelFilters)
+	logger.Println()
 	if err != nil {
 		logger.Printf("Storing state in %s before exiting due to error...\n", cfg.StateFile)
 	}
-	err2 := persistence.StoreState(cfg.StateFile, prsWithUpstream, listOfPrs, leftShas)
+	err2 := persistence.StoreState(cfg.StateFile, prsWithUpstream, listOfPrs, nodeIDs, leftShas)
 	if err2 == nil {
 		logger.Printf("State stored successful in %s, please use --state-file=%s in the next run to continue\n", cfg.StateFile, cfg.StateFile)
 	} else {
@@ -132,31 +143,36 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 		return nil, fmt.Errorf("unable to retrieve PRs for commits: %w\n", err)
 	}
 
-	logger.Printf("\nFound %d PRs and %d backport PRs!\n\n", len(listOfPrs), len(prsWithUpstream))
+	logger.Printf("\n")
+	logger.Printf("Found %d PRs and %d backport PRs!\n\n", len(listOfPrs), len(prsWithUpstream))
 
 	return &ChangeLog{
 		ChangeLogConfig: cfg,
 		Logger:          logger,
 		prsWithUpstream: prsWithUpstream,
 		listOfPrs:       listOfPrs,
+		graphQLNodeIDs:  nodeIDs,
 	}, nil
 }
 
-func (cl *ChangeLog) PrintReleaseNotes() {
-	fmt.Println("Summary of Changes")
-	fmt.Println("------------------")
+func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
+	fmt.Fprintln(w, "Summary of Changes")
+	fmt.Fprintln(w, "------------------")
+
+	listOfPRs := cl.listOfPrs.DeepCopy()
+	prsWithUpstream := cl.prsWithUpstream.DeepCopy()
 
 	for _, releaseLabel := range releaseNotesOrder {
 		var changelogItems []string
 		printedReleaseNoteHeader := false
-		for backportPR, listOfPrs := range cl.prsWithUpstream {
-			for prID, pr := range listOfPrs {
+		for backportPR, listOfPRsUpstream := range prsWithUpstream {
+			for prID, pr := range listOfPRsUpstream {
 				if pr.ReleaseLabel != releaseLabel {
 					continue
 				}
 				if !printedReleaseNoteHeader {
-					fmt.Println()
-					fmt.Println(releaseNotes[releaseLabel])
+					fmt.Fprintln(w)
+					fmt.Fprintln(w, releaseNotes[releaseLabel])
 					printedReleaseNoteHeader = true
 				}
 
@@ -165,10 +181,10 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 					fmt.Sprintf("* %s (Backport PR #%d, Upstream PR #%d, @%s)",
 						pr.ReleaseNote, backportPR, prID, pr.AuthorName),
 				)
-				delete(listOfPrs, prID)
+				delete(listOfPRsUpstream, prID)
 			}
 		}
-		for prID, pr := range cl.listOfPrs {
+		for prID, pr := range listOfPRs {
 			if pr.ReleaseLabel != releaseLabel {
 				continue
 			}
@@ -184,8 +200,8 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 				}
 			}
 			if !printedReleaseNoteHeader {
-				fmt.Println()
-				fmt.Println(releaseNotes[releaseLabel])
+				fmt.Fprintln(w)
+				fmt.Fprintln(w, releaseNotes[releaseLabel])
 				printedReleaseNoteHeader = true
 			}
 
@@ -193,17 +209,17 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 				changelogItems,
 				fmt.Sprintf("* %s (%s#%d, @%s)", pr.ReleaseNote, cl.RepoName, prID, pr.AuthorName),
 			)
-			delete(cl.listOfPrs, prID)
+			delete(listOfPRs, prID)
 		}
 		sort.Slice(changelogItems, func(i, j int) bool {
 			return strings.ToLower(changelogItems[i]) < strings.ToLower(changelogItems[j])
 		})
 		for _, changeLogItem := range changelogItems {
-			fmt.Println(changeLogItem)
+			fmt.Fprintln(w, changeLogItem)
 		}
 	}
 
-	if len(cl.listOfPrs) == 0 {
+	if len(listOfPRs) == 0 {
 		return
 	}
 	cl.Logger.Printf("\n\033[1mNOTICE\033[0m: The following PRs were not included in the "+
@@ -212,7 +228,7 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 	for _, releaseLabel := range releaseNotesOrder {
 		var changelogItems []string
 		printedReleaseNoteHeader := false
-		for prID, pr := range cl.listOfPrs {
+		for prID, pr := range listOfPRs {
 			if pr.ReleaseLabel != releaseLabel {
 				continue
 			}
@@ -224,7 +240,7 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 				changelogItems,
 				fmt.Sprintf("* %s (%s#%d, @%s)", pr.ReleaseNote, cl.RepoName, prID, pr.AuthorName),
 			)
-			delete(cl.listOfPrs, prID)
+			delete(listOfPRs, prID)
 		}
 		sort.Slice(changelogItems, func(i, j int) bool {
 			return strings.ToLower(changelogItems[i]) < strings.ToLower(changelogItems[j])
@@ -233,4 +249,25 @@ func (cl *ChangeLog) PrintReleaseNotes() {
 			cl.Logger.Printf(changeLogItem)
 		}
 	}
+}
+
+func (cl *ChangeLog) PrintReleaseNotes() {
+	cl.PrintReleaseNotesForWriter(os.Stdout)
+}
+
+// AllPRs returns all PRs that are part the changelog.
+func (cl *ChangeLog) AllPRs() (map[int]struct{}, types.NodeIDs) {
+	setOfPRs := map[int]struct{}{}
+
+	for prNumber := range cl.listOfPrs {
+		setOfPRs[prNumber] = struct{}{}
+	}
+	for backportPR, upstreamedPRs := range cl.prsWithUpstream {
+		for upstreamPR := range upstreamedPRs {
+			setOfPRs[upstreamPR] = struct{}{}
+		}
+		setOfPRs[backportPR] = struct{}{}
+	}
+
+	return setOfPRs, cl.graphQLNodeIDs
 }

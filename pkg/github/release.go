@@ -16,11 +16,14 @@ package github
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"slices"
 	"time"
 
-	gh "github.com/google/go-github/v50/github"
+	gh "github.com/google/go-github/v62/github"
+	"github.com/schollz/progressbar/v3"
 
 	"github.com/cilium/release/pkg/types"
 )
@@ -46,37 +49,36 @@ func GeneratePatchRelease(
 	ghClient *gh.Client,
 	owner string,
 	repo string,
+	bar *progressbar.ProgressBar,
 	printer func(msg string),
 	backportPRs types.BackportPRs,
 	listOfPRs types.PullRequests,
+	nodeIDs types.NodeIDs,
 	commits []string,
 	labelFilters []string,
 ) (
 	types.BackportPRs,
 	types.PullRequests,
+	types.NodeIDs,
 	[]string,
 	error,
 ) {
 
 	for i, sha := range commits {
+		bar.Add(1)
 		page := 0
 		foundPR := false
 		for {
 			ctxWithTimeout, cancel := context.WithTimeout(ctx, 45*time.Second)
-			prs, resp, err := ghClient.PullRequests.ListPullRequestsWithCommit(ctxWithTimeout, owner, repo, sha, &gh.PullRequestListOptions{
-				State: "closed",
-				ListOptions: gh.ListOptions{
-					Page: page,
-				},
+			prs, resp, err := ghClient.PullRequests.ListPullRequestsWithCommit(ctxWithTimeout, owner, repo, sha, &gh.ListOptions{
+				Page: page,
 			})
 			cancel()
 			if err != nil {
-				return backportPRs, listOfPRs, commits[i:], err
+				return backportPRs, listOfPRs, nodeIDs, commits[i:], err
 			}
 
 			for _, pr := range prs {
-				printer(pr.GetHTMLURL())
-
 				_, ok := listOfPRs[pr.GetNumber()]
 				_, ok2 := backportPRs[pr.GetNumber()]
 				if ok || ok2 {
@@ -99,6 +101,7 @@ func GeneratePatchRelease(
 						AuthorName:       pr.GetUser().GetLogin(),
 						BackportBranches: getBackportBranches(lbls),
 					}
+					nodeIDs[pr.GetNumber()] = pr.GetNodeID()
 					continue
 				}
 				backportPRs[pr.GetNumber()] = map[int]types.PullRequest{}
@@ -111,8 +114,13 @@ func GeneratePatchRelease(
 					upstreamPR, _, err := ghClient.PullRequests.Get(ctxWithTimeout, owner, repo, upstreamPRNumber)
 					cancel()
 					if err != nil {
+						var ghErrRespon *gh.ErrorResponse
+						if errors.As(err, &ghErrRespon) && ghErrRespon.Response.StatusCode == http.StatusNotFound {
+							printer(fmt.Sprintf("WARNING: PR not found %d!\n", upstreamPRNumber))
+							continue
+						}
 						delete(backportPRs, pr.GetNumber())
-						return backportPRs, listOfPRs, commits[i:], err
+						return backportPRs, listOfPRs, nodeIDs, commits[i:], err
 					}
 					lbls := parseGHLabels(upstreamPR.Labels)
 					if !filterByLabels(lbls, labelFilters) {
@@ -123,6 +131,8 @@ func GeneratePatchRelease(
 						ReleaseLabel: getReleaseLabel(lbls),
 						AuthorName:   upstreamPR.GetUser().GetLogin(),
 					}
+					nodeIDs[pr.GetNumber()] = pr.GetNodeID()
+					nodeIDs[upstreamPR.GetNumber()] = upstreamPR.GetNodeID()
 				}
 			}
 
@@ -135,5 +145,5 @@ func GeneratePatchRelease(
 			printer(fmt.Sprintf("WARNING: PR not found for commit %s!\n", sha))
 		}
 	}
-	return backportPRs, listOfPRs, nil, nil
+	return backportPRs, listOfPRs, nodeIDs, nil, nil
 }
