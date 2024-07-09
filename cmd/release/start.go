@@ -28,16 +28,17 @@ type ReleaseConfig struct {
 	QuayOrg  string
 	QuayRepo string
 
-	TargetVer         string
-	PreviousVer       string
-	RemoteBranchName  string
-	DryRun            bool
-	Force             bool
-	RepoDirectory     string
-	HelmRepoDirectory string
-	StateFile         string
-	Steps             []string
-	DefaultBranch     string
+	TargetVer            string
+	PreviousVer          string
+	RemoteBranchName     string
+	DryRun               bool
+	Force                bool
+	RepoDirectory        string
+	ReleaseRepoDirectory string
+	HelmRepoDirectory    string
+	StateFile            string
+	Steps                []string
+	DefaultBranch        string
 }
 
 func (cfg *ReleaseConfig) Sanitize() error {
@@ -294,6 +295,7 @@ To start, run
 	cmd.Flags().StringVar(&cfg.QuayOrg, "quay-org", "cilium", "Quay.io organization to check for image vulnerabilities")
 	cmd.Flags().StringVar(&cfg.QuayRepo, "quay-repo", "cilium-ci", "Quay.io repository to check for image vulnerabilities")
 	cmd.Flags().StringVar(&cfg.RepoDirectory, "repo-dir", "../cilium", "Directory with the source code of Cilium")
+	cmd.Flags().StringVar(&cfg.ReleaseRepoDirectory, "release-tool-dir", ".", "Directory with the source code of Release tool. (To access bash scripts)")
 	cmd.Flags().StringVar(&cfg.HelmRepoDirectory, "charts-repo-dir", "../charts", "Directory with the source code of Helm charts")
 	cmd.Flags().StringVar(&cfg.StateFile, "state-file", defaultStateFileValue, "When set, it will use the already fetched information from a previous run")
 	cmd.Flags().StringSliceVar(&cfg.Steps, "steps", []string{"1"},
