@@ -9,7 +9,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	"github.com/cilium/release/pkg/io"
 	"github.com/cilium/release/pkg/types"
@@ -215,7 +217,16 @@ To start, run
 				return fmt.Errorf("Error creating Docker client: %w", err)
 			}
 
-			ctx := context.Background()
+			sigChan := make(chan os.Signal, 1)
+
+			ctx, cancel := context.WithCancel(context.Background())
+			signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+			go func() {
+				<-sigChan
+				io.Fprintf(0, os.Stdout, "😩 Received interrupt signal. Stopping release process\n")
+				cancel()
+			}()
+
 			_, err = cli.Ping(ctx)
 			if err != nil {
 				return fmt.Errorf("Docker is not running or not accessible: %w", err)
@@ -280,7 +291,7 @@ To start, run
 						return err
 					}
 				}
-				io.Fprintf(0, os.Stdout, "All groups successfully ran\n")
+				io.Fprintf(0, os.Stdout, "All steps successfully ran\n")
 			}
 			return nil
 		},
