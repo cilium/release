@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"slices"
 	"strings"
 
 	"github.com/cilium/release/pkg/io"
@@ -61,7 +60,6 @@ func (cfg *ReleaseConfig) HasStableBranch() bool {
 type Step interface {
 	Name() string
 	Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *GHClient) error
-	Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error
 }
 
 // GroupStep contains a list of steps that should run.
@@ -273,19 +271,11 @@ To start, run
 				}
 				io.Fprintf(0, os.Stdout, "🏃 Running group %q\n", group.name)
 				steps := group.steps
-				for i, step := range steps {
+				for _, step := range steps {
 					io.Fprintf(0, os.Stdout, "🏃 Running step %q\n", step.Name())
 					err := step.Run(ctx, cfg.Force, cfg.DryRun, ghClient)
 					if err != nil {
-						io.Fprintf(0, os.Stdout, "😩 Error while running step %q: %s. Reverting previous steps...\n", step.Name(), err)
-						revertSteps := steps[:i]
-						slices.Reverse(revertSteps)
-						for _, revertStep := range revertSteps {
-							err := revertStep.Revert(ctx, cfg.DryRun, ghClient)
-							if err != nil {
-								io.Fprintf(0, os.Stdout, "😩 Unrecoverable error while reverting step %q: %s\n", revertStep.Name(), err)
-							}
-						}
+						io.Fprintf(0, os.Stdout, "😩 Error while running step %q: %s\n", step.Name(), err)
 						return err
 					}
 				}

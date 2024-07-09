@@ -73,7 +73,6 @@ func assembleVersionSubstitutions(version string) ([]string, error) {
 		version = versionSub[p]
 		result = append(result, p)
 		result = append(result, strings.TrimPrefix(version, "v"))
-		// fmt.Fprintf(os.Stderr, "Replacing %q with %q...\n", p, version)
 	}
 
 	return result, nil

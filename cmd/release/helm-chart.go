@@ -83,7 +83,3 @@ func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 
 	return nil
 }
-
-func (pc *HelmChart) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
-	return fmt.Errorf("Not implemented")
-}

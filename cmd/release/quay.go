@@ -116,10 +116,6 @@ func getFixedVulnerabilities(data ImageVulnerabilitiesInfo) []tableRow {
 	return rows
 }
 
-func (c *ImageCVEChecker) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
-	return nil
-}
-
 func quayImageURL(org, imageName, sha256sum string) string {
 	return fmt.Sprintf(
 		quayURL,

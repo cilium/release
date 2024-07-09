@@ -122,10 +122,6 @@ func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *GHClien
 	return err
 }
 
-func (pc *PushPullRequest) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
-	return fmt.Errorf("Not implemented")
-}
-
 func (pc *PushPullRequest) generateSummaryFile() (string, string, error) {
 	prTitle := fmt.Sprintf("Prepare for release %s", pc.cfg.TargetVer)
 

@@ -204,7 +204,3 @@ func openedBackportPRsQuery(branchName, backportLabel, owner, repo string) strin
 		repo,
 	)
 }
-
-func (c *CheckReleaseBlockers) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
-	return nil
-}
