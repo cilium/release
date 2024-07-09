@@ -317,7 +317,8 @@ func getRemote(gitRepoDir, org, repo string) (string, error) {
 
 	var remote string
 	for _, line := range remoteLines {
-		if strings.Contains(line, fmt.Sprintf("github.com/%s/%s", org, repo)) {
+		reg := regexp.MustCompile(`github.com[/:]` + org + `/` + repo + `(\.git)? `)
+		if reg.MatchString(line) {
 			fields := strings.Fields(line)
 			if len(fields) >= 2 {
 				remote = fields[0]
