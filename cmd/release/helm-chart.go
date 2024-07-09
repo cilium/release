@@ -36,7 +36,6 @@ func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 
 	// Fetch remote branch
 	io2.Fprintf(2, os.Stdout, "⬇️ Fetching helm chart\n")
-	// TODO create a flag for charts repo?
 	chartRemoteName, err := getRemote(pc.cfg.HelmRepoDirectory, pc.cfg.Owner, "charts")
 	if err != nil {
 		return err
@@ -55,7 +54,7 @@ func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	} else {
 		helmRepoFullPath = filepath.Join(pc.cfg.HelmRepoDirectory, "generate_helm_release.sh")
 	}
-	_, err = execCommand(pc.cfg.HelmRepoDirectory, helmRepoFullPath, pc.cfg.RepoDirectory, pc.cfg.TargetVer)
+	_, err = execCommand(pc.cfg.HelmRepoDirectory, helmRepoFullPath, "cilium", pc.cfg.TargetVer)
 	if err != nil {
 		return err
 	}
@@ -72,7 +71,7 @@ func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 		}
 	}
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", chartRemoteName)
+	_, err = execCommand(pc.cfg.HelmRepoDirectory, "git", "push", chartRemoteName)
 	if err != nil {
 		return err
 	}
