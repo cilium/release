@@ -30,7 +30,7 @@ func (c *CheckReleaseBlockers) Name() string {
 }
 
 func (c *CheckReleaseBlockers) Run(ctx context.Context, yesToPrompt, _ bool, ghClient *GHClient) error {
-	if !c.cfg.HasStableBranch() {
+	if semver.Prerelease(c.cfg.TargetVer) != "" {
 		io.Fprintf(1, os.Stdout, "On Pre-Releases there aren't 'release blockers'."+
 			" Continuing with the release process.\n")
 		return nil

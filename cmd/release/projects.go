@@ -14,6 +14,7 @@ import (
 	"github.com/schollz/progressbar/v3"
 	"github.com/shurcooL/githubv4"
 	"github.com/shurcooL/graphql"
+	"golang.org/x/mod/semver"
 	"golang.org/x/sync/semaphore"
 )
 
@@ -46,7 +47,7 @@ func (pm *ProjectManagement) projectName() string {
 }
 
 func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *GHClient) error {
-	if !pm.cfg.HasStableBranch() {
+	if semver.Prerelease(pm.cfg.TargetVer) != "" {
 		io.Fprintf(1, os.Stdout, "Pre-Releases don't have a tracking project."+
 			" Continuing with the release process.\n")
 		return nil
