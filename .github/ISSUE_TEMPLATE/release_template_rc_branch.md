@@ -29,8 +29,6 @@ assignees: ''
   - `git fetch upstream && git checkout -b upstream/vX.Y upstream/main`
   - [ ] Push that branch to GitHub:
     - `git push upstream vX.Y`
-  - [ ] Create a new GH project for the `X.Y.0-rc.0` version and keep the project ID
-        to update the MLH configuration in the next step.
   - [ ] On the main branch, create a PR with a change in the `VERSION` file to
         start the next development cycle as well as creating the necessary GH
         workflows (renovate configuration, MLH configuration, etc.
@@ -42,7 +40,9 @@ assignees: ''
           branch `X.Y-1`, and update those to include the new stable `X.Y`
           version as well.
         - `git grep "X.Y-1" .github/`
-    - `echo "X.Y+1-dev" > VERSION`
+    - [ ] Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new
+          minor schema version compared to the new `X.Y` release.
+    - `echo "X.Y+1.0-dev" > VERSION`
     - `make -C install/kubernetes`
     - `git add .github/ Documentation/contributing/testing/ci.rst`
     - `git commit -sam "Prepare for vX.Y+1 development cycle"`
@@ -72,6 +72,7 @@ assignees: ''
       - Update `install/kubernetes/Makefile*`, following the changes made
         during the previous stable branch preparation commit on the previous
         stable branch.
+      - Remove `stable.txt` file
       - You may want to initially commit the state up until now before the next
         step, so that it's easier to compare the diff vs. the previous stable
         release.
@@ -85,7 +86,9 @@ assignees: ''
       - Remove the `labels-unset` field from the MLH configuration and add
         the `auto-label` field. See [5b4934284d](https://github.com/cilium/cilium/commit/5b4934284dd525399aacec17c137811df9cf0f8b)
         for reference.
-      - Rewrite the CODEOWNERS file. See [97daf56221](https://github.com/cilium/cilium/commit/97daf5622197d0cdda003a3f693e6e5a61038884)
+      - Rewrite the CODEOWNERS file. Keep the team descriptions from main
+        and the previous stable branch. See [97daf56221](https://github.com/cilium/cilium/commit/97daf5622197d0cdda003a3f693e6e5a61038884)
+      - Update CODEOWNERS documentation file by running `make -C Documentation update-codeowners`
       - Replace references to `bpf-next-*` lvh images in workflows with the newest LTS kernel from [quay.io](https://quay.io/repository/lvh-images/kind?tab=tags&tag=latest).
         `grep -R bpf-next- .github/workflows/`
     - [ ] Review the diff for this commit compared to the preparation commit
