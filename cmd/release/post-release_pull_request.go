@@ -185,8 +185,10 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 			"pr",
 			"create",
 			"--fill",
-			"-B",
+			"--base",
 			baseBranch,
+			"--head",
+			fmt.Sprintf("%s:%s", userRemote, remoteBranchName),
 			"-l", strings.Join(labels, ","))
 	}
 
