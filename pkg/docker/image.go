@@ -27,9 +27,9 @@ type ImageInfo struct {
 
 var ErrImageNotFound = errors.New("error image not found")
 
-// ImageSHA256 returns the image digest. It returns the digest in hexadecimal
-// form with the sha256 prefix.
-func ImageSHA256(image, tag string) (string, error) {
+// ImageSHA256AMD64 returns the image digest. It returns the digest in hexadecimal
+// form with the sha256 prefix for the amd64 architecture
+func ImageSHA256AMD64(image, tag string) (string, error) {
 	cmd := exec.Command(
 		"docker",
 		"buildx",

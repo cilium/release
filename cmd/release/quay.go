@@ -42,7 +42,7 @@ func (c *ImageCVEChecker) Run(ctx context.Context, yesToPrompt, _ bool, _ *GHCli
 	var imageDigest string
 	for {
 		var err error
-		imageDigest, err = docker.ImageSHA256(imageURL, majorMinor)
+		imageDigest, err = docker.ImageSHA256AMD64(imageURL, majorMinor)
 		if majorMinor != "latest" && errors.Is(err, docker.ErrImageNotFound) {
 			majorMinor = "latest"
 			continue
