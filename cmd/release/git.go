@@ -301,10 +301,6 @@ func execCommand(dir, name string, args ...string) (io.Reader, error) {
 	return &stdout, nil
 }
 
-func (pc *PrepareCommit) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
-	return fmt.Errorf("Not implemented")
-}
-
 func getRemote(gitRepoDir, org, repo string) (string, error) {
 	cmd := exec.Command("git", "remote", "-v")
 	cmd.Dir = gitRepoDir

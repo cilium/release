@@ -145,7 +145,3 @@ func (pc *PostRelease) commitInUpstream(ctx context.Context, commitSha, branch s
 	io2.Fprintf(3, os.Stdout, "%s\n", commitShaRaw)
 	return true, nil
 }
-
-func (pc *PostRelease) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
-	return fmt.Errorf("Not implemented")
-}

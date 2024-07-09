@@ -167,10 +167,6 @@ func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, 
 	return nil
 }
 
-func (pm *ProjectManagement) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
-	return fmt.Errorf("Not implemented")
-}
-
 type project struct {
 	Closed githubv4.Boolean
 	ID     githubv4.ID

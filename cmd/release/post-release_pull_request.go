@@ -194,7 +194,3 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 
 	return err
 }
-
-func (pc *PustPostPullRequest) Revert(ctx context.Context, dryRun bool, ghClient *GHClient) error {
-	return fmt.Errorf("Not implemented")
-}
