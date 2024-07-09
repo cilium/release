@@ -149,8 +149,6 @@ func (pc *PushPullRequest) generateSummaryFile() (string, string, error) {
 	}
 	defer prBodyFileContent.Close()
 
-	prBodyFileContent.WriteString(prTitle + "\n")
-
 	if !pc.cfg.HasStableBranch() {
 		prBodyFileContent.WriteString("\nSee the included CHANGELOG.md for a full list of changes.\n")
 	} else {
