@@ -52,7 +52,7 @@ get_digest_output() {
     file="${4}"
     tmp_dir=$(mktemp -d)
     archive_download_url=$(curl -SslH "Accept: application/vnd.github.v3+json" \
-      "https://api.github.com/repos/${repo}/actions/runs/${run_id}/artifacts" \
+      "https://api.github.com/repos/${repo}/actions/runs/${run_id}/artifacts?per_page=100" \
       2>/dev/null | jq -r ".artifacts[] | select(.name == \"${file}-${version}\") | .archive_download_url")
     archive_download_url_zip=$(curl -SslH "Accept: application/vnd.github.v3+json" \
       -i -u "${username}:${GITHUB_TOKEN}" \
