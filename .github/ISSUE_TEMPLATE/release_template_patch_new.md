@@ -71,18 +71,6 @@ assignees: ''
 
 - [ ] Update helm charts `./release start --steps 5-publish-helm --target-version vX.Y.Z`
 - [ ] Open [Charts Workflow] and check if the workflow run is successful.
-- [ ] Check draft release from [releases] page
-  - [ ] Update the text at the top with 2-3 highlights of the release
-  - [ ] Check with @cilium/security if the release addresses any open security
-        advisory. If it does, include the list of security advisories at the
-        top of the release notes.
-  - [ ] Check whether the new release should be set as the _latest_ release
-        (via the checkbox at the bottom of the page). It should be the new
-        _latest_ if the version number is strictly superior to the current
-        _latest_ release displayed on GitHub (e.g. 1.11.13 does not become the
-        new latest release over 1.12.5, but version 1.12.6 will).
-  - [ ] Publish the release
-- [ ] Announce the release in #general on Slack (do not use [@]channel)
 
 ## Post-release
 
