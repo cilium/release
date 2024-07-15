@@ -13,8 +13,6 @@ MAJ_REGEX='[0-9]\+\.[0-9]\+'
 VER_REGEX='[0-9]\+\.[0-9]\+\.[0-9]\+\(-\(pre\|rc\)\.[0-9]\+\)\?'
 PRE_REGEX='[0-9]\+\.[0-9]\+\.[0-9]\+-\(pre\|rc\)\.[0-9]\+'
 REGEX_FILTER_DATE='s/^\([-0-9]\+\).*/\1/'
-PROJECTS_REGEX='s/.*projects\/\([0-9]\+\).*/\1/'
-ACTS_YAML=".github/maintainers-little-helper.yaml"
 REMOTE="$(get_remote)"
 
 latest_stable=""
@@ -36,14 +34,6 @@ update_release() {
     new_date=$(git log -1 -s --format="%cI" $latest | sed "$REGEX_FILTER_DATE")
     elease=$(echo $old_branch | sed 's/v//')
 
-    old_proj=""
-    new_proj=""
-    if grep -qF "$elease" $ACTS_YAML; then
-        old_proj=$(grep -F "$elease" -A 1 $ACTS_YAML | grep projects | sort | uniq \
-                   | sed "$PROJECTS_REGEX")
-        new_proj=$(git show $REMOTE/$old_branch:$ACTS_YAML | grep projects \
-                   | sed "$PROJECTS_REGEX")
-    fi
 
     printf "%10s %10s %10s %10s\n" "current" "old_date" "new_date" "elease"
     printf "%10s %10s %10s %10s\n" $current  $old_date  $new_date  $elease
@@ -63,13 +53,10 @@ update_release() {
     fi
 
     echo "Updating $old_branch:"
-    echo "  $current on $old_date with project $old_proj to"
-    echo "  $latest on $new_date with project $new_proj"
+    echo "  $current on $old_date to"
+    echo "  $latest on $new_date"
     sed -i '/'$obj_regex'/s/'$old_branch'\(.*\)'$old_date'/'$new_branch'\1'$new_date'/g' README.rst
     sed -i '/'$obj_regex'/s/v'$current'/v'$latest'/g' README.rst
-    if [ -n $old_proj ]; then
-        sed -i 's/\(projects\/\)'$old_proj'/\1'$new_proj'/g' $ACTS_YAML
-    fi
 }
 
 # $1 - git tree path to commit object, eg tree/ or commits/
@@ -124,8 +111,8 @@ for release in $(grep "$PRE_REGEX" README.rst \
 done
 check_table "commits/v1"
 
-git add README.rst stable.txt Documentation/_static/stable-version.json $ACTS_YAML
-if ! git diff-index --quiet HEAD -- README.rst stable.txt Documentation/_static/stable-version.json $ACTS_YAML; then
+git add README.rst stable.txt Documentation/_static/stable-version.json
+if ! git diff-index --quiet HEAD -- README.rst stable.txt Documentation/_static/stable-version.json; then
     git commit -s -m "README: Update releases"
     echo "README.rst and stable.txt updated, submit the PR now."
 else
