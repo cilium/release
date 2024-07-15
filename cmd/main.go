@@ -116,7 +116,7 @@ func main() {
 }
 
 func run(logger *log.Logger) {
-	ghClient := github.NewClient(os.Getenv("GITHUB_TOKEN"))
+	ghClient := github.NewClient()
 
 	if len(cfg.CurrVer) != 0 {
 		pm := projects.NewProjectManagement(ghClient, cfg.Owner, cfg.Repo)

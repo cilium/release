@@ -58,7 +58,7 @@ func OpenCommand(ctx context.Context, logger *log.Logger) *cobra.Command {
 				return nil
 			}
 
-			ghClient := github.NewClient(os.Getenv("GITHUB_TOKEN"))
+			ghClient := github.NewClient()
 			return CreateIssue(ctx, ghClient, cfg, tmpl)
 		},
 	}

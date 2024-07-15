@@ -21,15 +21,15 @@ type GHClient struct {
 	ghGQLClient *githubv4.Client
 }
 
-func NewGHClient(ghToken string) *GHClient {
+func NewGHClient() *GHClient {
 	return &GHClient{
-		ghClient: github.NewClient(ghToken),
+		ghClient: github.NewClient(),
 		ghGQLClient: githubv4.NewClient(
 			oauth2.NewClient(
 				context.Background(),
 				oauth2.StaticTokenSource(
 					&oauth2.Token{
-						AccessToken: ghToken,
+						AccessToken: github.Token(),
 					},
 				),
 			),

@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/cilium/release/pkg/github"
@@ -52,7 +51,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 				return fmt.Errorf("Failed to validate configuration: %s", err)
 			}
 
-			ghClient := github.NewClient(os.Getenv("GITHUB_TOKEN"))
+			ghClient := github.NewClient()
 			cl, err := GenerateReleaseNotes(ctx, ghClient, logger, cfg)
 			if err != nil {
 				return err

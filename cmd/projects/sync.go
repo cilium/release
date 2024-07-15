@@ -7,7 +7,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/cilium/release/pkg/github"
 	"github.com/cilium/release/pkg/types"
@@ -48,7 +47,7 @@ func SyncCommand(ctx context.Context, logger *log.Logger) *cobra.Command {
 				return fmt.Errorf("Failed to validate configuration: %s", err)
 			}
 
-			ghClient := github.NewClient(os.Getenv("GITHUB_TOKEN"))
+			ghClient := github.NewClient()
 			pm := NewProjectManagement(ghClient, cfg.Owner, cfg.Repo)
 			err := pm.SyncProjects(ctx, cfg.CurrVer, cfg.NextVer, cfg.ForceMovePending)
 			if err != nil {
