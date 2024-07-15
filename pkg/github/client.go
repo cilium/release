@@ -16,18 +16,24 @@ package github
 
 import (
 	"context"
+	"os"
 
 	gh "github.com/google/go-github/v62/github"
 	"golang.org/x/oauth2"
 )
 
-func NewClient(ghToken string) *gh.Client {
+func Token() string {
+	ghToken := os.Getenv("GITHUB_TOKEN")
+	return ghToken
+}
+
+func NewClient() *gh.Client {
 	return gh.NewClient(
 		oauth2.NewClient(
 			context.Background(),
 			oauth2.StaticTokenSource(
 				&oauth2.Token{
-					AccessToken: ghToken,
+					AccessToken: Token(),
 				},
 			),
 		),
