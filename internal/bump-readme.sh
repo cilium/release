@@ -101,7 +101,11 @@ check_table "tree/v1"
 
 for release in $(grep "$PRE_REGEX" README.rst \
                  | sed 's/.*commits\/\(v'"$MAJ_REGEX"'\).*/\1/'); do
-    latest=$(git describe --tags $REMOTE/main \
+    branch="$release"
+    if ! git ls-remote --exit-code --heads $REMOTE refs/heads/$branch >/dev/null; then
+	    branch="main"
+    fi
+    latest=$(git describe --tags $REMOTE/$branch \
              | sed 's/v//' | sed 's/\('"$PRE_REGEX"'\).*/\1/')
     if grep -q -F $latest README.rst; then
         continue
