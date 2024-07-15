@@ -94,8 +94,44 @@ assignees: ''
         _latest_ release displayed on GitHub (e.g. 1.11.13 does not become the
         new latest release over 1.12.5, but version 1.12.6 will).
   - [ ] Publish the release
-- [ ] Announce the release in #general on Slack (do not use [@]channel)
+- [ ] Announce the release in #general on Slack (do not use [@]channel).
+      See below for templates.
 - [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
+
+---
+
+## Slack example text templates
+
+### Patch releases
+
+```
+:confetti_ball: :cilium-radiant: Release Announcement :cilium-radiant::confetti_ball:
+
+Cilium vX.Y.Z, vA.B.C, and vD.E.F have been released. Thanks all for your contributions! Please see the release notes below for details :cilium-gopher:
+
+vX.Y.Z: https://github.com/cilium/cilium/releases/tag/vX.Y.Z
+vA.B.C: https://github.com/cilium/cilium/releases/tag/vA.B.C
+vD.E.F: https://github.com/cilium/cilium/releases/tag/vD.E.F
+```
+
+### First pre-release
+
+:cilium-new: *Cilium vX.Y.Z-rc.W has been released:*
+https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
+
+This is the first monthly snapshot for the vX.Y development cycle. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
+```
+
+### Subsequent pre-/rc- releases
+
+```
+*Announcement* :tada: :tada:
+
+:cilium-new: *Cilium vX.Y.Z-rc.W has been released:*
+https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
+
+Thank you for the testing and contributing to the previous pre-releases. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
+```
 
 [release workflow]: https://github.com/cilium/cilium/actions/workflows/release.yaml
 [GitHub PAT tracker]: https://github.com/orgs/community/discussions/36441
