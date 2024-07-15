@@ -176,7 +176,7 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 					printedReleaseNoteHeader = true
 				}
 
-				changelogItems = append(changelogItems, cl.prReleaseNote(pr, prID, &backportPR))
+				changelogItems = append(changelogItems, cl.prReleaseNote(pr, backportPR, &prID))
 				delete(listOfPRsUpstream, prID)
 			}
 		}
