@@ -49,7 +49,7 @@ func ImageSHA256AMD64(image, tag string) (string, error) {
 				return "", ErrImageNotFound
 			}
 		}
-		return "", fmt.Errorf("Error executing command %q: %w", cmd.Args, err)
+		return "", fmt.Errorf("Error executing command %q: %w\n%s", cmd.Args, err, out)
 	}
 	var imageInfo ImageInfo
 	err = json.Unmarshal(out, &imageInfo)
