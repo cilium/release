@@ -15,15 +15,42 @@
 package github
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"os"
+	"os/exec"
+	"strings"
 
 	gh "github.com/google/go-github/v62/github"
 	"golang.org/x/oauth2"
 )
 
+func execCommand(name string, args ...string) (string, error) {
+	var stdout, stderr bytes.Buffer
+
+	cmd := exec.Command(name, args...)
+	cmd.Stderr = &stderr
+	cmd.Stdout = &stdout
+
+	err := cmd.Run()
+	if err != nil {
+		fullCmd := strings.Join(append([]string{name}, args...), " ")
+		return "", fmt.Errorf("unable to run command %q: %w\n%s",
+			fullCmd, err, stderr.String())
+	}
+	return stdout.String(), nil
+}
+
 func Token() string {
 	ghToken := os.Getenv("GITHUB_TOKEN")
+	if ghToken == "" {
+		t, err := execCommand("gh", "auth", "token")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Cannot fetch GITHUB_TOKEN: %s", err)
+		}
+		ghToken = strings.TrimSpace(t)
+	}
 	return ghToken
 }
 
