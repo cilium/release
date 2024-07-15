@@ -72,6 +72,15 @@ assignees: ''
 - [ ] Update helm charts `./release start --steps 5-publish-helm --target-version vX.Y.Z`
 - [ ] Open [Charts Workflow] and check if the workflow run is successful.
 
+## Publish docs (only for pre/rc releases)
+
+- [ ] Check [read the docs] configuration:
+  - [ ] Set a new build as active and hidden in [active versions].
+  - [ ] Deactivate previous RCs.
+  - [ ] Update algolia configuration search in [docsearch-scraper-webhook].
+    - Update the versions in `docsearch.config.json`, commit them and push a
+      trigger the workflow [here](https://github.com/cilium/docsearch-scraper-webhook/actions/workflows/update-algolia-index.yaml)
+
 ## Post-release
 
 - [ ] Check draft release from [releases] page
