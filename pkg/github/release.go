@@ -116,7 +116,7 @@ func GeneratePatchRelease(
 					if err != nil {
 						var ghErrRespon *gh.ErrorResponse
 						if errors.As(err, &ghErrRespon) && ghErrRespon.Response.StatusCode == http.StatusNotFound {
-							printer(fmt.Sprintf("WARNING: PR not found %d!\n", upstreamPRNumber))
+							printer(fmt.Sprintf("\nWARNING: PR not found %d!\n", upstreamPRNumber))
 							continue
 						}
 						delete(backportPRs, pr.GetNumber())
@@ -142,7 +142,7 @@ func GeneratePatchRelease(
 			}
 		}
 		if !foundPR {
-			printer(fmt.Sprintf("WARNING: PR not found for commit %s!\n", sha))
+			printer(fmt.Sprintf("\nWARNING: PR not found for commit %s!\n", sha))
 		}
 	}
 	return backportPRs, listOfPRs, nodeIDs, nil, nil
