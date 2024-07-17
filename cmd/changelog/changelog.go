@@ -14,8 +14,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cfg ChangeLogConfig
-
 type ChangeLogConfig struct {
 	types.CommonConfig
 
@@ -42,6 +40,8 @@ func (cfg *ChangeLogConfig) Sanitize() error {
 }
 
 func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
+	var cfg ChangeLogConfig
+
 	cmd := &cobra.Command{
 		Use:   "changelog",
 		Short: "Generate release notes",
