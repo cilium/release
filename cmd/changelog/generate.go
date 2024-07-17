@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"sort"
 	"strings"
 
@@ -39,7 +40,7 @@ var releaseNotes = map[string]string{
 	"release-note/none":  "**Other Changes:**",
 }
 
-var releaseNotesOrder = []string{
+var defaultReleaseNotesOrder = []string{
 	"release-note/major",
 	"release-note/minor",
 	"release-note/bug",
@@ -128,7 +129,7 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 
 	output := func(foo string) { logger.Println(foo) }
 	prsWithUpstream, listOfPrs, nodeIDs, leftShas, err :=
-		github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, bar, output, backportPRs, listOfPRs, nodeIDs, shas, cfg.LabelFilters)
+		github.GeneratePatchRelease(globalCtx, ghClient, cfg.Owner, cfg.Repo, bar, output, backportPRs, listOfPRs, nodeIDs, shas)
 	logger.Println()
 	if err != nil {
 		logger.Printf("Storing state in %s before exiting due to error...\n", cfg.StateFile)
@@ -161,6 +162,18 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 
 	listOfPRs := cl.listOfPrs.DeepCopy()
 	prsWithUpstream := cl.prsWithUpstream.DeepCopy()
+
+	var releaseNotesOrder []string
+	if len(cl.LabelFilters) != 0 {
+		for _, label := range defaultReleaseNotesOrder {
+			if !slices.Contains(cl.LabelFilters, label) {
+				continue
+			}
+			releaseNotesOrder = append(releaseNotesOrder, label)
+		}
+	} else {
+		releaseNotesOrder = defaultReleaseNotesOrder
+	}
 
 	for _, releaseLabel := range releaseNotesOrder {
 		var changelogItems []string

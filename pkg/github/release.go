@@ -19,7 +19,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"slices"
 	"time"
 
 	gh "github.com/google/go-github/v62/github"
@@ -27,18 +26,6 @@ import (
 
 	"github.com/cilium/release/pkg/types"
 )
-
-func filterByLabels(labels []string, filters []string) bool {
-	if len(filters) == 0 {
-		return true
-	}
-	for _, label := range labels {
-		if slices.Contains(filters, label) {
-			return true
-		}
-	}
-	return false
-}
 
 // GeneratePatchRelease will returns a map that maps the backport PR number to
 // the upstream PR number and a map that maps the backport PR number to the PR
@@ -55,7 +42,6 @@ func GeneratePatchRelease(
 	listOfPRs types.PullRequests,
 	nodeIDs types.NodeIDs,
 	commits []string,
-	labelFilters []string,
 ) (
 	types.BackportPRs,
 	types.PullRequests,
@@ -92,9 +78,6 @@ func GeneratePatchRelease(
 				upstreamPRs := getUpstreamPRs(pr.GetBody())
 				if upstreamPRs == nil {
 					lbls := parseGHLabels(pr.Labels)
-					if !filterByLabels(lbls, labelFilters) {
-						continue
-					}
 					listOfPRs[pr.GetNumber()] = types.PullRequest{
 						ReleaseNote:      getReleaseNote(pr.GetTitle(), pr.GetBody()),
 						ReleaseLabel:     getReleaseLabel(lbls),
@@ -123,9 +106,6 @@ func GeneratePatchRelease(
 						return backportPRs, listOfPRs, nodeIDs, commits[i:], err
 					}
 					lbls := parseGHLabels(upstreamPR.Labels)
-					if !filterByLabels(lbls, labelFilters) {
-						continue
-					}
 					backportPRs[pr.GetNumber()][upstreamPRNumber] = types.PullRequest{
 						ReleaseNote:  getReleaseNote(upstreamPR.GetTitle(), upstreamPR.GetBody()),
 						ReleaseLabel: getReleaseLabel(lbls),
