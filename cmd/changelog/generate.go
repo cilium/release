@@ -32,15 +32,17 @@ import (
 )
 
 var releaseNotes = map[string]string{
-	"release-note/major": "**Major Changes:**",
-	"release-note/minor": "**Minor Changes:**",
-	"release-note/bug":   "**Bugfixes:**",
-	"release-note/ci":    "**CI Changes:**",
-	"release-note/misc":  "**Misc Changes:**",
-	"release-note/none":  "**Other Changes:**",
+	"release-note/security": "**Important Security Updates:**",
+	"release-note/major":    "**Major Changes:**",
+	"release-note/minor":    "**Minor Changes:**",
+	"release-note/bug":      "**Bugfixes:**",
+	"release-note/ci":       "**CI Changes:**",
+	"release-note/misc":     "**Misc Changes:**",
+	"release-note/none":     "**Other Changes:**",
 }
 
 var defaultReleaseNotesOrder = []string{
+	"release-note/security",
 	"release-note/major",
 	"release-note/minor",
 	"release-note/bug",
