@@ -267,9 +267,9 @@ func (cl *ChangeLog) prReleaseNote(pr types.PullRequest, prNumber int, upstreamP
 	text := fmt.Sprintf("* %s", pr.ReleaseNote)
 	if !cl.ExcludePRReferences {
 		if upstreamPRNumber != nil {
-			text += fmt.Sprintf("(Backport PR #%d, Upstream PR #%d, @%s)", prNumber, *upstreamPRNumber, pr.AuthorName)
+			text += fmt.Sprintf(" (Backport PR #%d, Upstream PR #%d, @%s)", prNumber, *upstreamPRNumber, pr.AuthorName)
 		} else {
-			text += fmt.Sprintf("(%s#%d, @%s)", cl.RepoName, prNumber, pr.AuthorName)
+			text += fmt.Sprintf(" (%s#%d, @%s)", cl.RepoName, prNumber, pr.AuthorName)
 		}
 	}
 	return text
