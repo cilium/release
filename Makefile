@@ -1,20 +1,21 @@
-all: tests local
+GO ?= go
+GO_BUILD_FLAGS ?=
+DOCKER_BUILD_FLAGS ?=
+IMAGE_TAG ?= latest
+
+all: tests release
 
 .PHONY: docker-image
 docker-image:
-	docker build -t cilium/release:${VERSION} .
+	docker build $(DOCKER_BUILD_FLAGS) -t cilium/release:${IMAGE_TAG} .
 
 .PHONY: tests
 tests:
-	go test -mod=vendor ./...
+	$(GO) test -mod=vendor ./...
 
 .PHONY: release
 release:
-	CGO_ENABLED=0 go build -mod=vendor -o $@ ./cmd/main.go
-
-.PHONY: local
-local: release
-	strip release
+	CGO_ENABLED=0 $(GO) build $(GO_BUILD_FLAGS) -mod=vendor -o ./release ./cmd/main.go
 
 .PHONY: clean
 clean:
