@@ -7,7 +7,7 @@ all: tests release
 
 .PHONY: docker-image
 docker-image:
-	docker build $(DOCKER_BUILD_FLAGS) -t cilium/release:${IMAGE_TAG} .
+	docker build $(DOCKER_BUILD_FLAGS) -t cilium/release-tool:${IMAGE_TAG} .
 
 .PHONY: tests
 tests:
