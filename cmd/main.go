@@ -100,6 +100,7 @@ func addFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolVar(&cfg.ForceMovePending, "force-move-pending-backports", false, "Force move pending backports to the next version's project")
 	cmd.Flags().StringArrayVar(&cfg.LabelFilters, "label-filter", []string{}, "Filter pull requests by labels")
 	cmd.Flags().BoolVar(&cfg.ExcludePRReferences, "exclude-pr-references", false, "If true, do not include references to the PR or PR author")
+	cmd.Flags().BoolVar(&cfg.SkipHeader, "skip-header", false, "If true, do not print 'Summary of of changes' header")
 }
 
 func signals() {
