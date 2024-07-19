@@ -23,6 +23,7 @@ type ChangeLogConfig struct {
 	StateFile           string
 	LabelFilters        []string
 	ExcludePRReferences bool
+	SkipHeader          bool
 }
 
 func (cfg *ChangeLogConfig) Sanitize() error {
@@ -67,6 +68,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd.Flags().StringVar(&cfg.RepoName, "repo", "cilium/cilium", "GitHub organization and repository names separated by a slash")
 	cmd.Flags().StringArrayVar(&cfg.LabelFilters, "label-filter", []string{}, "Filter pull requests by labels. This also defines the order of the release notes.")
 	cmd.Flags().BoolVar(&cfg.ExcludePRReferences, "exclude-pr-references", false, "If true, do not include references to the PR or PR author")
+	cmd.Flags().BoolVar(&cfg.SkipHeader, "skip-header", false, "If true, do not print 'Summary of of changes' header")
 
 	for _, flag := range []string{"base", "head", "repo"} {
 		cobra.MarkFlagRequired(cmd.Flags(), flag)

@@ -157,8 +157,10 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 }
 
 func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
-	fmt.Fprintln(w, "Summary of Changes")
-	fmt.Fprintln(w, "------------------")
+	if !cl.SkipHeader {
+		fmt.Fprintln(w, "Summary of Changes")
+		fmt.Fprintln(w, "------------------")
+	}
 
 	listOfPRs := cl.listOfPrs.DeepCopy()
 	prsWithUpstream := cl.prsWithUpstream.DeepCopy()
