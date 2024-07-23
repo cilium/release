@@ -67,13 +67,6 @@ assignees: ''
         - `sed -i 's/- \(ft\/\)\?main/- \1vX.Y/g' .github/workflows/*`
         - `sed -i 's/@main/@vX.Y/g' .github/workflows/*`
         - `sed -i 's/\/main\//\/vX.Y\//g' .github/workflows/*`
-      - Ensure that the `.github/workflows/call-backport-label-updater.yaml` workflow
-        includes the `vX.Y` version in the `branch` matrix list.
-        (as an example, look at the
-        [workflow](https://github.com/cilium/cilium/blob/9c3694f3ae9f8472d4d6a2a32cf506f77923be53/.github/workflows/call-backport-label-updater.yaml#L16)
-        in the v1.16 stable branch: `v1.16` is included in the list).
-        If `vX.Y` is missing, update the workflow removing the oldest
-        stable version and adding `vX.Y`.
       - Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new
         minor schema version compared to the previous stable release.
       - Update `install/kubernetes/Makefile*`, following the changes made
