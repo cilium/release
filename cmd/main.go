@@ -98,7 +98,8 @@ func addFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVar(&cfg.StateFile, "state-file", "release-state.json", "When set, it will use the already fetched information from a previous run")
 	cmd.Flags().StringVar(&cfg.RepoName, "repo", "cilium/cilium", "GitHub organization and repository names separated by a slash")
 	cmd.Flags().BoolVar(&cfg.ForceMovePending, "force-move-pending-backports", false, "Force move pending backports to the next version's project")
-	cmd.Flags().StringArrayVar(&cfg.LabelFilters, "label-filter", []string{}, "Filter pull requests by labels")
+	cmd.Flags().StringArrayVar(&cfg.LabelFilters, "label-filter", []string{}, "Filter pull requests by labels.")
+	cmd.Flags().StringArrayVar(&cfg.ReleaseLabels, "release-labels", []string{}, "Specify release labels to consider when generating the changelog. This also defines the order of the release notes.")
 	cmd.Flags().BoolVar(&cfg.ExcludePRReferences, "exclude-pr-references", false, "If true, do not include references to the PR or PR author")
 	cmd.Flags().BoolVar(&cfg.SkipHeader, "skip-header", false, "If true, do not print 'Summary of of changes' header")
 }

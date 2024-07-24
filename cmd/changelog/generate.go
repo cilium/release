@@ -159,18 +159,41 @@ func GenerateReleaseNotes(globalCtx context.Context, ghClient *gh.Client, logger
 }
 
 func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
+	var (
+		listOfPRs       = make(types.PullRequests)
+		prsWithUpstream = make(types.BackportPRs)
+	)
+
+	// Filter the PRs by --label-filter
+	for id, pr := range cl.listOfPrs.DeepCopy() {
+		if !filterByLabels(pr.Labels, cl.LabelFilters) {
+			continue
+		}
+		listOfPRs[id] = pr
+	}
+
+	// Filter the Backport PRs by --label-filter
+	for prNumber, upstreamedPRs := range cl.prsWithUpstream.DeepCopy() {
+		for upstreamPRNumber, upstreamPR := range upstreamedPRs {
+			if !filterByLabels(upstreamPR.Labels, cl.LabelFilters) {
+				continue
+			}
+			prsWithUpstream[prNumber][upstreamPRNumber] = upstreamPR
+		}
+	}
+
+	cl.Logger.Printf("Found %d PRs and %d backport PRs in %s based on --label-filter\n\n", len(listOfPRs), len(prsWithUpstream), cl.StateFile)
+
 	if !cl.SkipHeader {
 		fmt.Fprintln(w, "Summary of Changes")
 		fmt.Fprintln(w, "------------------")
 	}
 
-	listOfPRs := cl.listOfPrs.DeepCopy()
-	prsWithUpstream := cl.prsWithUpstream.DeepCopy()
-
 	var releaseNotesOrder []string
-	if len(cl.LabelFilters) != 0 {
+	if len(cl.ReleaseLabels) != 0 {
+		// Only add release notes for release labels specified by --release-labels
 		for _, label := range defaultReleaseNotesOrder {
-			if !slices.Contains(cl.LabelFilters, label) {
+			if !slices.Contains(cl.ReleaseLabels, label) {
 				continue
 			}
 			releaseNotesOrder = append(releaseNotesOrder, label)

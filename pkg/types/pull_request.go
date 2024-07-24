@@ -21,6 +21,7 @@ type PullRequest struct {
 	// BackportBranches contains all the backport-done labels present in the
 	// PullRequest.
 	BackportBranches []string
+	Labels           []string
 }
 
 // NodeIDs maps a Pull Request number to its graphql node_id
