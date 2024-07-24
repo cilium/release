@@ -83,6 +83,7 @@ func GeneratePatchRelease(
 						ReleaseLabel:     getReleaseLabel(lbls),
 						AuthorName:       pr.GetUser().GetLogin(),
 						BackportBranches: getBackportBranches(lbls),
+						Labels:           lbls,
 					}
 					nodeIDs[pr.GetNumber()] = pr.GetNodeID()
 					continue
@@ -110,6 +111,7 @@ func GeneratePatchRelease(
 						ReleaseNote:  getReleaseNote(upstreamPR.GetTitle(), upstreamPR.GetBody()),
 						ReleaseLabel: getReleaseLabel(lbls),
 						AuthorName:   upstreamPR.GetUser().GetLogin(),
+						Labels:       lbls,
 					}
 					nodeIDs[pr.GetNumber()] = pr.GetNodeID()
 					nodeIDs[upstreamPR.GetNumber()] = upstreamPR.GetNodeID()
