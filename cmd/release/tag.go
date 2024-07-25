@@ -42,7 +42,7 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 		return err
 	}
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
 	commitTitle := fmt.Sprintf("^Prepare for release %s$", pc.cfg.TargetVer)
-	o, err := execCommand(pc.cfg.RepoDirectory, "git", "log", "--format=%H", "--grep", commitTitle, remoteBranch)
+	o, err := execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "log", "--format=%H", "--grep", commitTitle, remoteBranch)
 	if err != nil {
 		return err
 	}
@@ -68,12 +68,12 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 		return fmt.Errorf("commit not merged into branch %s. Refusing to tag release", remoteBranch)
 	}
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "checkout", commitSha)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "checkout", commitSha)
 	if err != nil {
 		return err
 	}
 
-	o, err = execCommand(pc.cfg.RepoDirectory, "git", "log", "-1", commitSha)
+	o, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "log", "-1", commitSha)
 	if err != nil {
 		return err
 	}
@@ -97,11 +97,11 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	}
 
 	ersion := strings.TrimPrefix(pc.cfg.TargetVer, "v")
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "tag", "-a", ersion, "-s", "-m", "Release "+pc.cfg.TargetVer)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "tag", "-a", ersion, "-s", "-m", "Release "+pc.cfg.TargetVer)
 	if err != nil {
 		return err
 	}
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "tag", "-a", pc.cfg.TargetVer, "-s", "-m", "Release "+pc.cfg.TargetVer)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "tag", "-a", pc.cfg.TargetVer, "-s", "-m", "Release "+pc.cfg.TargetVer)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	}
 
 	if !dryRun {
-		_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", remoteName, ersion, pc.cfg.TargetVer)
+		_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "push", remoteName, ersion, pc.cfg.TargetVer)
 		if err != nil {
 			return err
 		}

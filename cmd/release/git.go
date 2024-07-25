@@ -69,12 +69,12 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient)
 	localBranch := fmt.Sprintf("pr/prepare-%s", pc.cfg.TargetVer)
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
 	if err != nil {
 		return err
 	}
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "checkout", "-b", localBranch, remoteBranch)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "checkout", "-b", localBranch, remoteBranch)
 	if err != nil {
 		return err
 	}
@@ -104,14 +104,14 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient)
 	// Update helm values file
 	io2.Fprintf(2, os.Stdout, "Updating helm values files\n")
 	ciliumBranch := fmt.Sprintf("CILIUM_BRANCH=%s", branch)
-	_, err = execCommand(pc.cfg.RepoDirectory, "make", "RELEASE=yes", ciliumBranch, "-C", "install/kubernetes", "all", "USE_DIGESTS=false")
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "make", "RELEASE=yes", ciliumBranch, "-C", "install/kubernetes", "all", "USE_DIGESTS=false")
 	if err != nil {
 		return err
 	}
 
 	// Update helm documentation
 	io2.Fprintf(2, os.Stdout, "Updating Documentation\n")
-	_, err = execCommand(pc.cfg.RepoDirectory, "make", "-C", "Documentation", "update-helm-values")
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "make", "-C", "Documentation", "update-helm-values")
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient)
 	//
 	io2.Fprintf(2, os.Stdout, "Updating check-crd-compat-table.sh\n")
 	crdBranch := semver.MajorMinor(pc.cfg.TargetVer)
-	_, err = execCommand(pc.cfg.RepoDirectory, "Documentation/check-crd-compat-table.sh", crdBranch, "--update")
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "Documentation/check-crd-compat-table.sh", crdBranch, "--update")
 	if err != nil {
 		return err
 	}
@@ -153,13 +153,13 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient)
 	// branches will have everything in a single commit.
 	if !pc.cfg.HasStableBranch() {
 		io2.Fprintf(2, os.Stdout, "🧪 Detected pre-release from default branch, creating a separate commit for AUTHORS and Documentation files\n")
-		_, err = execCommand(pc.cfg.RepoDirectory, "git", append([]string{"add"}, commitFiles...)...)
+		_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", append([]string{"add"}, commitFiles...)...)
 		if err != nil {
 			return err
 		}
 
 		commitMsg := fmt.Sprintf("update AUTHORS and Documentation")
-		_, err = execCommand(pc.cfg.RepoDirectory, "git", "commit", "-sm", commitMsg)
+		_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "commit", "-sm", commitMsg)
 		if err != nil {
 			return err
 		}
@@ -181,13 +181,13 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient)
 			"install/kubernetes/Makefile.digests",
 		)
 	}
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", append([]string{"add"}, commitFiles...)...)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", append([]string{"add"}, commitFiles...)...)
 	if err != nil {
 		return err
 	}
 
 	commitMsg := fmt.Sprintf("Prepare for release %s", pc.cfg.TargetVer)
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "commit", "-sm", commitMsg)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "commit", "-sm", commitMsg)
 	if err != nil {
 		return err
 	}
@@ -196,7 +196,7 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient)
 	// used for a tag.
 	if !pc.cfg.HasStableBranch() {
 		io2.Fprintf(2, os.Stdout, "🧪 Detected pre-release from default branch, reverting commit with helm changes.\n")
-		_, err = execCommand(pc.cfg.RepoDirectory, "git", "revert", "-s", "--no-edit", "HEAD")
+		_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "revert", "-s", "--no-edit", "HEAD")
 		if err != nil {
 			return err
 		}
@@ -209,7 +209,7 @@ func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *GHClie
 	// Retrieve the SHA for the previous release.
 	previousPatchVersion := pc.cfg.PreviousVer
 
-	o, err := execCommand(pc.cfg.RepoDirectory, "git", "rev-parse", "HEAD")
+	o, err := execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "rev-parse", "HEAD")
 	if err != nil {
 		return err
 	}
@@ -286,7 +286,7 @@ func (l *Logger) Println(v ...any) {
 	io2.Fprintf(l.depth, os.Stdout, "%s", s)
 }
 
-func execCommand(dir, name string, args ...string) (io.Reader, error) {
+func execCommand(dryRun bool, dir, name string, args ...string) (io.Reader, error) {
 	io2.Fprintf(3, os.Stdout, "🧑‍💻 Running command: %s\n",
 		strings.Join(append([]string{name}, args...), " "))
 	cmd := exec.Command(name, args...)
@@ -294,6 +294,13 @@ func execCommand(dir, name string, args ...string) (io.Reader, error) {
 	var stdout, stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	cmd.Stdout = &stdout
+	if dryRun {
+		err := io2.ContinuePrompt("❗ Running a command in dry-run mode, continue?",
+			"Skipping command. Subsequent steps may fail due to lack of input.")
+		if err != nil {
+			return nil, fmt.Errorf("unable to run command: %w\n", err)
+		}
+	}
 	err := cmd.Run()
 	if err != nil {
 		return nil, fmt.Errorf("unable to run command: %w\n\n%s\n\n", err, stderr.String())
@@ -365,7 +372,7 @@ func (pc *PrepareCommit) updateAuthors(ctx context.Context, authorsFilePath, app
 	output.WriteString("off on commits in the Cilium repository:\n")
 	output.WriteString("\n")
 
-	out, err := execCommand(pc.cfg.RepoDirectory,
+	out, err := execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory,
 		"git", "--no-pager", "shortlog", "--summary", "HEAD",
 	)
 	if err != nil {

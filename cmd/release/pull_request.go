@@ -42,7 +42,7 @@ func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *GHClien
 	// Default to "owner" if we can't get the user from gh api
 	userRemote := pc.cfg.Owner
 
-	user, err := execCommand(pc.cfg.RepoDirectory, "gh", "api", "user", "--jq", ".login")
+	user, err := execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "gh", "api", "user", "--jq", ".login")
 	if err == nil {
 		userRaw, err := io.ReadAll(user)
 		if err != nil {
@@ -66,9 +66,9 @@ func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *GHClien
 	// used for a tag.
 	if !pc.cfg.HasStableBranch() {
 		io2.Fprintf(2, os.Stdout, "🧪 Detected pre-release from default branch, pushing HEAD^ changes before creating PR\n")
-		_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", "-f", remoteName, "HEAD^:refs/heads/"+localBranch)
+		_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "push", "-f", remoteName, "HEAD^:refs/heads/"+localBranch)
 	} else {
-		_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", "-f", remoteName, localBranch)
+		_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "push", "-f", remoteName, localBranch)
 	}
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *GHClien
 
 	if !pc.cfg.HasStableBranch() {
 		io2.Fprintf(2, os.Stdout, "🧪 Detected pre-release from default branch, pushing remaining changes into PR\n")
-		_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", remoteName, localBranch)
+		_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "push", remoteName, localBranch)
 		if err != nil {
 			return err
 		}
@@ -106,7 +106,7 @@ func (pc *PushPullRequest) Run(ctx context.Context, _, _ bool, ghClient *GHClien
 		io2.Fprintf(2, os.Stdout, "📤 Pull request is already open: %s\n", prs[0].GetHTMLURL())
 	} else {
 		io2.Fprintf(2, os.Stdout, "📤 Creating PR...\n")
-		_, err = execCommand(pc.cfg.RepoDirectory,
+		_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory,
 			"gh",
 			"pr",
 			"create",

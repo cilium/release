@@ -29,7 +29,7 @@ func (pc *HelmChart) Name() string {
 func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *GHClient) error {
 	io2.Fprintf(1, os.Stdout, "☸️ Generating helm charts\n")
 
-	_, err := execCommand(pc.cfg.HelmRepoDirectory, "git", "diff", "--quiet", "HEAD")
+	_, err := execCommand(pc.cfg.DryRun, pc.cfg.HelmRepoDirectory, "git", "diff", "--quiet", "HEAD")
 	if err != nil {
 		return fmt.Errorf("the git repository %q contains uncommitted files, stash them before continuing", pc.cfg.HelmRepoDirectory)
 	}
@@ -54,7 +54,7 @@ func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	} else {
 		helmRepoFullPath = filepath.Join(pc.cfg.HelmRepoDirectory, "generate_helm_release.sh")
 	}
-	_, err = execCommand(pc.cfg.HelmRepoDirectory, helmRepoFullPath, "cilium", pc.cfg.TargetVer)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.HelmRepoDirectory, helmRepoFullPath, "cilium", pc.cfg.TargetVer)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 		}
 	}
 
-	_, err = execCommand(pc.cfg.HelmRepoDirectory, "git", "push", chartRemoteName)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.HelmRepoDirectory, "git", "push", chartRemoteName)
 	if err != nil {
 		return err
 	}

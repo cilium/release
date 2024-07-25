@@ -52,12 +52,12 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
 	// Pull docker manifests from RUN URL
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
 	if err != nil {
 		return err
 	}
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "checkout", "-b", localBranch, remoteBranch)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "checkout", "-b", localBranch, remoteBranch)
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 	if !pc.cfg.HasStableBranch() {
 		io2.Fprintf(2, os.Stdout, "🧪 Detected pre-release from default branch. Checking out to commit with release...\n")
 		commitTitle := fmt.Sprintf("^Prepare for release %s$", pc.cfg.TargetVer)
-		o, err := execCommand(pc.cfg.RepoDirectory, "git", "log", "--format=%H", "--grep", commitTitle, remoteBranch)
+		o, err := execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "log", "--format=%H", "--grep", commitTitle, remoteBranch)
 		if err != nil {
 			return err
 		}
@@ -79,7 +79,7 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 			return fmt.Errorf("commit not merged into branch %s. Refusing to tag release", remoteBranch)
 		}
 
-		_, err = execCommand(pc.cfg.RepoDirectory, "git", "checkout", commitSha)
+		_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "checkout", commitSha)
 		if err != nil {
 			return err
 		}
@@ -87,13 +87,13 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 
 	io2.Fprintf(2, os.Stdout, "⬇️ Fetching docker digests from workflow run\n")
 	pullDockerManifestsScript := filepath.Join(pc.cfg.ReleaseRepoDirectory, "internal/pull-docker-manifests.sh")
-	_, err = execCommand(pc.cfg.RepoDirectory, pullDockerManifestsScript, buildURL, pc.cfg.TargetVer, pc.cfg.Owner)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, pullDockerManifestsScript, buildURL, pc.cfg.TargetVer, pc.cfg.Owner)
 	if err != nil {
 		return err
 	}
 
 	io2.Fprintf(2, os.Stdout, "✍️ Updating helm values with image digests\n")
-	_, err = execCommand(pc.cfg.RepoDirectory, "make", "-C", "Documentation", "update-helm-values")
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "make", "-C", "Documentation", "update-helm-values")
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 		"install/kubernetes/cilium/README.md",
 		"install/kubernetes/cilium/values.yaml",
 	}
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", append([]string{"add"}, commitFiles...)...)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", append([]string{"add"}, commitFiles...)...)
 	if err != nil {
 		return err
 	}
@@ -126,7 +126,7 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 	commitMsg := fmt.Sprintf("install: Update image digests for %s\n\n"+
 		"Generated from %s\n"+
 		string(digests), pc.cfg.TargetVer, buildURL)
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "commit", "-sm", commitMsg)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "commit", "-sm", commitMsg)
 
 	return err
 }

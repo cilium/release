@@ -130,7 +130,7 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 		}
 	}
 
-	o, err := execCommand(pc.cfg.RepoDirectory, "git", "rev-parse", "--abbrev-ref", "HEAD")
+	o, err := execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "rev-parse", "--abbrev-ref", "HEAD")
 	if err != nil {
 		return err
 	}
@@ -143,7 +143,7 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	// Default to "owner" if we can't get the user from gh api
 	userRemote := pc.cfg.Owner
 
-	user, err := execCommand(pc.cfg.RepoDirectory, "gh", "api", "user", "--jq", ".login")
+	user, err := execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "gh", "api", "user", "--jq", ".login")
 	if err == nil {
 		userRaw, err := io.ReadAll(user)
 		if err != nil {
@@ -159,7 +159,7 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 		return err
 	}
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "push", "-f", remoteName, remoteBranchName)
+	_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory, "git", "push", "-f", remoteName, remoteBranchName)
 	if err != nil {
 		return err
 	}
@@ -180,7 +180,7 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	if len(prs) > 0 {
 		io2.Fprintf(2, os.Stdout, "📤 Pull request is already open: %s\n", prs[0].GetHTMLURL())
 	} else {
-		_, err = execCommand(pc.cfg.RepoDirectory,
+		_, err = execCommand(pc.cfg.DryRun, pc.cfg.RepoDirectory,
 			"gh",
 			"pr",
 			"create",
