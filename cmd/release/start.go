@@ -288,6 +288,9 @@ To start, run
 					err := step.Run(ctx, cfg.Force, cfg.DryRun, ghClient)
 					if err != nil {
 						io.Fprintf(0, os.Stdout, "😩 Error while running step %q: %s\n", step.Name(), err)
+						if cfg.DryRun {
+							continue
+						}
 						return err
 					}
 				}
