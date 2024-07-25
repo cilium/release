@@ -116,6 +116,7 @@ vD.E.F: https://github.com/cilium/cilium/releases/tag/vD.E.F
 
 ### First pre-release
 
+```
 :cilium-new: *Cilium vX.Y.Z-rc.W has been released:*
 https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
