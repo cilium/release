@@ -101,7 +101,7 @@ func addFlags(cmd *cobra.Command) {
 	cmd.Flags().StringArrayVar(&cfg.LabelFilters, "label-filter", []string{}, "Filter pull requests by labels.")
 	cmd.Flags().StringArrayVar(&cfg.ReleaseLabels, "release-labels", []string{}, "Specify release labels to consider when generating the changelog. This also defines the order of the release notes.")
 	cmd.Flags().BoolVar(&cfg.ExcludePRReferences, "exclude-pr-references", false, "If true, do not include references to the PR or PR author")
-	cmd.Flags().BoolVar(&cfg.SkipHeader, "skip-header", false, "If true, do not print 'Summary of of changes' header")
+	cmd.Flags().BoolVar(&cfg.SkipHeader, "skip-header", false, "If true, do not print 'Summary of Changes' header")
 }
 
 func signals() {
