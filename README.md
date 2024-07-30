@@ -1,3 +1,5 @@
+<img title="Repository logo" src=".github/assets/logo.svg" width=200px />
+
 # Cilium release
 
 This repository will generate changelog for cilium releases
