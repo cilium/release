@@ -2,10 +2,61 @@
 
 # Cilium release
 
-This repository will generate changelog for cilium releases
+This repository contains a Go utility for managing [Cilium] releases.
+
+## Building the tool
+
+Build the utility with:
 
 ```bash
 $ make release
+```
+
+Then you can run `release help` to list available commands.
+
+```console
+$ ./release --help
+release -- Prepare a Cilium release
+
+Usage:
+  release [flags]
+  release [command]
+
+Available Commands:
+  changelog   Generate release notes
+  checklist   Manage release checklists
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  projects    Manage projects
+  start       Start the release process
+
+Flags:
+[...]
+```
+
+## Release checklists
+
+This repository contains checklists for the release process for different kinds
+of Cilium releases (patch release, minor releases, ...). These checklists can
+be accessed when creating new issues [with the GitHub interface][issue], but
+the recommended way is to use the `release` tool to create an Issue
+automatically (and have all references to the target release substituted to the
+template placeholders).
+
+For example:
+
+```bash
+$ ./release checklist open \
+            --target-version v1.16.1 \
+            --template .github/ISSUE_TEMPLATE/release_template_patch.md
+```
+
+## Create a new release
+
+Use the `release` utility to update GitHub projects and create release notes
+for a new Cilium release:
+
+```bash
 $ export GITHUB_TOKEN=<token_with_repo_public_access>
 ```
 
@@ -31,3 +82,6 @@ $ ./release --base <base-commit>  \
 Where:
  - `<base-commit>` can be found with `git merge-base origin/vx.y-1 origin/vx.y`
  - `<head-commit>` should be the last commit available for the `x.y` branch.
+
+[Cilium]: https://github.com/cilium/cilium
+[issue]: https://github.com/cilium/release/issues/new/choose
