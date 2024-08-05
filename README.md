@@ -56,10 +56,6 @@ $ ./release checklist open \
 Use the `release` utility to update GitHub projects and create release notes
 for a new Cilium release:
 
-```bash
-$ export GITHUB_TOKEN=<token_with_repo_public_access>
-```
-
 ### For a x.y.z release, a.k.a patch release
 
 ```bash
