@@ -178,6 +178,9 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 			if !filterByLabels(upstreamPR.Labels, cl.LabelFilters) {
 				continue
 			}
+			if prsWithUpstream[prNumber] == nil {
+				prsWithUpstream[prNumber] = make(types.PullRequests)
+			}
 			prsWithUpstream[prNumber][upstreamPRNumber] = upstreamPR
 		}
 	}
