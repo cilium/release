@@ -52,9 +52,21 @@ func (pc *PostRelease) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClie
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
 	// Pull docker manifests from RUN URL
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
+	shallowRepo, err := isShallowRepo(pc.cfg.RepoDirectory)
 	if err != nil {
-		return err
+		io2.Fprintf(3, os.Stdout, "Unable to detect if repository is shallow, assuming it's not: %s\n", err)
+	}
+	if shallowRepo {
+		io2.Fprintf(3, os.Stdout, "Fetching and unshallowing repository to generate AUTHORS file properly\n")
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", "--unshallow", remoteName)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err = execCommand(pc.cfg.RepoDirectory, "git", "checkout", "-b", localBranch, remoteBranch)
