@@ -72,9 +72,21 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient)
 	localBranch := fmt.Sprintf("pr/prepare-%s", pc.cfg.TargetVer)
 	remoteBranch := fmt.Sprintf("%s/%s", remoteName, branch)
 
-	_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
+	shallowRepo, err := isShallowRepo(pc.cfg.RepoDirectory)
 	if err != nil {
-		return err
+		io2.Fprintf(3, os.Stdout, "Unable to detect if repository is shallow, assuming it's not: %s\n", err)
+	}
+	if shallowRepo {
+		io2.Fprintf(3, os.Stdout, "Fetching and unshallowing repository to generate AUTHORS file properly\n")
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", "--unshallow", remoteName)
+		if err != nil {
+			return err
+		}
+	} else {
+		_, err = execCommand(pc.cfg.RepoDirectory, "git", "fetch", "-q", remoteName)
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err = execCommand(pc.cfg.RepoDirectory, "git", "checkout", "-b", localBranch, remoteBranch)
@@ -546,4 +558,18 @@ func extractAuthors(input io.Reader) ([]string, error) {
 	}
 
 	return authors, nil
+}
+
+func isShallowRepo(repo string) (bool, error) {
+	r, err := execCommand(repo, "git", "rev-parse", "--is-shallow-repository")
+	if err != nil {
+		return false, err
+	}
+	outputRaw, err := io.ReadAll(r)
+	if err != nil {
+		return false, err
+	}
+	output := strings.TrimSpace(string(outputRaw))
+
+	return output == "true", nil
 }
