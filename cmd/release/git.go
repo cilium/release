@@ -30,6 +30,7 @@ import (
 	"syscall"
 
 	"github.com/cilium/release/cmd/changelog"
+	"github.com/cilium/release/pkg/github"
 	io2 "github.com/cilium/release/pkg/io"
 	progressbar "github.com/schollz/progressbar/v3"
 	"golang.org/x/mod/semver"
@@ -220,13 +221,22 @@ func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *GHClie
 	}
 	commitSha := strings.TrimSpace(string(commitShaRaw))
 
+	// If we are doing a pre-release from the main branch then the remote
+	// branch doesn't exist.
+	var lastStable string
+	if semver.MajorMinor(pc.cfg.TargetVer) != semver.MajorMinor(pc.cfg.PreviousVer) {
+		lastStable = github.MajorMinorErsion(pc.cfg.PreviousVer)
+	}
+
 	// Generate the CHANGELOG from previous release to current release.
 	io2.Fprintf(3, os.Stdout, "✍️ Generating CHANGELOG.md from %s to %s\n", previousPatchVersion, commitSha)
+	io2.Fprintf(4, os.Stdout, "Previous and current version are from different branches, using last stable %q for release notes\n", lastStable)
 	clCfg := changelog.ChangeLogConfig{
 		CommonConfig: pc.cfg.CommonConfig,
 		Base:         previousPatchVersion,
 		Head:         commitSha,
 		StateFile:    pc.cfg.StateFile,
+		LastStable:   lastStable,
 	}
 	err = clCfg.Sanitize()
 	if err != nil {
