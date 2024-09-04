@@ -62,8 +62,10 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient)
 	// If we are doing a pre-release from the main branch then the remote
 	// branch doesn't exist.
 	branch := pc.cfg.RemoteBranchName
+	crdBranch := semver.MajorMinor(pc.cfg.TargetVer)
 	if !pc.cfg.HasStableBranch() {
 		branch = pc.cfg.DefaultBranch
+		crdBranch = semver.MajorMinor(pc.cfg.PreviousVer)
 	}
 
 	localBranch := fmt.Sprintf("pr/prepare-%s", pc.cfg.TargetVer)
@@ -128,7 +130,6 @@ func (pc *PrepareCommit) Run(ctx context.Context, _, _ bool, ghClient *GHClient)
 	// $DIR/../../Documentation/check-crd-compat-table.sh "$target_branch" --update
 	//
 	io2.Fprintf(2, os.Stdout, "Updating check-crd-compat-table.sh\n")
-	crdBranch := semver.MajorMinor(pc.cfg.TargetVer)
 	_, err = execCommand(pc.cfg.RepoDirectory, "Documentation/check-crd-compat-table.sh", crdBranch, "--update")
 	if err != nil {
 		return err
