@@ -279,7 +279,7 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 			return strings.ToLower(changelogItems[i]) < strings.ToLower(changelogItems[j])
 		})
 		for _, changeLogItem := range changelogItems {
-			cl.Logger.Printf(changeLogItem)
+			cl.Logger.Println(changeLogItem)
 		}
 	}
 }
