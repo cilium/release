@@ -83,7 +83,7 @@ func Test_getReleaseNote(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := getReleaseNote(tt.args.title, tt.args.body); got != tt.want {
-				t.Errorf("getReleaseNote() = %v, want %v", got, tt.want)
+				t.Errorf("getReleaseNote() = %q, want %q", got, tt.want)
 			}
 		})
 	}

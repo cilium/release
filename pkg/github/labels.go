@@ -15,6 +15,7 @@
 package github
 
 import (
+	"bufio"
 	"fmt"
 	"sort"
 	"strconv"
@@ -29,27 +30,42 @@ const (
 	releaseNoteBlock = "```release-note"
 	upstreamPRsBlock = "```upstream-prs"
 	commentTag       = "<!--"
+	endBlock         = "```"
 )
 
-func textBlockBetween(body, str string) string {
-	lines := strings.Split(body, "\n")
+// Get the text between startBlock and endBlock
+func textBlockBetween(body, startBlock string) string {
+	// Use a bufio.Scanner to scan line by line because it handles both `\n` and `\r\n`.
+	scanner := bufio.NewScanner(strings.NewReader(body))
 	beginning, end := -1, -1
-	for idx, line := range lines {
+	idx := 0
+	gotBlock := false
+	var lines []string
+	for scanner.Scan() {
+		line := scanner.Text()
 		line = strings.TrimSpace(line)
-		if line == str {
+		lines = append(lines, line)
+		if line == startBlock {
 			beginning = idx
 		}
-		if beginning != -1 && line == "```" {
+		if !gotBlock && beginning != -1 && line == endBlock {
 			end = idx
-			break
+			// Got the block, but continue scanning so we can accumulate all the lines
+			gotBlock = true
 		}
+		if scanner.Err() != nil {
+			return ""
+		}
+		idx++
 	}
+
 	if beginning == end {
 		return ""
 	}
 	if end == -1 {
 		end = len(lines)
 	}
+
 	return strings.TrimSpace(strings.Join(lines[beginning+1:end], " "))
 }
 
