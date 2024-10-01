@@ -59,6 +59,13 @@ assignees: ''
       of the GitHub run to be used later):
       [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
 
+## Post Tagging (run after docker images are published)
+
+- [ ] Go to [release workflow] and Run the workflow from "Branch: main", for
+  step "4-post-release" and version for vX.Y.Z-pre.W
+    - [ ] Check if the workflow was successful. (There won't be a PR opened
+      by this step)
+
 ## Publish helm (run after docker images are published)
 
 - [ ] Update helm charts `./release start --steps 5-publish-helm --target-version vX.Y.Z-pre.W`
