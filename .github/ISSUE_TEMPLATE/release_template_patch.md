@@ -66,6 +66,8 @@ assignees: ''
     - [ ] Check if the workflow was successful and check the PR opened by the
       Release bot.
 - [ ] Merge PR
+- [ ] This step opened a [GitHub project](https://github.com/orgs/cilium/projects?query=is%3Aopen++v+)
+      to track the PRs in the release. Close the corresponding project.
 
 ## Publish helm (run after docker images are published)
 
