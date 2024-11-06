@@ -55,7 +55,7 @@ assignees: ''
       - Use the settings of the previous stable branch and main as sane defaults
   - [ ] On the `vX.Y` branch, prepare for stable release development:
     - [ ] Update the VERSION file with the last prerelease for this stable version
-      - `echo "X.Y.Z-pre.N" > VERSION`
+      - `echo "X.Y.Z-rc.W" > VERSION`
     - [ ] Remove any GitHub workflows from the stable branch that are only
           relevant for the main branch.
       - Remove workflows that are exclusively triggered by cron job and
