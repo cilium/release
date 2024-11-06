@@ -19,7 +19,7 @@ assignees: ''
   - [ ] Run `git clone https://github.com/cilium/release.git "$GOPATH/src/github.com/cilium/release"`
     - [ ] If you already have the repo checked out, make sure the `release` binary is up to date:
 
-          git checkout master && git pull && make
+          git checkout main && git pull && make
 - [ ] Read the documentation of `release start --help` tool to understand what
   each automated step does.
 
