@@ -70,16 +70,20 @@ func OpenCommand(ctx context.Context, logger *log.Logger) *cobra.Command {
 				return fmt.Errorf("Failed to validate configuration: %s", err)
 			}
 
-			tmpl, err := prepareChecklist(cfg)
+			tmpl, err := fetchTemplate(cfg)
+			if err != nil {
+				return fmt.Errorf("Failed to fetch template: %w", err)
+			}
+			cl, err := prepareChecklist(tmpl, cfg)
 			if err != nil {
 				return fmt.Errorf("Failed to apply template configuration to template: %s", err)
 			}
 			if cfg.DryRun {
-				fmt.Printf("%s", tmpl)
+				fmt.Printf("%s", cl)
 				return nil
 			}
 
-			return CreateIssue(ctx, ghClient, cfg, tmpl)
+			return CreateIssue(ctx, ghClient, cfg, cl)
 		},
 	}
 	cmd.Flags().StringVar(&cfg.TemplatePath, "template", "", "Template path to create release checklist")
