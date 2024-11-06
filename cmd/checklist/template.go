@@ -78,12 +78,7 @@ func assembleVersionSubstitutions(version string) ([]string, error) {
 	return result, nil
 }
 
-func prepareChecklist(cfg ChecklistConfig) (string, error) {
-	tmpl, err := fetchTemplate(cfg)
-	if err != nil {
-		return "", fmt.Errorf("Failed to fetch template: %w", err)
-	}
-
+func prepareChecklist(tmpl []byte, cfg ChecklistConfig) (string, error) {
 	patterns, err := assembleVersionSubstitutions(cfg.TargetVer)
 	if err != nil {
 		return "", fmt.Errorf("Error while parsing version %q: %w", cfg.TargetVer, err)
