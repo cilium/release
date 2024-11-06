@@ -4,6 +4,8 @@
 package checklist
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -69,5 +71,36 @@ func Test_assembleVersionSubstitutions(t *testing.T) {
 			assert.ErrorContains(t, err, tt.err, tt.name+" encountered unexpected error")
 		}
 		assert.Equal(t, sub, tt.want, tt.name+" generated unexpected substitutions")
+	}
+}
+
+func Test_prepareChecklist(t *testing.T) {
+	cfg := ChecklistConfig{
+		TargetVer: "v1.10.0-pre.0",
+	}
+	testdataPath := filepath.Join("..", "..", "testdata", "checklist")
+
+	paths, err := filepath.Glob(filepath.Join(testdataPath, "*.input"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, path := range paths {
+		_, filename := filepath.Split(path)
+		testname := filename[:len(filename)-len(filepath.Ext(path))]
+
+		t.Run(testname, func(t *testing.T) {
+			source, err := os.ReadFile(path)
+			assert.Nil(t, err, "failed to read input template: ", err)
+
+			output, err := prepareChecklist(source, cfg)
+			assert.Nil(t, err, "failed to render checklist: ", err)
+
+			golden := filepath.Join(testdataPath, testname+".golden")
+			want, err := os.ReadFile(golden)
+			assert.Nil(t, err, "error reading golden output: ", err)
+
+			assert.Equal(t, output, string(want), "template processing did not match golden output. Check for bugs or run 'make generate-golden' to update the golden tests.")
+		})
 	}
 }

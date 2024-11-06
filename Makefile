@@ -9,6 +9,16 @@ all: tests release
 docker-image:
 	docker build $(DOCKER_BUILD_FLAGS) -t cilium/release-tool:${IMAGE_TAG} .
 
+.PHONY: generate-golden
+generate-golden:
+	$(MAKE) $(patsubst %.input,%.golden,$(shell find ./testdata/checklist/ -name "*.input"))
+
+%.golden: %.input
+	$(GO) run ./cmd/ checklist open --dry-run \
+		--target-version "v1.10.0-pre.0" \
+		--template $< \
+		> $@ \
+
 .PHONY: tests
 tests:
 	$(GO) test -mod=vendor ./...
