@@ -102,7 +102,7 @@ func templateToRequest(tmpl string) (*gh.IssueRequest, error) {
 		return nil, fmt.Errorf("unable to find metadata, body in issue template, check form of %s", cfg.TemplatePath)
 	}
 	meta := segments[1]
-	body := segments[2]
+	body := strings.Join(segments[2:], "---")
 
 	titleRe := regexp.MustCompile(`title: '(.*)'\n`)
 	match := titleRe.FindStringSubmatch(meta)
