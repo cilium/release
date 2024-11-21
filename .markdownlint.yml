@@ -1,0 +1,5 @@
+default: true
+
+MD002: false # First header should be a h1 header
+MD013: false # Line length
+MD041: false # First line in file should be a top level header
