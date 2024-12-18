@@ -18,10 +18,11 @@ assignees: ''
 
 ## Pre-release
 
-
-- [ ] Announce in Cilium slack channel #launchpad: `Starting vX.Y.Z-rc.W release process :ship:`
-- [ ] Create a thread for that message and ping current top-hat to not merge any
-  PRs until the release process is complete.
+- [ ] When you create a GitHub issue using this issue template, GitHub Slack app posts a
+      message in #launchpad Slack channel. Create a thread for that message and ping the
+      current backporter to merge the outstanding [backport PRs] and stop merging any new
+      backport PRs until the GitHub issue is closed (to avoid generating incomplete
+      release notes).
 - [ ] Change directory to the local copy of Cilium repository.
 - [ ] Check that there are no [release blockers] for the targeted release version
 - [ ] Ensure that outstanding [backport PRs] are merged
@@ -54,10 +55,9 @@ assignees: ''
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
       - Use the settings of the previous stable branch and main as sane defaults
   - [ ] On the `vX.Y` branch, prepare for stable release development:
-    - [ ] Update the VERSION file with the last prerelease for this stable version
-      - `echo "X.Y.Z-rc.W" > VERSION`
     - [ ] Remove any GitHub workflows from the stable branch that are only
-          relevant for the main branch.
+          relevant for the main branch (Read the following before running
+          this step).
       - Remove workflows that are exclusively triggered by cron job and
         workflows triggered by `issue_comment` triggers, as they do not run on
         stable branches. These can be identified with commands like this:
@@ -96,53 +96,77 @@ assignees: ''
     - [ ] Push a PR with those changes:
       - `git commit -sam "Prepare vX.Y stable branch"`
       - `gh pr create -B vX.Y`
-- [ ] Push a PR including the changes necessary for the new release:
-  - [ ] Run `../release/internal/start-release.sh vX.Y.Z-rc.W`
-        Note that this script produces some files at the root of the Cilium
-        repository, and that these files are required at a later step for
-        tagging the release.
-  - [ ] Check the modified schema file(s) in `Documentation` as it will be
-        necessary to fix them manually. Add a new line for this RC and remove
-        unsupported versions.
-  - [ ] Fix any duplicate `AUTHORS` entries and verify if it is possible to
-        get the real names instead of GitHub usernames.
-  - [ ] Add the generated `CHANGELOG.md` file and commit all remaining changes
-        with the title `Prepare for release vX.Y.Z-rc.W`
-  - [ ] Submit PR (`../release/internal/submit-release.sh`)
+
+## Pre-check (run ~1 week before targeted publish date)
+
+- [ ] When you create a GitHub issue using this issue template, GitHub Slack app posts a
+      message in #launchpad Slack channel. Create a thread for that message and ping the
+      current backporter to merge the outstanding [backport PRs] and stop merging any new
+      backport PRs until the GitHub issue is closed (to avoid generating incomplete
+      release notes).
+- [ ] Run `./release start --steps 1-pre-check --target-version vX.Y.Z-rc.W`
+  - [ ] Check that there are no [release blockers] for the targeted release
+        version.
+  - [ ] Ensure that outstanding [backport PRs] are merged (these may be
+        skipped on case by case basis in coordination with the backporter).
+
+## Preparation PR (run ~1 day before targeted publish date. It can be re-run multiple times.)
+
+- [ ] Go to [release workflow] and Run the workflow from "Branch: main", for
+  step "2-prepare-release" and version for vX.Y.Z-rc.W
+  - [ ] Check if the workflow was successful and check the PR opened by the
+        Release bot.
 - [ ] Merge PR
-- [ ] Ping current top-hat that PRs can be merged again.
-- [ ] Create and push *both* tags to GitHub (`vX.Y.Z-rc.W`, `X.Y.Z-rc.W`)
-  - Pull latest branch locally.
-  - Check out the release commit and run `../release/internal/tag-release.sh`
-    against that commit.
+
+## Tagging
+
+- [ ] Ask a maintainer if there are any known issues that should hold up the release
+- [ ] FYI, do not wait too much time between a tag is created and the helm charts are published.
+      Once the tags are published the documentation will be pointing to them. Until we release
+      the helm chart, users will face issues while trying out our documentation.
+- [ ] Run `./release start --steps 3-tag --target-version vX.Y.Z-rc.W`
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
       [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
-  - [ ] Check if all docker images are available before announcing the release:
-        `make -C install/kubernetes/ RELEASE=yes CILIUM_BRANCH=vX.Y check-docker-images`
-- [ ] Get the image digests from the build process and make a commit and PR with
-      these digests.
-  - [ ] Run `../release/internal/post-release.sh URL` to fetch the image
-        digests and submit a PR to update these, use the `URL` of the GitHub
-        run here
-  - [ ] Get someone to review the PR. Do not trigger the full CI suite, but
-        wait for the automatic checks to complete. Merge the PR.
-- [ ] Update helm charts
-  - [ ] Create helm charts artifacts in [Cilium charts] repository using
-        [cilium helm release tool] for the `vX.Y.Z-rc.W` release and push these
-        changes into the helm repository.
-  - [ ] Check the output of the [chart workflow] and see if the test was
-        successful.
+
+## Post Tagging (run after docker images are published)
+
+- [ ] Go to [release workflow] and Run the workflow from "Branch: main", for
+  step "4-post-release" and version for vX.Y.Z-rc.W
+    - [ ] Check if the workflow was successful and check the PR opened by the
+      Release bot.
+- [ ] Merge PR
+
+## Publish helm (run after docker images are published)
+
+- [ ] Update helm charts `./release start --steps 5-publish-helm --target-version vX.Y.Z-rc.W`
+- [ ] Open [chart workflow] and check if the workflow run is successful.
+
+## Publish docs (only for pre/rc releases)
+
 - [ ] Check [read the docs] configuration:
-    - [ ] Set a new build as active and hidden in [active versions].
-    - [ ] Deactivate previous RCs.
-    - [ ] Update algolia configuration search in [docsearch-scraper-webhook].
-      - Update the versions in `docsearch.config.json`, commit them and push a trigger the workflow [here](https://github.com/cilium/docsearch-scraper-webhook/actions/workflows/update-algolia-index.yaml)
+  - [ ] Set a new build as active and hidden in [active versions].
+  - [ ] Deactivate previous RCs.
+  - [ ] Update algolia configuration search in [docsearch-scraper-webhook].
+    - Update the versions in `docsearch.config.json`, commit them and push a
+      trigger the workflow [here](https://github.com/cilium/docsearch-scraper-webhook/actions/workflows/update-algolia-index.yaml)
+
+## Post-release
+
 - [ ] Check draft release from [releases] page
   - [ ] Update the text at the top with 2-3 highlights of the release
+  - [ ] Check with @cilium/security if the release addresses any open security
+        advisory. If it does, include the list of security advisories at the
+        top of the release notes.
+  - [ ] Check if the GitHub release page with the options:
+        _Set as a pre-release_ and _Create a discussion for this release_ in
+        the "Announcements" category.
   - [ ] Publish the release
-- [ ] Announce the release in #general on Slack.
-  Text template for the first RC:
+- [ ] Announce the release in #general on Slack (do not use [@]channel).
+      See below for templates.
+
+---
+Text template for the first RC:
 ```
 *Announcement* :tada: :tada:
 
@@ -163,8 +187,11 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 - [ ] Bump the development snapshot version in `README.rst` on the main branch
       to point to this release
 - [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
-- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst) for any features that changed status.
+- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst)
+      for any features that changed status. Usually do it after the RC1, once the
+      stability of features is known.
 
+[release workflow]: https://github.com/cilium/cilium/actions/workflows/release.yaml
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
 [release blockers]: https://github.com/cilium/cilium/labels/release-blocker%2FX.Y
 [backport PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Abackport%2FX.Y
@@ -176,3 +203,4 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y.Z-rc.W
 [docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
+[Cilium charts]: https://github.com/cilium/charts
