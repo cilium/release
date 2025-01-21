@@ -63,14 +63,23 @@ func (pc *TagCommit) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	if err != nil {
 		return err
 	}
-	commitSha := strings.TrimSpace(string(commitShaRaw))
-	if len(commitSha) == 0 {
+	gitCommitOutput := strings.TrimSpace(string(commitShaRaw))
+	if len(gitCommitOutput) == 0 {
 		return fmt.Errorf("commit not merged into branch %s. Refusing to tag release", remoteBranch)
 	}
 
+	commitShas := strings.Split(gitCommitOutput, "\n")
+	if len(commitShas) != 1 {
+		io2.Fprintf(4, os.Stdout, "⚠ Multiple commits found for release preparation:\n")
+		for _, sha := range commitShas {
+			io2.Fprintf(5, os.Stdout, "- %s\n", sha)
+		}
+	}
+	commitSha := commitShas[0]
+
 	_, err = execCommand(pc.cfg.RepoDirectory, "git", "checkout", commitSha)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to check out commit %q: %s", commitSha, err)
 	}
 
 	o, err = execCommand(pc.cfg.RepoDirectory, "git", "log", "-1", commitSha)
