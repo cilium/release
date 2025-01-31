@@ -4,7 +4,6 @@
 package release
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"io"
@@ -145,18 +144,7 @@ func (pc *PushPullRequest) generateSummaryFile() (string, string, error) {
 	}
 	defer prBodyFileContent.Close()
 
-	if !pc.cfg.HasStableBranch() {
-		prBodyFileContent.WriteString("\nSee the included CHANGELOG.md for a full list of changes.\n")
-	} else {
-		scanner := bufio.NewScanner(changesContent)
-		for i := 0; scanner.Scan(); i++ {
-			// Ignore the first four lines
-			if i < 4 {
-				continue
-			}
-			prBodyFileContent.Write(append(scanner.Bytes(), byte('\n')))
-		}
-	}
+	prBodyFileContent.WriteString("\nSee the included CHANGELOG.md for a full list of changes.\n")
 
 	return prTitle, prBodyFileName, err
 }
