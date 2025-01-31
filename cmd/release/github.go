@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/cilium/release/pkg/github"
@@ -85,9 +86,22 @@ func (ghClient *GHClient) getRemoteBranch(ctx context.Context, owner, repo, targ
 }
 
 func (ghClient *GHClient) previousVersion(ctx context.Context, owner, repo, currentVersion string) (string, error) {
-	allTags, err := ghClient.getTags(ctx, owner, repo)
+	ghTags, err := ghClient.getTags(ctx, owner, repo)
 	if err != nil {
 		return "", err
+	}
+
+	var allTags []string
+	// Check if it's a new minor, if it is then remove all pre/RCs for that major/minor.
+	majorMinor := semver.MajorMinor(currentVersion)
+	if strings.TrimPrefix(currentVersion, majorMinor) == ".0" {
+		for _, tag := range ghTags {
+			if semver.MajorMinor(tag) != majorMinor {
+				allTags = append(allTags, tag)
+			}
+		}
+	} else {
+		allTags = ghTags
 	}
 
 	allTags = append(allTags, currentVersion)
