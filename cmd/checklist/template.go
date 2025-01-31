@@ -12,6 +12,8 @@ import (
 
 	gh "github.com/google/go-github/v62/github"
 	"golang.org/x/mod/semver"
+
+	templates "github.com/cilium/release/.github/ISSUE_TEMPLATE"
 )
 
 var (
@@ -30,7 +32,23 @@ func fetchTemplate(cfg ChecklistConfig) ([]byte, error) {
 	if len(cfg.TemplatePath) > 0 {
 		return os.ReadFile(cfg.TemplatePath)
 	}
-	return nil, fmt.Errorf("No template configuration found")
+
+	prerelease := semver.Prerelease(cfg.TargetVer)
+	if strings.HasPrefix(prerelease, "-pre") {
+		return templates.ReleaseTemplatePre, nil
+	} else if strings.HasPrefix(prerelease, "-rc") {
+		return templates.ReleaseTemplateRC, nil
+	} else if len(prerelease) == 0 {
+		canonical := semver.Canonical(cfg.TargetVer)
+		ver := strings.Split(canonical, "-")
+		if strings.HasSuffix(ver[0], ".0") {
+			return templates.ReleaseTemplateMinor, nil
+		} else if len(ver[0]) > 0 {
+			return templates.ReleaseTemplatePatch, nil
+		}
+	}
+
+	return nil, fmt.Errorf("No template configuration found. Specify '--template'?")
 }
 
 func assembleVersionSubstitutions(version string) ([]string, error) {

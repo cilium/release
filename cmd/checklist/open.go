@@ -92,7 +92,7 @@ func OpenCommand(ctx context.Context, logger *log.Logger) *cobra.Command {
 	cmd.Flags().StringVar(&cfg.RepoName, "repo", "cilium/release", "GitHub organization and repository names separated by a slash to create the checklist in")
 	cmd.Flags().BoolVar(&cfg.DryRun, "dry-run", false, "Print the template, but do not open an issue on GitHub")
 
-	for _, flag := range []string{"target-version", "template"} {
+	for _, flag := range []string{"target-version"} {
 		cobra.MarkFlagRequired(cmd.Flags(), flag)
 	}
 	return cmd
