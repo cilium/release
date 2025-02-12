@@ -23,7 +23,7 @@ assignees: ''
       current backporter to merge the outstanding [backport PRs] and stop merging any new
       backport PRs until the GitHub issue is closed (to avoid generating incomplete
       release notes).
-- [ ] Run `./release start --steps 1-pre-check --target-version vX.Y.Z`
+- [ ] Run `./release start --steps 1-pre-check --target-version vX.Y.0`
   - [ ] Check that there are no [release blockers] for the targeted release
         version.
   - [ ] Ensure that outstanding [backport PRs] are merged (these may be
@@ -31,7 +31,7 @@ assignees: ''
 
 ## Preparation PR (run ~1 day before targeted publish date. It can be re-run multiple times.)
 
-- [ ] Run `./release start --steps 2-prepare-release --target-version vX.Y.Z`
+- [ ] Run `./release start --steps 2-prepare-release --target-version vX.Y.0`
 - [ ] Manually fix the following:
   - [ ] Add the 'stable' tag as part of the GitHub workflow and remove the
         'stable' tag from the last stable branch (vX.Y-1).
@@ -42,7 +42,7 @@ assignees: ''
 ## Tagging
 
 - [ ] Ask a maintainer if there are any known issues that should hold up the release
-- [ ] Run `./release start --steps 3-tag --target-version vX.Y.Z`
+- [ ] Run `./release start --steps 3-tag --target-version vX.Y.0`
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
       [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
@@ -50,14 +50,14 @@ assignees: ''
 ## Post Tagging (run after docker images are published)
 
 - [ ] Go to [release workflow] and Run the workflow from "Branch: main", for
-  step "4-post-release" and version for vX.Y.Z
+  step "4-post-release" and version for vX.Y.0
     - [ ] Check if the workflow was successful and check the PR opened by the
       Release bot.
 - [ ] Merge PR
 
 ## Publish helm (run after docker images are published)
 
-- [ ] Update helm charts `./release start --steps 5-publish-helm --target-version vX.Y.Z`
+- [ ] Update helm charts `./release start --steps 5-publish-helm --target-version vX.Y.0`
 - [ ] Open [chart workflow] and check if the workflow run is successful.
 
 ## Publish docs
