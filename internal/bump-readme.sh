@@ -81,44 +81,55 @@ check_table() {
     done
 }
 
-for release in $(grep "Release Notes" README.rst \
-                 | sed 's/.*tree\/\(v'"$MAJ_REGEX"'\).*/\1/'); do
-    latest=$(git describe --tags $REMOTE/$release \
-             | sed 's/v//' | sed 's/\('"$VER_REGEX"'\).*/\1/')
-    if [ -z "$latest_stable" ]; then
-        # the first release in the list is the latest stable
-        latest_stable=$latest
-        echo "v$latest_stable" > stable.txt
-        echo '{"results":[{"slug":"v'"$(echo "${latest_stable}" | grep -Eo '[0-9]+\.[0-9]+')"'"}]}' > Documentation/_static/stable-version.json
-    fi
-    if grep -q -F $latest README.rst; then
-        continue
-    fi
+update_stable_versions() {
+    for release in $(grep "Release Notes" README.rst \
+                     | sed 's/.*tree\/\(v'"$MAJ_REGEX"'\).*/\1/'); do
+        latest=$(git describe --tags $REMOTE/$release \
+                 | sed 's/v//' | sed 's/\('"$VER_REGEX"'\).*/\1/')
+        if [ -z "$latest_stable" ]; then
+            # the first release in the list is the latest stable
+            latest_stable=$latest
+            echo "v$latest_stable" > stable.txt
+            echo '{"results":[{"slug":"v'"$(echo "${latest_stable}" | grep -Eo '[0-9]+\.[0-9]+')"'"}]}' > Documentation/_static/stable-version.json
+        fi
+        if grep -q -F $latest README.rst; then
+            continue
+        fi
 
-    update_release $release $latest "tree\/" "$VER_REGEX"
-done
-check_table "tree/v1"
+        update_release $release $latest "tree\/" "$VER_REGEX"
+    done
+    check_table "tree/v1"
+}
 
-for release in $(grep "$PRE_REGEX" README.rst \
-                 | sed 's/.*commits\/\(v'"$MAJ_REGEX"'\).*/\1/'); do
-    branch="$release"
-    if ! git ls-remote --exit-code --heads $REMOTE refs/heads/$branch >/dev/null; then
-	    branch="main"
+update_prerelease() {
+    for release in $(grep "$PRE_REGEX" README.rst \
+                     | sed 's/.*commits\/\(v'"$MAJ_REGEX"'\).*/\1/'); do
+        branch="$release"
+        if ! git ls-remote --exit-code --heads $REMOTE refs/heads/$branch >/dev/null; then
+            branch="main"
+        fi
+        latest=$(git describe --tags $REMOTE/$branch \
+                 | sed 's/v//' | sed 's/\('"$PRE_REGEX"'\).*/\1/')
+        if grep -q -F $latest README.rst; then
+            continue
+        fi
+
+        update_release $release $latest "commits\/" "$PRE_REGEX"
+    done
+    check_table "commits/v1"
+}
+
+main() {
+    update_stable_versions
+    update_prereleases
+
+    git add README.rst stable.txt Documentation/_static/stable-version.json
+    if ! git diff-index --quiet HEAD -- README.rst stable.txt Documentation/_static/stable-version.json; then
+        git commit -s -m "README: Update releases"
+        echo "README.rst and stable.txt updated, submit the PR now."
+    else
+        echo "No new releases found."
     fi
-    latest=$(git describe --tags $REMOTE/$branch \
-             | sed 's/v//' | sed 's/\('"$PRE_REGEX"'\).*/\1/')
-    if grep -q -F $latest README.rst; then
-        continue
-    fi
+}
 
-    update_release $release $latest "commits\/" "$PRE_REGEX"
-done
-check_table "commits/v1"
-
-git add README.rst stable.txt Documentation/_static/stable-version.json
-if ! git diff-index --quiet HEAD -- README.rst stable.txt Documentation/_static/stable-version.json; then
-    git commit -s -m "README: Update releases"
-    echo "README.rst and stable.txt updated, submit the PR now."
-else
-    echo "No new releases found."
-fi
+main "$@"
