@@ -3,7 +3,13 @@ GO_BUILD_FLAGS ?=
 DOCKER_BUILD_FLAGS ?=
 IMAGE_TAG ?= latest
 
-all: tests release
+all: tests bump-readme release
+
+.PHONY: bump-readme
+bump-readme:
+	CGO_ENABLED=0 $(GO) build $(GO_BUILD_FLAGS) \
+		    -mod=vendor \
+		    -o ./bump-readme ./tools/bump-readme/main.go
 
 .PHONY: docker-image
 docker-image:
@@ -29,4 +35,4 @@ release:
 
 .PHONY: clean
 clean:
-	rm -fr release
+	rm -fr release bump-readme

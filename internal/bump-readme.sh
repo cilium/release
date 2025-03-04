@@ -3,60 +3,23 @@
 # Copyright Authors of Cilium
 
 DIR=$(dirname $(readlink -ne $BASH_SOURCE))
-source $DIR/lib/k8s-common.sh
 source $DIR/lib/common.sh
+BUMP_README="${DIR}/../bump-readme"
 
 set -e
+set -u
 set -o pipefail
 
 MAJ_REGEX='[0-9]\+\.[0-9]\+'
 VER_REGEX='[0-9]\+\.[0-9]\+\.[0-9]\+\(-\(pre\|rc\)\.[0-9]\+\)\?'
-PRE_REGEX='[0-9]\+\.[0-9]\+\.[0-9]\+-\(pre\|rc\)\.[0-9]\+'
-REGEX_FILTER_DATE='s/^\([-0-9]\+\).*/\1/'
-REMOTE="$(get_remote)"
 
-latest_stable=""
-
-# $1 - release branch
-# $2 - latest release for the target branch (maybe vX.Y+1* for prerelease)
-# #3 - git tree path to commit object, eg tree/ or commits/
-# $4 - regex to strip out constant release info from a release line
-update_release() {
-    old_branch="$1"
-    latest="$2"
-    obj_regex="$3"
-    rem_branch_regex="$4"
-
-    new_branch=$(echo $latest | sed 's/\('$MAJ_REGEX'\).*/v\1/')
-    current=$(grep "$obj_regex$old_branch" README.rst \
-              | sed 's/^.*'"$obj_regex"'.*tag\/v\('"$rem_branch_regex"'\).*$/\1/')
-    old_date=$(git log -1 -s --format="%cI" v$current | sed "$REGEX_FILTER_DATE")
-    new_date=$(git log -1 -s --format="%cI" $latest | sed "$REGEX_FILTER_DATE")
-    elease=$(echo $old_branch | sed 's/v//')
-
-
-    printf "%10s %10s %10s %10s\n" "current" "old_date" "new_date" "elease"
-    printf "%10s %10s %10s %10s\n" $current  $old_date  $new_date  $elease
-
-    # Do not replace vX.Y-rc.A with vX.Y-pre.B. This situation arises after
-    # cutting a patch release, before a new minor release is cut. The
-    # README.rst contains a reference to a -rc tag from the forked branch for
-    # the next minor release, and we shouldn't overwrite it with the latest,
-    # oldest -pre tag from the main branch.
-    if [[ "$current" =~ "-rc." && "$latest" =~ "-pre." && \
-        "${current%-rc.*}" == "${latest%-pre.*}" &&
-        "$(date -d "$old_date" '+%s')" -gt "$(date -d "$new_date" '+%s')" ]]; then
-        echo "Skipping $old_branch:"
-        echo "  $current on $old_date is a release candidate"
-        echo "  $latest on $new_date is an older preview"
-        return
-    fi
-
-    echo "Updating $old_branch:"
-    echo "  $current on $old_date to"
-    echo "  $latest on $new_date"
-    sed -i '/'$obj_regex'/s/'$old_branch'\(.*\)'$old_date'/'$new_branch'\1'$new_date'/g' README.rst
-    sed -i '/'$obj_regex'/s/v'$current'/v'$latest'/g' README.rst
+pull_versions() {
+    gh api \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        /repos/cilium/cilium/releases \
+    | jq '.[] | {"version": .tag_name, "date": .created_at}' \
+    | jq -s
 }
 
 # $1 - git tree path to commit object, eg tree/ or commits/
@@ -82,46 +45,35 @@ check_table() {
 }
 
 update_stable_versions() {
-    for release in $(grep "Release Notes" README.rst \
-                     | sed 's/.*tree\/\(v'"$MAJ_REGEX"'\).*/\1/'); do
-        latest=$(git describe --tags $REMOTE/$release \
-                 | sed 's/v//' | sed 's/\('"$VER_REGEX"'\).*/\1/')
-        if [ -z "$latest_stable" ]; then
-            # the first release in the list is the latest stable
-            latest_stable=$latest
-            echo "v$latest_stable" > stable.txt
-            echo '{"results":[{"slug":"v'"$(echo "${latest_stable}" | grep -Eo '[0-9]+\.[0-9]+')"'"}]}' > Documentation/_static/stable-version.json
-        fi
-        if grep -q -F $latest README.rst; then
-            continue
-        fi
+    REMOTE="$(get_remote)"
 
-        update_release $release $latest "tree\/" "$VER_REGEX"
-    done
-    check_table "tree/v1"
-}
+    local release latest
 
-update_prerelease() {
-    for release in $(grep "$PRE_REGEX" README.rst \
-                     | sed 's/.*commits\/\(v'"$MAJ_REGEX"'\).*/\1/'); do
-        branch="$release"
-        if ! git ls-remote --exit-code --heads $REMOTE refs/heads/$branch >/dev/null; then
-            branch="main"
-        fi
-        latest=$(git describe --tags $REMOTE/$branch \
-                 | sed 's/v//' | sed 's/\('"$PRE_REGEX"'\).*/\1/')
-        if grep -q -F $latest README.rst; then
-            continue
-        fi
+    release=$(grep "Release Notes" README.rst \
+              | sed 's/.*tree\/\(v'"$MAJ_REGEX"'\).*/\1/' \
+              | head -n 1)
 
-        update_release $release $latest "commits\/" "$PRE_REGEX"
-    done
-    check_table "commits/v1"
+    # the first release in the list is the latest stable
+    latest=$(git describe --tags "$REMOTE/$release" \
+             | sed 's/v//' | sed 's/\('"$VER_REGEX"'\).*/\1/')
+
+    echo "v$latest" > stable.txt
+    echo '{"results":[{"slug":"v'"$(echo "${latest}" \
+    | grep -Eo '[0-9]+\.[0-9]+')"'"}]}' \
+    > Documentation/_static/stable-version.json
 }
 
 main() {
+    versions="$(mktemp)"
+    trap 'rm $versions' EXIT
+
+    pull_versions > "$versions"
+
+    "$BUMP_README" --versions "$versions" < README.rst > README.rst.new
+    mv README.rst{.new,}
+
     update_stable_versions
-    update_prereleases
+    check_table "releases/tag/v"
 
     git add README.rst stable.txt Documentation/_static/stable-version.json
     if ! git diff-index --quiet HEAD -- README.rst stable.txt Documentation/_static/stable-version.json; then
