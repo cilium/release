@@ -67,6 +67,12 @@ assignees: ''
         - `sed -i 's/- \(ft\/\)\?main/- \1v1.10/g' .github/workflows/*`
         - `sed -i 's/@main/@v1.10/g' .github/workflows/*`
         - `sed -i 's/\/main\//\/v1.10\//g' .github/workflows/*`
+      - [ ] Remove cilium-cli references in the tree.
+        - [ ] `git rm ./cilium-cli/`
+        - [ ] `go mod tidy`
+      - [ ] Pick the latest cilium CLI version and place it into the action for setting environment variables.
+        - `export CLI_RELEASE=$(gh release list --repo cilium/cilium-cli --json tagName,isLatest --jq '.[] | select(.isLatest)|.tagName')`
+        - `sed -i 's/^\([ ]*\)\(CILIUM_CLI_VERSION=\)""$/\1# renovate: datasource=github-releases depName=cilium\/cilium-cli\n\1\2"'$CLI_RELEASE'"/g' .github/actions/set-env-variables/action.yml`
       - Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new
         minor schema version compared to the previous stable release.
       - Update `install/kubernetes/Makefile*`, following the changes made
