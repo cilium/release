@@ -133,6 +133,8 @@ https://github.com/cilium/cilium/releases/tag/vX.Y.Z-pre.N
 Thank you for the testing and contributing to the previous pre-releases. There are [vX.Y.Z-pre.N OSS docs](https://docs.cilium.io/en/vX.Y.Z-pre.N) available if you want to pull this version & try it out.
 ```
 
+[active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y
+[docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [release workflow]: https://github.com/cilium/cilium/actions/workflows/release.yaml
 [GitHub PAT tracker]: https://github.com/orgs/community/discussions/36441
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
@@ -145,3 +147,4 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [cilium helm release tool]: https://github.com/cilium/charts/blob/master/RELEASE.md
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
+[read the docs]: https://readthedocs.org/projects/cilium/
