@@ -73,7 +73,8 @@ main() {
     mv README.rst{.new,}
 
     update_stable_versions
-    check_table "releases/tag/v"
+    check_table "tree/v"
+    check_table "commits/v"
 
     git add README.rst stable.txt Documentation/_static/stable-version.json
     if ! git diff-index --quiet HEAD -- README.rst stable.txt Documentation/_static/stable-version.json; then
