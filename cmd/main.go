@@ -118,7 +118,7 @@ func main() {
 }
 
 func run(logger *log.Logger) {
-	ghClient := github.NewClient()
+	ghClient := github.NewClient(logger)
 
 	if len(cfg.CurrVer) != 0 {
 		pm := projects.NewProjectManagement(ghClient, cfg.Owner, cfg.Repo)

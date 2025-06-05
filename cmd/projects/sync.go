@@ -47,7 +47,7 @@ func SyncCommand(ctx context.Context, logger *log.Logger) *cobra.Command {
 				return fmt.Errorf("Failed to validate configuration: %s", err)
 			}
 
-			ghClient := github.NewClient()
+			ghClient := github.NewClient(logger)
 			pm := NewProjectManagement(ghClient, cfg.Owner, cfg.Repo)
 			err := pm.SyncProjects(ctx, cfg.CurrVer, cfg.NextVer, cfg.ForceMovePending)
 			if err != nil {

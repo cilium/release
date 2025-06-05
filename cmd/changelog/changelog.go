@@ -53,7 +53,7 @@ func Command(ctx context.Context, logger *log.Logger) *cobra.Command {
 				return fmt.Errorf("Failed to validate configuration: %s", err)
 			}
 
-			ghClient := github.NewClient()
+			ghClient := github.NewClient(logger)
 			cl, err := GenerateReleaseNotes(ctx, ghClient, logger, cfg)
 			if err != nil {
 				return err

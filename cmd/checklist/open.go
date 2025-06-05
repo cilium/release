@@ -63,7 +63,7 @@ func OpenCommand(ctx context.Context, logger *log.Logger) *cobra.Command {
 		Use:   "open",
 		Short: "Open a new release checklist",
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			ghClient := github.NewClient()
+			ghClient := github.NewClient(logger)
 			cfg.TargetVer = semver.Canonical(cfg.TargetVer)
 			if err := cfg.Sanitize(ctx, ghClient); err != nil {
 				cmd.Usage()

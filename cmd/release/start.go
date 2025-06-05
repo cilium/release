@@ -232,7 +232,7 @@ To start, run
 				return fmt.Errorf("Docker is not running or not accessible: %w", err)
 			}
 
-			ghClient := NewGHClient()
+			ghClient := NewGHClient(logger)
 
 			// Auto detect previous version
 			if cfg.PreviousVer == "" {

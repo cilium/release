@@ -16,14 +16,20 @@ package github
 
 import (
 	"bytes"
-	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
 
+	"github.com/gofri/go-github-pagination/githubpagination"
+	"github.com/gofri/go-github-ratelimit/v2/github_ratelimit"
+	"github.com/gofri/go-github-ratelimit/v2/github_ratelimit/github_primary_ratelimit"
+	"github.com/gofri/go-github-ratelimit/v2/github_ratelimit/github_secondary_ratelimit"
+
 	gh "github.com/google/go-github/v62/github"
-	"golang.org/x/oauth2"
+	"github.com/gregjones/httpcache"
+	"github.com/gregjones/httpcache/diskcache"
 )
 
 func execCommand(name string, args ...string) (string, error) {
@@ -54,15 +60,22 @@ func Token() string {
 	return ghToken
 }
 
-func NewClient() *gh.Client {
-	return gh.NewClient(
-		oauth2.NewClient(
-			context.Background(),
-			oauth2.StaticTokenSource(
-				&oauth2.Token{
-					AccessToken: Token(),
-				},
-			),
-		),
+func NewClient(logger *log.Logger) *gh.Client {
+	cache := diskcache.New(".github_cache")
+	cacheTransport := httpcache.NewTransport(cache)
+
+	rateLimiter := github_ratelimit.New(cacheTransport,
+		github_primary_ratelimit.WithLimitDetectedCallback(func(ctx *github_primary_ratelimit.CallbackContext) {
+			logger.Printf("Primary rate limit detected: category %s, reset time: %v\n", ctx.Category, ctx.ResetTime)
+		}),
+		github_secondary_ratelimit.WithLimitDetectedCallback(func(ctx *github_secondary_ratelimit.CallbackContext) {
+			logger.Printf("Secondary rate limit detected: reset time: %v, total sleep time: %v\n", ctx.ResetTime, ctx.TotalSleepTime)
+		}),
 	)
+
+	paginator := githubpagination.NewClient(rateLimiter,
+		githubpagination.WithPerPage(100), // default to 100 results per page
+	)
+
+	return gh.NewClient(paginator).WithAuthToken(Token())
 }

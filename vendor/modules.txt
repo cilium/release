@@ -54,15 +54,34 @@ github.com/go-logr/logr/funcr
 # github.com/go-logr/stdr v1.2.2
 ## explicit; go 1.16
 github.com/go-logr/stdr
+# github.com/gofri/go-github-pagination v1.0.1
+## explicit; go 1.21
+github.com/gofri/go-github-pagination/githubpagination
+github.com/gofri/go-github-pagination/githubpagination/drivers
+github.com/gofri/go-github-pagination/githubpagination/jsonmerger
+github.com/gofri/go-github-pagination/githubpagination/response
+github.com/gofri/go-github-pagination/githubpagination/searchresult
+# github.com/gofri/go-github-ratelimit/v2 v2.0.2
+## explicit; go 1.23.0
+github.com/gofri/go-github-ratelimit/v2/github_ratelimit
+github.com/gofri/go-github-ratelimit/v2/github_ratelimit/github_primary_ratelimit
+github.com/gofri/go-github-ratelimit/v2/github_ratelimit/github_secondary_ratelimit
 # github.com/gogo/protobuf v1.3.2
 ## explicit; go 1.15
 github.com/gogo/protobuf/proto
+# github.com/google/btree v1.1.3
+## explicit; go 1.18
+github.com/google/btree
 # github.com/google/go-github/v62 v62.0.0
 ## explicit; go 1.21
 github.com/google/go-github/v62/github
 # github.com/google/go-querystring v1.1.0
 ## explicit; go 1.10
 github.com/google/go-querystring/query
+# github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
+## explicit
+github.com/gregjones/httpcache
+github.com/gregjones/httpcache/diskcache
 # github.com/inconshreveable/mousetrap v1.1.0
 ## explicit; go 1.18
 github.com/inconshreveable/mousetrap
@@ -83,6 +102,9 @@ github.com/opencontainers/go-digest
 ## explicit; go 1.18
 github.com/opencontainers/image-spec/specs-go
 github.com/opencontainers/image-spec/specs-go/v1
+# github.com/peterbourgon/diskv v2.0.1+incompatible
+## explicit
+github.com/peterbourgon/diskv
 # github.com/pkg/errors v0.9.1
 ## explicit
 github.com/pkg/errors

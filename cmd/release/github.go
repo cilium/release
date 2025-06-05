@@ -21,9 +21,9 @@ type GHClient struct {
 	ghGQLClient *githubv4.Client
 }
 
-func NewGHClient() *GHClient {
+func NewGHClient(logger *log.Logger) *GHClient {
 	return &GHClient{
-		ghClient: github.NewClient(),
+		ghClient: github.NewClient(logger),
 		ghGQLClient: githubv4.NewClient(
 			oauth2.NewClient(
 				context.Background(),
