@@ -49,6 +49,19 @@ assignees: ''
   - [ ] Sync the `vX.Y` branch up to the commit before preparing for the `X.Y+1` development cycle.
     - `git fetch upstream && git checkout vX.Y && git merge --ff-only upstream/main~1 && git log -5`
     - `git push upstream vX.Y`
+  - [ ] Push a copy of the latest CI image as a temporary vX.Y CI image version
+        so that the upgrade workflow on `main` can upgrade from it.
+    - ```
+      skopeo login quay.io
+
+      REPOS=$(yq '.jobs.build-and-push-prs.strategy.matrix.include[] | select(.name != "cilium-cli") | .name' .github/workflows/build-images-ci.yaml)
+      COMMIT=$(git rev-parse vX.Y)
+      for repo in $REPOS; do
+          skopeo copy -a docker://quay.io/cilium/$repo-ci:$COMMIT docker://quay.io/cilium/$repo-ci:vX.Y;
+      done
+
+      skopeo logout
+      ```
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
     - Use the settings of the previous stable branch and main as sane defaults
   - [ ] On the `vX.Y` branch, prepare for stable release development:
