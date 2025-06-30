@@ -38,7 +38,7 @@ assignees: ''
     - [ ] Check for any other .github workflow references to the current stable
           branch `X.Y-1`, and update those to include the new stable `X.Y`
           version as well.
-        - `git grep "X.Y-1" .github/`
+      - `git grep "X.Y-1" .github/`
     - [ ] Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new minor schema version compared to the new `X.Y` release.
     - `echo "X.Y+1.0-dev" > VERSION`
     - `make -C install/kubernetes`
@@ -50,7 +50,7 @@ assignees: ''
     - `git fetch upstream && git checkout vX.Y && git merge --ff-only upstream/main~1 && git log -5`
     - `git push upstream vX.Y`
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
-      - Use the settings of the previous stable branch and main as sane defaults
+    - Use the settings of the previous stable branch and main as sane defaults
   - [ ] On the `vX.Y` branch, prepare for stable release development:
     - [ ] Remove any GitHub workflows from the stable branch that are only
           relevant for the main branch (Read the following before running
@@ -171,9 +171,9 @@ assignees: ''
 ## Post Tagging (run after docker images are published)
 
 - [ ] Go to [release workflow] and Run the workflow from "Branch: main", for
-  step "4-post-release" and version for vX.Y.Z-rc.W
-    - [ ] Check if the workflow was successful and check the PR opened by the
-      Release bot.
+      step "4-post-release" and version for vX.Y.Z-rc.W
+  - [ ] Check if the workflow was successful and check the PR opened by the
+        Release bot.
 - [ ] Merge PR
 
 ## Publish helm (run after docker images are published)
