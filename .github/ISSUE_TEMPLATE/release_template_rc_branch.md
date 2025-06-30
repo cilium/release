@@ -57,9 +57,14 @@ assignees: ''
           this step).
       - Remove workflows that are exclusively triggered by cron job and
         workflows triggered by `issue_comment` triggers, as they do not run on
-        stable branches. These can be identified with commands like this:
-        - `git rm $(git grep -B 7 'cron:' .github/ | grep '\-name:' | sed 's/-name.*//g')`
-        - `git rm $(git grep -l issue_comment .github/)`
+        stable branches.
+        - ```
+          for f in .github/workflows/*yaml; do
+              if [ $(yq '.on | pick(["push", "pull_request", "pull_request_target", "merge_group", "workflow_call", "workflow_dispatch"]) | length' $f) == '0' ]; then
+                  git rm $f;
+              fi;
+          done
+          ```
       - Replace references to `main` branch with `X.Y` in the workflows.
         - `sed -i 's/- \(ft\/\)\?main/- \1vX.Y/g' .github/workflows/*`
         - `sed -i 's/@main/@vX.Y/g' .github/workflows/*`
