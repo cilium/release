@@ -35,14 +35,11 @@ assignees: ''
         workflows (renovate configuration, MLH configuration, etc.
         see [24143732b616](https://github.com/cilium/cilium/commit/24143732b616bb6cd308564b0be33f13fc5613e6)
         for reference):
-    - [ ] Adjust `maintainers-little-helper.yaml` accordingly the new stable
-          branch.
     - [ ] Check for any other .github workflow references to the current stable
           branch `1.9`, and update those to include the new stable `1.10`
           version as well.
-        - `git grep "1.9" .github/`
-    - [ ] Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new
-          minor schema version compared to the new `1.10` release.
+      - `git grep "1.9" .github/`
+    - [ ] Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new minor schema version compared to the new `1.10` release.
     - `echo "1.11.0-dev" > VERSION`
     - `make -C install/kubernetes`
     - `git add .github/ Documentation/contributing/testing/ci.rst`
@@ -52,51 +49,105 @@ assignees: ''
   - [ ] Sync the `v1.10` branch up to the commit before preparing for the `1.11` development cycle.
     - `git fetch upstream && git checkout v1.10 && git merge --ff-only upstream/main~1 && git log -5`
     - `git push upstream v1.10`
+  - [ ] Push a copy of the latest CI image as a temporary v1.10 CI image version
+        so that the upgrade workflow on `main` can upgrade from it.
+    - ```
+      skopeo login quay.io
+
+      REPOS=$(yq '.jobs.build-and-push-prs.strategy.matrix.include[] | select(.name != "cilium-cli") | .name' .github/workflows/build-images-ci.yaml)
+      COMMIT=$(git rev-parse v1.10)
+      for repo in $REPOS; do
+          skopeo copy -a docker://quay.io/cilium/$repo-ci:$COMMIT docker://quay.io/cilium/$repo-ci:v1.10;
+      done
+
+      skopeo logout
+      ```
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
-      - Use the settings of the previous stable branch and main as sane defaults
+    - Use the settings of the previous stable branch and main as sane defaults
   - [ ] On the `v1.10` branch, prepare for stable release development:
     - [ ] Remove any GitHub workflows from the stable branch that are only
           relevant for the main branch (Read the following before running
           this step).
       - Remove workflows that are exclusively triggered by cron job and
         workflows triggered by `issue_comment` triggers, as they do not run on
-        stable branches. These can be identified with commands like this:
-        - `git grep -B 5 cron .github/ | grep name | sed 's/-name.*//g'`
-        - `git grep issue_comment .github/`
+        stable branches.
+        - ```
+          for f in .github/workflows/*yaml; do
+              if [ $(yq '.on | pick(["push", "pull_request", "pull_request_target", "merge_group", "workflow_call", "workflow_dispatch"]) | length' $f) == '0' ]; then
+                  git rm $f;
+              fi;
+          done
+          ```
       - Replace references to `main` branch with `1.10` in the workflows.
         - `sed -i 's/- \(ft\/\)\?main/- \1v1.10/g' .github/workflows/*`
         - `sed -i 's/@main/@v1.10/g' .github/workflows/*`
         - `sed -i 's/\/main\//\/v1.10\//g' .github/workflows/*`
-      - [ ] Remove cilium-cli references in the tree.
-        - [ ] `git rm ./cilium-cli/`
-        - [ ] `go mod tidy`
+        - `sed -i 's/\(renovate\/\)main/\1v1.10/g' .github/workflows/*`
+        - `sed -i 's/- v\[0-9\]+\.\[0-9\]+/- v1.10/g' .github/workflows/build-images-releases.yaml`
+      - Double-check if there are any other new references to `main` in the
+        workflows, and update them as needed.
+        - `git grep 'main' .github/workflows/`
+      - Remove cilium-cli references in the tree.
+        - `git rm -r ./cilium-cli/`
+        - `git rm .github/workflows/cilium-cli.yaml`
+        - `sed -i 's/ cilium-cli$//' Makefile`
+        - `git rm Documentation/cmdref/index_cilium_cli.rst`
+        - `sed -i '/cilium_cli$/d' Documentation/cmdref/index.rst`
+        - `sed -i '/cilium-cli/d' Documentation/update-cmdref.sh`
+        - `make -C Documentation update-cmdref`
+        - `go mod vendor && go mod tidy`
       - [ ] Pick the latest cilium CLI version and place it into the action for setting environment variables.
         - `export CLI_RELEASE=$(gh release list --repo cilium/cilium-cli --json tagName,isLatest --jq '.[] | select(.isLatest)|.tagName')`
         - `sed -i 's/^\([ ]*\)\(CILIUM_CLI_VERSION=\)""$/\1# renovate: datasource=github-releases depName=cilium\/cilium-cli\n\1\2"'$CLI_RELEASE'"/g' .github/actions/set-env-variables/action.yml`
-      - Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new
-        minor schema version compared to the previous stable release.
       - Update `install/kubernetes/Makefile*`, following the changes made
         during the previous stable branch preparation commit on the previous
         stable branch.
+        - `sed -i 's/\(CI_ORG ?=.*$\)/\1\nexport RELEASE := yes/' install/kubernetes/Makefile.values`
+        - `make -C install/kubernetes`
+        - `make -C Documentation update-helm-values`
+      - Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new
+        minor schema version compared to the previous stable release.
+        - `vim $(git grep -l CustomResourceDefinitionSchemaVersion)`
       - Remove `stable.txt` file
+        - `git rm stable.txt`
+      - Adjust `./.github/maintainers-little-helper.yaml` to set labels based
+        on the new stable branch version. See [5b4934284d](https://github.com/cilium/cilium/commit/5b4934284dd525399aacec17c137811df9cf0f8b)
+        for reference.
+        - `cp {../cilium-1.9/,}.github/maintainers-little-helper.yaml`
+        - `sed -i 's/1.9/1.10/g' .github/maintainers-little-helper.yaml`
+      - Rewrite the CODEOWNERS file and docs. Keep the team descriptions from main
+        and the previous stable branch. See [97daf56221](https://github.com/cilium/cilium/commit/97daf5622197d0cdda003a3f693e6e5a61038884)
+        - `sed -i '/^\//,$d' CODEOWNERS`
+        - `grep -v '#' ../cilium-1.9/CODEOWNERS >> CODEOWNERS`
+        - `make -C Documentation update-codeowners`
+      - Delete unnecessary GitHub configurations from the stable branch
+        - `git rm .github/{pull_request,renovate}*`
+        - `git rm -r .github/ISSUE_TEMPLATE/`
+        - `git rm .github/workflows/lint-codeowners.yaml`
+        - `git rm .github/workflows/release.yaml`
+        - `git rm .github/workflows/renovate*`
+      - Replace references to `bpf-next-*` lvh images in workflows with the
+        newest LTS kernel from [quay.io](https://quay.io/repository/lvh-images/kind?tab=tags&tag=latest).
+        If there is no newer LTS, delete the corresponding matrix entries.
+        - `grep -R bpf-next- .github/workflows/`
       - You may want to initially commit the state up until now before the next
         step, so that it's easier to compare the diff vs. the previous stable
         release.
+        - `git commit -s -m "Prepare v1.10 stable branch"`
       - Copy-paste the `.github` directory from the previous stable branch and
         manually check the diff between the files from the current stable branch
         and modify the workflows to match the target stable branch. See
         [8bbae9cb43](https://github.com/cilium/cilium/commit/8bbae9cb4323bf3dd94936e355b0c2aad96d0df8)
         for reference.
-      - Ignore all stable branch changes under the `.github/actions` directory.
-        `git checkout .github/actions`
-      - Remove the `labels-unset` field from the MLH configuration and add
-        the `auto-label` field. See [5b4934284d](https://github.com/cilium/cilium/commit/5b4934284dd525399aacec17c137811df9cf0f8b)
-        for reference.
-      - Rewrite the CODEOWNERS file. Keep the team descriptions from main
-        and the previous stable branch. See [97daf56221](https://github.com/cilium/cilium/commit/97daf5622197d0cdda003a3f693e6e5a61038884)
-      - Update CODEOWNERS documentation file by running `make -C Documentation update-codeowners`
-      - Replace references to `bpf-next-*` lvh images in workflows with the newest LTS kernel from [quay.io](https://quay.io/repository/lvh-images/kind?tab=tags&tag=latest).
-        `grep -R bpf-next- .github/workflows/`
+        - `cp -R ../cilium-1.9/.github/* .github/`
+        - `git diff --stat`
+        - Ignore all stable branch changes under the `.github/actions` directory.
+          `git checkout .github/actions`
+        - `git diff`
+        - Yes this step is horribly painful. It's unrealistic for us to make
+          reasonable decisions here when scanning thousands of lines of random
+          CI changes for the past six months. Suggestions welcome: please
+          update these instructions if you find anything we can do better.
     - [ ] Review the diff for this commit compared to the preparation commit
           for the previous stable branch.
     - [ ] Push a PR with those changes:
@@ -138,9 +189,9 @@ assignees: ''
 ## Post Tagging (run after docker images are published)
 
 - [ ] Go to [release workflow] and Run the workflow from "Branch: main", for
-  step "4-post-release" and version for v1.10.0-pre.0
-    - [ ] Check if the workflow was successful and check the PR opened by the
-      Release bot.
+      step "4-post-release" and version for v1.10.0-pre.0
+  - [ ] Check if the workflow was successful and check the PR opened by the
+        Release bot.
 - [ ] Merge PR
 
 ## Publish helm (run after docker images are published)
@@ -170,6 +221,10 @@ assignees: ''
   - [ ] Publish the release
 - [ ] Announce the release in #general on Slack (do not use [@]channel).
       See below for templates.
+- [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
+- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst)
+      for any features that changed status. Usually do it after the RC1, once the
+      stability of features is known.
 
 ---
 Text template for the first RC:
@@ -190,12 +245,6 @@ https://github.com/cilium/cilium/releases/tag/v1.10.0-pre.0
 
 Thank you for the testing and contributing to the previous pre-releases. There are [v1.10.0-pre.0 OSS docs](https://docs.cilium.io/en/v1.10.0-pre.0) available if you want to pull this version & try it out.
 ```
-- [ ] Bump the development snapshot version in `README.rst` on the main branch
-      to point to this release
-- [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
-- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst)
-      for any features that changed status. Usually do it after the RC1, once the
-      stability of features is known.
 
 [release workflow]: https://github.com/cilium/cilium/actions/workflows/release.yaml
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
