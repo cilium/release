@@ -94,6 +94,15 @@ assignees: ''
   - [ ] `echo '{"results":[{"slug":"v1.10"}]}' > Documentation/_static/stable-version.json`.
   - [ ] Commit / amend the commit to add all of the changes above and push the PR.
   - [ ] Merge the post-release PR.
+- [ ] Update the upgrade guide and [roadmap] on the `main` branch to prepare
+      for the next development cycle. References to v1.10 should be removed, but
+      the upgrade guide structure should remain in place in order for
+      developers to document the changes necessary for the next release.
+- [ ] The oldest maintained release branch will now no longer be maintained.
+      Prepare an update PR for the `main` branch to remove references to that
+      branch. This may involve modifying documentation, code comments and
+      configuration for GitHub or Renovate.
+      - `git grep v1.9`
 
 [release workflow]: https://github.com/cilium/cilium/actions/workflows/release.yaml
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
@@ -109,4 +118,5 @@ assignees: ''
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
 [Cilium charts]: https://github.com/cilium/charts
 [default version]: https://readthedocs.org/dashboard/cilium/advanced/
+[roadmap]: https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst
 [security policy]: https://github.com/cilium/cilium/security/policy
