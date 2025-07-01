@@ -9,18 +9,15 @@ assignees: ''
 
 ## Setup preparation
 
-- [ ] Depending on your OS, make sure Docker is running
-- [ ] Export a [`GITHUB_TOKEN`](https://github.com/settings/tokens/new?description=Cilium%20Release%20Script&scopes=write:org,public_repo,project) that has access to the repository. Only classic tokens are
-      [supported at the moment][GitHub PAT tracker], the needed scopes are `write:org`, `public_repo` and `project`.
-- [ ] Make sure a setup (GPG, SSH, S/MIME) is in place for [signing tags]
-  with Git and install [gh](https://cli.github.com).
-- [ ] Make sure the [Cilium helm charts][Cilium charts] and [release][Cilium release-notes tool] repositories are installed locally:
-  - [ ] Run `git clone https://github.com/cilium/charts.git "$GOPATH/src/github.com/cilium/charts"`
-  - [ ] Run `git clone https://github.com/cilium/release.git "$GOPATH/src/github.com/cilium/release"`
-    - [ ] If you already have the repo checked out, make sure the `release` binary is up to date:
-
-          git checkout master && git pull && make
-- [ ] Read the documentation of `release start --help` tool to understand what
+- Ensure Docker is installed and running
+- Ensure a setup is in place for [signing tags] with Git (GPG, SSH, S/MIME)
+- Install [gh](https://cli.github.com).
+- Make sure the [Cilium helm charts][Cilium charts] and [release][Cilium release-notes tool] repositories are installed locally:
+  - Run `git clone https://github.com/cilium/charts.git "$GOPATH/src/github.com/cilium/charts"`
+  - Run `git clone https://github.com/cilium/release.git "$GOPATH/src/github.com/cilium/release"`
+- [ ] Make sure the `release` binary is up to date:
+      `git checkout master && git pull && make`
+- Read the documentation of `release start --help` tool to understand what
   each automated step does.
 
 ## Pre-check (run ~1 week before release date)
