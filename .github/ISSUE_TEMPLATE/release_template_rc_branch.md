@@ -241,8 +241,6 @@ https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
 Thank you for the testing and contributing to the previous pre-releases. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
-- [ ] Bump the development snapshot version in `README.rst` on the main branch
-      to point to this release
 - [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
 - [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst)
       for any features that changed status. Usually do it after the RC1, once the
