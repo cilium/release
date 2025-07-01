@@ -121,7 +121,7 @@ assignees: ''
         - `grep -v '#' ../cilium-X.Y-1/CODEOWNERS >> CODEOWNERS`
         - `make -C Documentation update-codeowners`
       - Delete unnecessary GitHub configurations from the stable branch
-        - `git rm .github/{labeler,pull_request,renovate}*`
+        - `git rm .github/{pull_request,renovate}*`
         - `git rm -r .github/ISSUE_TEMPLATE/`
         - `git rm .github/workflows/lint-codeowners.yaml`
         - `git rm .github/workflows/release.yaml`
