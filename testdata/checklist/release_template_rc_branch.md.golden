@@ -20,13 +20,67 @@ assignees: ''
 - Read the documentation of `release start --help` tool to understand what
   each automated step does.
 
+## Lead up to feature freeze (run ~1 week before feature freeze date)
+
+- [ ] Announce on Slack #development channel that the feature freeze is one
+      week away and that contributors should coordinate with reviewers to
+      assess whether their PRs are on track for merging prior to feature
+      freeze.
+      - Example announcement:
+        ```
+        :cilium-gopher: :mega: Feature freeze is in *one week*.
+
+        If you are planning on getting a PR into the upcoming stable release,
+        please coordinate with your reviewers to ensure that you have aligned
+        expectations for bandwidth in order to develop, test, review and merge
+        the PR.
+        ```
+
+## Feature freeze day
+
+- [ ] Announce feature freeze is in effect on Slack.
+      - Example announcement:
+        ```
+        :cilium-gopher: :mega: Feature freeze is *in effect*.
+
+        The `main` branch is now closed for merging feature changes into the
+        branch for the upcoming stable release. You may continue to develop
+        and update your feature PRs, however as a general rule they will not
+        be merged until the feature branching is complete in around one week.
+
+        The feature freeze does not restrict bugfixes or improvements to
+        testing and documentation. We welcome these submissions at any time.
+        :cilium-bounce:
+        ```
+- [ ] [Review feature PRs] to determine whether they are critical for the
+      upcoming release or not. Discuss with other committers any potential
+      exceptions to the feature freeze.
+
+      Criteria for granting an exception:
+      - Multiple committers consider that the benefit of merging the PR in
+        violation of the freeze outweighs the risks introduced by merging
+        the proposal.
+      - The PR is self-contained or requires minimal subsequent changes in
+        order to complete the functionality outlined in the PR.
+      - The author is actively working on the PR to drive it to completion.
+      - The testsuite has been run against the PR and there are no major
+        shortfalls in testing.
+      - A committer has already reviewed the overall goals of the PR and
+        it is not expected to be controversial.
+
+      General exemptions to feature freeze:
+      - Bug fixes
+      - Testing enhancements
+      - Documentation enhancements
+- [ ] Mark all PRs that are not granted an exception with the GitHub label
+      `dont-merge/wait-until-release`.
+      - [ ] Review and merge open [renovate PRs]. Use the [dependency dashboard] to
+            ensure that dependency updates are current. This reduces duplicate effort
+            to update the upcoming stable branch as well as main for each of the
+            corresponding dependencies.
+
 ## Pre-release
 
-- [ ] When you create a GitHub issue using this issue template, GitHub Slack app posts a
-      message in #launchpad Slack channel. Create a thread for that message and ping the
-      current backporter to merge the outstanding [backport PRs] and stop merging any new
-      backport PRs until the GitHub issue is closed (to avoid generating incomplete
-      release notes).
 - [ ] Change directory to the local copy of Cilium repository.
 - [ ] Check that there are no [release blockers] for the targeted release version
 - [ ] Ensure that outstanding [backport PRs] are merged
@@ -157,6 +211,25 @@ assignees: ''
     - [ ] Push a PR with those changes:
       - `git commit -sam "Prepare v1.10 stable branch"`
       - `gh pr create -B v1.10`
+    - [ ] Merge the stable branch PR
+- [ ] Remove the `dont-merge/wait-until-release` label from [Blocked PRs].
+- [ ] Announce on Slack #development channel that the stable branch is
+      created and developers must use `release-note/1.10` labels in order to
+      nominate any subsequent changes for the target stable branch.
+      - Example announcement:
+        ```
+        :cilium-gopher: :mega: We have cut the v1.10 stable branch.
+
+        Any pull request merged into `main` will now NOT be part of the `v1.10`
+        release unless it has the `needs-backport/1.10` label. The feature
+        freeze is now lifted. We encourage you to continue to focus on changes
+        that will improve the quality of the upcoming stable release such as
+        bugfixes and improvements to testing or documentation. Where possible,
+        consider deferring significant refactors until the final v1.10.0 release
+        as this will help with backporting during this period.
+
+        Thank you to all who contribute to this release!
+        ```
 
 ## Pre-check (run ~1 week before targeted publish date)
 
@@ -263,3 +336,7 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
 [Cilium charts]: https://github.com/cilium/charts
+[Review feature PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+-label%3Arelease-note%2Fbug+-label%3Arelease-note%2Fci+-author%3Aapp%2Fcilium-renovate+-label%3Adont-merge%2Fpreview-only+-label%3Aarea%2Fdocumentation+-label%3Acilium-cli-exclusive+-label%3Arelease-blocker%2F1.10
+[Renovate PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+author%3Aapp%2Fcilium-renovate+base%3Amain
+[Blocked PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Adont-merge%2Fwait-until-release+base%3Amain
+[dependency dashboard]: https://github.com/cilium/cilium/issues/33550
