@@ -133,7 +133,7 @@ func processLine(line []byte, r release) ([]byte, bool) {
 	if len(r.Version.Pre) > 0 {
 		urlBase = "https://github.com/cilium/cilium/commits/"
 		shortVer = "v" + r.Version.String()
-		format = "| %-74s | %s | %-39s | %-74s |"
+		format = "| %-74s | %s | %-39s | %-79s |"
 	}
 
 	col1 := "`" + shortVer + " <" + urlBase + shortVer + ">`__"
