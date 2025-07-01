@@ -221,6 +221,10 @@ assignees: ''
   - [ ] Publish the release
 - [ ] Announce the release in #general on Slack (do not use [@]channel).
       See below for templates.
+- [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
+- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst)
+      for any features that changed status. Usually do it after the RC1, once the
+      stability of features is known.
 
 ---
 Text template for the first RC:
@@ -241,10 +245,6 @@ https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
 Thank you for the testing and contributing to the previous pre-releases. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
-- [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
-- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst)
-      for any features that changed status. Usually do it after the RC1, once the
-      stability of features is known.
 
 [release workflow]: https://github.com/cilium/cilium/actions/workflows/release.yaml
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
