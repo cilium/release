@@ -3,7 +3,8 @@ GO_BUILD_FLAGS ?=
 DOCKER_BUILD_FLAGS ?=
 IMAGE_TAG ?= latest
 
-all: tests bump-readme release
+.PHONY: all
+all: test bump-readme release
 
 .PHONY: bump-readme
 bump-readme:
@@ -25,8 +26,8 @@ generate-golden:
 		--template $< \
 		> $@ \
 
-.PHONY: tests
-tests:
+.PHONY: test
+test:
 	$(GO) test -mod=vendor ./...
 
 .PHONY: release
