@@ -103,6 +103,9 @@ assignees: ''
       branch. This may involve modifying documentation, code comments and
       configuration for GitHub or Renovate.
       - `git grep v1.9`
+- [ ] Update the [Cilium Wikipedia] release timeline table to reflect the new
+      version. Ensure the version, release date, and any notable changes are
+      accurately represented in the table and graph.
 
 [release workflow]: https://github.com/cilium/cilium/actions/workflows/release.yaml
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
@@ -120,3 +123,4 @@ assignees: ''
 [default version]: https://readthedocs.org/dashboard/cilium/advanced/
 [roadmap]: https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst
 [security policy]: https://github.com/cilium/cilium/security/policy
+[Cilium Wikipedia]: https://en.wikipedia.org/wiki/Cilium_(computing)#Release_timeline
