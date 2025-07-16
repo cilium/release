@@ -244,11 +244,13 @@ func (pc *PrepareCommit) generateChangeLog(ctx context.Context, ghClient *GHClie
 	io2.Fprintf(3, os.Stdout, "✍️ Generating CHANGELOG.md from %s to %s\n", previousPatchVersion, commitSha)
 	io2.Fprintf(4, os.Stdout, "Previous and current version are from different branches, using last stable %q for release notes\n", lastStable)
 	clCfg := changelog.ChangeLogConfig{
-		CommonConfig: pc.cfg.CommonConfig,
-		Base:         previousPatchVersion,
-		Head:         commitSha,
-		StateFile:    pc.cfg.StateFile,
-		LastStable:   lastStable,
+		CommonConfig:  pc.cfg.CommonConfig,
+		Base:          previousPatchVersion,
+		Head:          commitSha,
+		StateFile:     pc.cfg.StateFile,
+		LastStable:    lastStable,
+		LabelFilters:  pc.cfg.IncludeLabels,
+		ExcludeLabels: pc.cfg.ExcludeLabels,
 	}
 	err = clCfg.Sanitize()
 	if err != nil {

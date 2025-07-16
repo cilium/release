@@ -41,6 +41,9 @@ type ReleaseConfig struct {
 	StateFile            string
 	Steps                []string
 	DefaultBranch        string
+
+	IncludeLabels []string
+	ExcludeLabels []string
 }
 
 func (cfg *ReleaseConfig) Sanitize() error {
@@ -312,6 +315,8 @@ To start, run
 	cmd.Flags().StringSliceVar(&cfg.Steps, "steps", []string{"1"},
 		fmt.Sprintf("Specify which steps should be executed for the release. Steps numbers are also allowed, e.g. '1,2'. Accepted values: %s", strings.Join(allGroupStepsNames, ", ")),
 	)
+	cmd.Flags().StringArrayVar(&cfg.IncludeLabels, "include-labels", []string{}, "Include pull requests with these labels in generated changelogs")
+	cmd.Flags().StringArrayVar(&cfg.ExcludeLabels, "exclude-labels", []string{}, "Exclude pull requests with these labels from generated changelogs")
 
 	for _, flag := range []string{"target-version", "template"} {
 		cobra.MarkFlagRequired(cmd.Flags(), flag)
