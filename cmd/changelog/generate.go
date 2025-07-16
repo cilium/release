@@ -164,18 +164,24 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 		prsWithUpstream = make(types.BackportPRs)
 	)
 
-	// Filter the PRs by --label-filter
+	// Filter the PRs by --label-filter and --exclude-labels
 	for id, pr := range cl.listOfPrs.DeepCopy() {
 		if !filterByLabels(pr.Labels, cl.LabelFilters) {
+			continue
+		}
+		if len(cl.ExcludeLabels) > 0 && filterByLabels(pr.Labels, cl.ExcludeLabels) {
 			continue
 		}
 		listOfPRs[id] = pr
 	}
 
-	// Filter the Backport PRs by --label-filter
+	// Filter the Backport PRs by --label-filter and --exclude-labels
 	for prNumber, upstreamedPRs := range cl.prsWithUpstream.DeepCopy() {
 		for upstreamPRNumber, upstreamPR := range upstreamedPRs {
 			if !filterByLabels(upstreamPR.Labels, cl.LabelFilters) {
+				continue
+			}
+			if len(cl.ExcludeLabels) > 0 && filterByLabels(upstreamPR.Labels, cl.ExcludeLabels) {
 				continue
 			}
 			if prsWithUpstream[prNumber] == nil {
@@ -185,7 +191,7 @@ func (cl *ChangeLog) PrintReleaseNotesForWriter(w io.Writer) {
 		}
 	}
 
-	cl.Logger.Printf("Found %d PRs and %d backport PRs in %s based on --label-filter\n\n", len(listOfPRs), len(prsWithUpstream), cl.StateFile)
+	cl.Logger.Printf("Found %d PRs and %d backport PRs in %s\n\n", len(listOfPRs), len(prsWithUpstream), cl.StateFile)
 
 	if !cl.SkipHeader {
 		fmt.Fprintln(w, "Summary of Changes")
