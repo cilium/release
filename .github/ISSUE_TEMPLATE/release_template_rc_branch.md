@@ -173,6 +173,9 @@ assignees: ''
         for reference.
         - `cp {../cilium-X.Y-1/,}.github/maintainers-little-helper.yaml`
         - `sed -i 's/X.Y-1/X.Y/g' .github/maintainers-little-helper.yaml`
+      - Copy CODEOWNERS to TESTOWNERS.
+        - `cp CODEOWNERS TESTOWNERS`
+        - `git add TESTOWNERS`
       - Rewrite the CODEOWNERS file and docs. Keep the team descriptions from main
         and the previous stable branch. See [97daf56221](https://github.com/cilium/cilium/commit/97daf5622197d0cdda003a3f693e6e5a61038884)
         - `sed -i '/^\//,$d' CODEOWNERS`
