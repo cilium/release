@@ -12,8 +12,8 @@ assignees: ''
 - Ensure Docker is installed and running
 - Ensure a setup is in place for [signing tags] with Git (GPG, SSH, S/MIME)
 - Install [gh](https://cli.github.com).
-- Make sure the [Cilium helm charts][Cilium charts] and [release][Cilium release-notes tool] repositories are installed locally:
-  - Run `git clone https://github.com/cilium/charts.git "$GOPATH/src/github.com/cilium/charts"`
+- Make sure the [release][Cilium release-notes tool] repository is installed
+  locally:
   - Run `git clone https://github.com/cilium/release.git "$GOPATH/src/github.com/cilium/release"`
 - [ ] Make sure the `release` binary is up to date:
       `git checkout master && git pull && make`
@@ -33,7 +33,7 @@ assignees: ''
   - [ ] Ensure that outstanding [backport PRs] are merged (these may be
         skipped on case by case basis in coordination with the backporter).
 
-## Preparation PR (run ~1 day before targeted publish date. It can be re-run multiple times.)
+## Preparation PR (run ~1 day before targeted publish date. This step can be re-run multiple times.)
 
 - [ ] Run `./release start --steps 2-prepare-release --target-version vX.Y.0`
 - [ ] Manually fix the following:
@@ -51,18 +51,24 @@ assignees: ''
       of the GitHub run to be used later):
       [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
 
-## Post Tagging (run after docker images are published)
+## Post Tagging (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
-- [ ] Go to [release workflow] and Run the workflow from "Branch: main", for
-  step "4-post-release" and version for vX.Y.0
-    - [ ] Check if the workflow was successful and check the PR opened by the
-      Release bot.
+- [ ] Check if the image build process was successful and check the PR opened
+      by the Release bot. If the PR was not opened, you can re-run the workflow
+  - **IN CASE THE PR WAS NOT OPENED** Go to [release workflow] and Run the
+    workflow from "Branch: main", for step "4-post-release" and version for
+    vX.Y.0
 - [ ] Merge PR
 
-## Publish helm (run after docker images are published)
+## Publish helm (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
-- [ ] Update helm charts `./release start --steps 5-publish-helm --target-version vX.Y.0`
-- [ ] Open [chart workflow] and check if the workflow run is successful.
+- [ ] Check if the image build process was successful and check if the helm
+      chart was published by the Release bot under the [Cilium helm charts][Cilium charts].
+      If that did not happen, you can re-run the workflow.
+      - **IN CASE THE HELM CHART WAS NOT PUSHED** Go to [release workflow]
+        and Run the workflow from "Branch: main", for step "5-publish-helm" and
+        version for vX.Y.0
+- [ ] Open [Charts Workflow] and check if the workflow run is successful for vX.Y.0.
 
 ## Publish docs
 
