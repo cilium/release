@@ -13,7 +13,7 @@ import (
 	gh "github.com/google/go-github/v62/github"
 	"golang.org/x/mod/semver"
 
-	templates "github.com/cilium/release/.github/ISSUE_TEMPLATE"
+	templates "github.com/cilium/release/.github/templates"
 )
 
 var (
