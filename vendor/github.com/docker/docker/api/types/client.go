@@ -9,10 +9,9 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/registry"
-	units "github.com/docker/go-units"
 )
 
-// NewHijackedResponse intializes a HijackedResponse type
+// NewHijackedResponse initializes a [HijackedResponse] type.
 func NewHijackedResponse(conn net.Conn, mediaType string) HijackedResponse {
 	return HijackedResponse{Conn: conn, Reader: bufio.NewReader(conn), mediaType: mediaType}
 }
@@ -74,7 +73,7 @@ type ImageBuildOptions struct {
 	NetworkMode    string
 	ShmSize        int64
 	Dockerfile     string
-	Ulimits        []*units.Ulimit
+	Ulimits        []*container.Ulimit
 	// BuildArgs needs to be a *string instead of just a string so that
 	// we can tell the difference between "" (empty string) and no value
 	// at all (nil). See the parsing of buildArgs in
@@ -95,7 +94,7 @@ type ImageBuildOptions struct {
 	Target      string
 	SessionID   string
 	Platform    string
-	// Version specifies the version of the unerlying builder to use
+	// Version specifies the version of the underlying builder to use
 	Version BuilderVersion
 	// BuildID is an optional identifier that can be passed together with the
 	// build request. The same identifier can be used to gracefully cancel the
@@ -129,14 +128,6 @@ type ImageBuildResponse struct {
 	Body   io.ReadCloser
 	OSType string
 }
-
-// RequestPrivilegeFunc is a function interface that
-// clients can supply to retry operations after
-// getting an authorization error.
-// This function returns the registry authentication
-// header value in base 64 format, or an error
-// if the privilege request fails.
-type RequestPrivilegeFunc func(context.Context) (string, error)
 
 // NodeListOptions holds parameters to list nodes with.
 type NodeListOptions struct {
@@ -236,11 +227,18 @@ type PluginDisableOptions struct {
 
 // PluginInstallOptions holds parameters to install a plugin.
 type PluginInstallOptions struct {
-	Disabled              bool
-	AcceptAllPermissions  bool
-	RegistryAuth          string // RegistryAuth is the base64 encoded credentials for the registry
-	RemoteRef             string // RemoteRef is the plugin name on the registry
-	PrivilegeFunc         RequestPrivilegeFunc
+	Disabled             bool
+	AcceptAllPermissions bool
+	RegistryAuth         string // RegistryAuth is the base64 encoded credentials for the registry
+	RemoteRef            string // RemoteRef is the plugin name on the registry
+
+	// PrivilegeFunc is a function that clients can supply to retry operations
+	// after getting an authorization error. This function returns the registry
+	// authentication header value in base64 encoded format, or an error if the
+	// privilege request fails.
+	//
+	// For details, refer to [github.com/docker/docker/api/types/registry.RequestAuthConfig].
+	PrivilegeFunc         func(context.Context) (string, error)
 	AcceptPermissionsFunc func(context.Context, PluginPrivileges) (bool, error)
 	Args                  []string
 }
