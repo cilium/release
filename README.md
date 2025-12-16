@@ -47,8 +47,8 @@ For example:
 
 ```bash
 $ ./release checklist open \
-            --target-version v1.16.1 \
-            --template .github/ISSUE_TEMPLATE/release_template_patch.md
+            --target-version v1.18.6 \
+            --template .github/templates/release_template_patch.md
 ```
 
 ## Create a new release
