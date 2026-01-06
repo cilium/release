@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/cilium/release/cmd/changelog"
 	"github.com/cilium/release/pkg/io"
@@ -136,7 +137,12 @@ func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, 
 			if !dryRun {
 				err := pm.addPRToProject(ctx, ghClient, prNodeID, currProjID, statusFieldId, releaseOptionIDStr)
 				if err != nil {
-					errCh <- fmt.Errorf("unable to add PR %d to project %s: %w", prNumber, pm.projectName(), err)
+					// retry once if fails
+					time.Sleep(5 * time.Second)
+					err := pm.addPRToProject(ctx, ghClient, prNodeID, currProjID, statusFieldId, releaseOptionIDStr)
+					if err != nil {
+						errCh <- fmt.Errorf("unable to add PR %d to project %s: %w", prNumber, pm.projectName(), err)
+					}
 				}
 			}
 		}(prNumber, prNodeID)
