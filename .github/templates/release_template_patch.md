@@ -59,10 +59,7 @@ assignees: ''
 ## Post Tagging (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
 - [ ] Check if the image build process was successful and check the PR opened
-      by the Release bot. If the PR was not opened, you can re-run the workflow
-  - **IN CASE THE PR WAS NOT OPENED** Go to [release workflow] and Run the
-    workflow from "Branch: main", for step "4-post-release" and version for
-    vX.Y.Z
+      by the Release bot. If the PR was not opened, you can safely re-run the failed job.
 - [ ] Merge PR
 - [ ] This step opened a [GitHub project](https://github.com/orgs/cilium/projects?query=is%3Aopen++v+)
       to track the PRs in the release. Close the corresponding project.
@@ -71,20 +68,8 @@ assignees: ''
 
 - [ ] Check if the image build process was successful and check if the helm
       chart was published by the Release bot under the [Cilium helm charts][Cilium charts].
-      If that did not happen, you can re-run the workflow.
-      - **IN CASE THE HELM CHART WAS NOT PUSHED** Go to [release workflow]
-        and Run the workflow from "Branch: main", for step "5-publish-helm" and
-        version for vX.Y.Z
+      If that did not happen, you can safely re-run the failed job.
 - [ ] Open [Charts Workflow] and check if the workflow run is successful for vX.Y.Z.
-
-## Publish docs (only for pre/rc releases)
-
-- [ ] Check [read the docs] configuration:
-  - [ ] Set a new build as active and hidden in [active versions].
-  - [ ] Deactivate previous RCs.
-  - [ ] Update algolia configuration search in [docsearch-scraper-webhook].
-    - Update the versions in `docsearch.config.json`, commit them and push a
-      trigger the workflow [here](https://github.com/cilium/docsearch-scraper-webhook/actions/workflows/update-algolia-index.yaml)
 
 ## Post-release
 
@@ -119,28 +104,6 @@ vA.B.C: https://github.com/cilium/cilium/releases/tag/vA.B.C
 vD.E.F: https://github.com/cilium/cilium/releases/tag/vD.E.F
 ```
 
-### First pre-release
-
-```
-:cilium-new: *Cilium vX.Y.Z-rc.W has been released:*
-https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
-
-This is the first monthly snapshot for the vX.Y development cycle. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
-```
-
-### Subsequent pre-/rc- releases
-
-```
-*Announcement* :tada: :tada:
-
-:cilium-new: *Cilium vX.Y.Z-rc.W has been released:*
-https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
-
-Thank you for the testing and contributing to the previous pre-releases. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
-```
-
-[active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y
-[docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [release workflow]: https://github.com/cilium/cilium/actions/workflows/release.yaml
 [GitHub PAT tracker]: https://github.com/orgs/community/discussions/36441
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags

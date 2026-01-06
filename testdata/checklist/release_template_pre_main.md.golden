@@ -65,17 +65,13 @@ assignees: ''
 
 - [ ] Check if the image build process was successful and check if the helm
       chart was published by the Release bot under the [Cilium helm charts][Cilium charts].
-      If that did not happen, you can re-run the workflow.
-      - **IN CASE THE HELM CHART WAS NOT PUSHED** Go to [release workflow]
-        and Run the workflow from "Branch: main", for step "5-publish-helm" and
-        version for v1.10.0-pre.0
+      If that did not happen, you can safely re-run the failed job.
 - [ ] Open [Charts Workflow] and check if the workflow run is successful for v1.10.0-pre.0.
 
 ## Publish docs (only for pre/rc releases)
 
 - [ ] Check [read the docs] configuration:
-  - [ ] Set a new build as active and hidden in [active versions].
-  - [ ] Deactivate previous RCs.
+  - [ ] Deactivate [previous RCs].
   - [ ] Update algolia configuration search in [docsearch-scraper-webhook].
     - Update the versions in `docsearch.config.json`, commit them and push a
       trigger the workflow [here](https://github.com/cilium/docsearch-scraper-webhook/actions/workflows/update-algolia-index.yaml)
@@ -101,18 +97,6 @@ assignees: ''
 
 ## Slack example text templates
 
-### Patch releases
-
-```
-:confetti_ball: :cilium-radiant: Release Announcement :cilium-radiant::confetti_ball:
-
-Cilium v1.10.0-pre.0, vA.B.C, and vD.E.F have been released. Thanks all for your contributions! Please see the release notes below for details :cilium-gopher:
-
-v1.10.0-pre.0: https://github.com/cilium/cilium/releases/tag/v1.10.0-pre.0
-vA.B.C: https://github.com/cilium/cilium/releases/tag/vA.B.C
-vD.E.F: https://github.com/cilium/cilium/releases/tag/vD.E.F
-```
-
 ### First pre-release
 
 ```
@@ -133,7 +117,7 @@ https://github.com/cilium/cilium/releases/tag/v1.10.0-pre.0
 Thank you for the testing and contributing to the previous pre-releases. There are [v1.10.0-pre.0 OSS docs](https://docs.cilium.io/en/v1.10.0-pre.0) available if you want to pull this version & try it out.
 ```
 
-[active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=v1.10
+[previous RCs]: https://app.readthedocs.org/projects/cilium/?slug=&privacy=public&visibility=hidden&sort=
 [docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [release workflow]: https://github.com/cilium/cilium/actions/workflows/release.yaml
 [GitHub PAT tracker]: https://github.com/orgs/community/discussions/36441
