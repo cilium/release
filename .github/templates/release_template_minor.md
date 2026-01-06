@@ -54,20 +54,14 @@ assignees: ''
 ## Post Tagging (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
 - [ ] Check if the image build process was successful and check the PR opened
-      by the Release bot. If the PR was not opened, you can re-run the workflow
-  - **IN CASE THE PR WAS NOT OPENED** Go to [release workflow] and Run the
-    workflow from "Branch: main", for step "4-post-release" and version for
-    vX.Y.0
+      by the Release bot. If the PR was not opened, you can safely re-run the failed job.
 - [ ] Merge PR
 
 ## Publish helm (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
 - [ ] Check if the image build process was successful and check if the helm
       chart was published by the Release bot under the [Cilium helm charts][Cilium charts].
-      If that did not happen, you can re-run the workflow.
-      - **IN CASE THE HELM CHART WAS NOT PUSHED** Go to [release workflow]
-        and Run the workflow from "Branch: main", for step "5-publish-helm" and
-        version for vX.Y.0
+      If the PR was not opened, you can safely re-run the failed job.
 - [ ] Open [Charts Workflow] and check if the workflow run is successful for vX.Y.0.
 
 ## Publish docs
