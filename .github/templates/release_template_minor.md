@@ -59,6 +59,8 @@ assignees: ''
 
 ## Publish helm (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
+- [ ] Ask a maintainer to approve the build in the following link:
+      [Release Tool](https://github.com/cilium/cilium/actions/workflows/release.yaml)
 - [ ] Check if the image build process was successful and check if the helm
       chart was published by the Release bot under the [Cilium helm charts][Cilium charts].
       If the PR was not opened, you can safely re-run the failed job.
