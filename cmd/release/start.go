@@ -44,6 +44,9 @@ type ReleaseConfig struct {
 
 	IncludeLabels []string
 	ExcludeLabels []string
+
+	// OCI registry configuration for Helm charts
+	HelmOCIRegistries []string
 }
 
 func (cfg *ReleaseConfig) Sanitize() error {
@@ -183,6 +186,8 @@ project.
 5. publish-helm:
 Prepares the Helm chart in the local repository and pushes the changes directly
 to the main branch.
+Optionally uploads the Helm chart to an OCI registry if --helm-oci-registries is configured.
+(Assumes the registry is already logged in via 'helm registry login <registry>'.)
 
 Below is a table summarizing the permissions required for this tool.
 `)
@@ -212,6 +217,11 @@ To start, run
 			}
 			if defaultStateFileValue == cfg.StateFile {
 				cfg.StateFile = fmt.Sprintf("release-state-%s-%s-%s.json", cfg.Repo, cfg.Owner, cfg.TargetVer)
+			}
+
+			// Set default Helm OCI registries if not provided
+			if len(cfg.HelmOCIRegistries) == 0 {
+				cfg.HelmOCIRegistries = []string{"oci://quay.io/cilium", "oci://docker.io/cilium"}
 			}
 
 			// check if docker is running before starting the release process
@@ -311,6 +321,7 @@ To start, run
 	cmd.Flags().StringVar(&cfg.RepoDirectory, "repo-dir", "../cilium", "Directory with the source code of Cilium")
 	cmd.Flags().StringVar(&cfg.ReleaseRepoDirectory, "release-tool-dir", ".", "Directory with the source code of Release tool. (To access bash scripts)")
 	cmd.Flags().StringVar(&cfg.HelmRepoDirectory, "charts-repo-dir", "../charts", "Directory with the source code of Helm charts")
+	cmd.Flags().StringSliceVar(&cfg.HelmOCIRegistries, "helm-oci-registries", []string{"quay.io/cilium", "docker.io/cilium"}, "OCI registry URLs for Helm charts (comma-separated)")
 	cmd.Flags().StringVar(&cfg.StateFile, "state-file", defaultStateFileValue, "When set, it will use the already fetched information from a previous run")
 	cmd.Flags().StringSliceVar(&cfg.Steps, "steps", []string{"1"},
 		fmt.Sprintf("Specify which steps should be executed for the release. Steps numbers are also allowed, e.g. '1,2'. Accepted values: %s", strings.Join(allGroupStepsNames, ", ")),

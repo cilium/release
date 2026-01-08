@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/cilium/release/pkg/helm"
 	io2 "github.com/cilium/release/pkg/io"
 	github2 "github.com/google/go-github/v62/github"
 )
@@ -141,6 +142,56 @@ func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 	io2.Fprintf(2, os.Stdout, "✅ Changes pushed to helm chart repository.\n")
 	io2.Fprintf(2, os.Stdout, "⚠️ Don't forget to manually check if the workflow was successful!\n")
 	io2.Fprintf(2, os.Stdout, " - https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml?query=branch%%3Amaster\n")
+
+	// Upload to OCI registries if configured
+	if len(pc.cfg.HelmOCIRegistries) > 0 {
+		io2.Fprintf(2, os.Stdout, "📦 Uploading Helm chart to OCI registries...\n")
+
+		if dryRun {
+			for _, registry := range pc.cfg.HelmOCIRegistries {
+				io2.Fprintf(2, os.Stdout, "🔍 DRY RUN: Would package and upload chart to OCI registry: %s\n", registry)
+			}
+			return nil
+		}
+
+		// Create a file to store digests
+		newVersion := strings.TrimPrefix(pc.cfg.TargetVer, "v")
+		digestFile := fmt.Sprintf("helm-digests-%s.txt", newVersion)
+		f, err := os.Create(digestFile)
+		if err != nil {
+			return fmt.Errorf("failed to create digest file: %w", err)
+		}
+		defer f.Close()
+
+		// Push to each OCI registry
+		for _, registryURL := range pc.cfg.HelmOCIRegistries {
+			io2.Fprintf(2, os.Stdout, "📤 Pushing to OCI registry: %s\n", registryURL)
+
+			ociRegistry := &helm.OCIRegistry{
+				URL: registryURL,
+			}
+
+			// Push to OCI registry and get digest
+			chartFileName := fmt.Sprintf("%s-%s.tgz", pc.cfg.Repo, newVersion)
+			digest, err := ociRegistry.PushChart(chartFileName)
+			if err != nil {
+				return fmt.Errorf("failed to push chart to OCI registry %s: %w", registryURL, err)
+			}
+
+			// Store the digest in the file
+			if digest != "" {
+				_, err = fmt.Fprintf(f, "%s %s\n", registryURL, digest)
+				if err != nil {
+					return fmt.Errorf("failed to write digest to file: %w", err)
+				}
+				io2.Fprintf(2, os.Stdout, "✅ Chart successfully pushed to OCI registry: %s (digest: %s)\n", registryURL, digest)
+			} else {
+				io2.Fprintf(2, os.Stdout, "✅ Chart successfully pushed to OCI registry: %s\n", registryURL)
+			}
+		}
+
+		io2.Fprintf(2, os.Stdout, "📝 Digests saved to: %s\n", digestFile)
+	}
 
 	return nil
 }
