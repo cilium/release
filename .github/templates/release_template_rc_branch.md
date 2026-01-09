@@ -25,33 +25,30 @@ assignees: ''
 - [ ] Announce on Slack #development channel that the feature freeze is one
       week away and that contributors should coordinate with reviewers to
       assess whether their PRs are on track for merging prior to feature
-      freeze.
-      - Example announcement:
-        ```
-        :cilium-gopher: :mega: Feature freeze is in *one week*.
+      freeze. Example announcement:
 
-        If you are planning on getting a PR into the upcoming stable release,
-        please coordinate with your reviewers to ensure that you have aligned
-        expectations for bandwidth in order to develop, test, review and merge
-        the PR.
-        ```
+      :cilium-gopher: :mega: Feature freeze is in *one week*.
+
+      If you are planning on getting a PR into the upcoming stable release,
+      please coordinate with your reviewers to ensure that you have aligned
+      expectations for bandwidth in order to develop, test, review and merge
+      the PR.
 
 ## Feature freeze day
 
-- [ ] Announce feature freeze is in effect on Slack.
-      - Example announcement:
-        ```
-        :cilium-gopher: :mega: Feature freeze is *in effect*.
+- [ ] Announce feature freeze is in effect on Slack. Example announcement:
 
-        The `main` branch is now closed for merging feature changes into the
-        branch for the upcoming stable release. You may continue to develop
-        and update your feature PRs, however as a general rule they will not
-        be merged until the feature branching is complete in around one week.
+      :cilium-gopher: :mega: Feature freeze is *in effect*.
 
-        The feature freeze does not restrict bugfixes or improvements to
-        testing and documentation. We welcome these submissions at any time.
-        :cilium-bounce:
-        ```
+      The `main` branch is now closed for merging feature changes into the
+      branch for the upcoming stable release. You may continue to develop
+      and update your feature PRs, however as a general rule they will not
+      be merged until the feature branching is complete in around one week.
+
+      The feature freeze does not restrict bugfixes or improvements to
+      testing and documentation. We welcome these submissions at any time.
+      :cilium-bounce:
+
 - [ ] [Review feature PRs] to determine whether they are critical for the
       upcoming release or not. Discuss with other committers any potential
       exceptions to the feature freeze.
@@ -72,12 +69,14 @@ assignees: ''
       - Bug fixes
       - Testing enhancements
       - Documentation enhancements
+
 - [ ] Mark all PRs that are not granted an exception with the GitHub label
       `dont-merge/wait-until-release`.
-      - [ ] Review and merge open [renovate PRs]. Use the [dependency dashboard] to
-            ensure that dependency updates are current. This reduces duplicate effort
-            to update the upcoming stable branch as well as main for each of the
-            corresponding dependencies.
+
+   - [ ] Review and merge open [renovate PRs]. Use the [dependency dashboard] to
+         ensure that dependency updates are current. This reduces duplicate effort
+         to update the upcoming stable branch as well as main for each of the
+         corresponding dependencies.
 
 ## Pre-release
 
@@ -218,21 +217,20 @@ assignees: ''
 - [ ] Remove the `dont-merge/wait-until-release` label from [Blocked PRs].
 - [ ] Announce on Slack #development channel that the stable branch is
       created and developers must use `release-note/X.Y` labels in order to
-      nominate any subsequent changes for the target stable branch.
-      - Example announcement:
-        ```
-        :cilium-gopher: :mega: We have cut the vX.Y stable branch.
+      nominate any subsequent changes for the target stable branch. Example
+      announcement:
 
-        Any pull request merged into `main` will now NOT be part of the `vX.Y`
-        release unless it has the `needs-backport/X.Y` label. The feature
-        freeze is now lifted. We encourage you to continue to focus on changes
-        that will improve the quality of the upcoming stable release such as
-        bugfixes and improvements to testing or documentation. Where possible,
-        consider deferring significant refactors until the final vX.Y.0 release
-        as this will help with backporting during this period.
+      :cilium-gopher: :mega: We have cut the vX.Y stable branch.
 
-        Thank you to all who contribute to this release!
-        ```
+      Any pull request merged into `main` will now NOT be part of the `vX.Y`
+      release unless it has the `needs-backport/X.Y` label. The feature
+      freeze is now lifted. We encourage you to continue to focus on changes
+      that will improve the quality of the upcoming stable release such as
+      bugfixes and improvements to testing or documentation. Where possible,
+      consider deferring significant refactors until the final vX.Y.0 release
+      as this will help with backporting during this period.
+
+      Thank you to all who contribute to this release!
 
 ## Pre-check (run ~1 week before targeted publish date)
 
@@ -347,7 +345,7 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
 [Cilium charts]: https://github.com/cilium/charts
-[Review feature PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+-label%3Arelease-note%2Fbug+-label%3Arelease-note%2Fci+-author%3Aapp%2Fcilium-renovate+-label%3Adont-merge%2Fpreview-only+-label%3Aarea%2Fdocumentation+-label%3Acilium-cli-exclusive+-label%3Arelease-blocker%2FX.Y
+[Review feature PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+-label%3Arelease-note%2Fbug+-label%3Arelease-note%2Fci+-author%3Aapp%2Fcilium-renovate+-label%3Adont-merge%2Fwait-until-release+-label%3Adont-merge%2Fpreview-only+-label%3Aarea%2Fdocumentation+-label%3Acilium-cli-exclusive+-label%3Arelease-blocker%2FX.Y
 [Renovate PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+author%3Aapp%2Fcilium-renovate+base%3Amain
 [Blocked PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Adont-merge%2Fwait-until-release+base%3Amain
 [dependency dashboard]: https://github.com/cilium/cilium/issues/33550
