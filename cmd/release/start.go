@@ -221,7 +221,7 @@ To start, run
 
 			// Set default Helm OCI registries if not provided
 			if len(cfg.HelmOCIRegistries) == 0 {
-				cfg.HelmOCIRegistries = []string{"oci://quay.io/cilium", "oci://docker.io/cilium"}
+				cfg.HelmOCIRegistries = []string{"oci://quay.io/cilium/charts"}
 			}
 
 			// check if docker is running before starting the release process
