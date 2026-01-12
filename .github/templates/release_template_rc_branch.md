@@ -82,7 +82,6 @@ assignees: ''
 
 - [ ] Change directory to the local copy of Cilium repository.
 - [ ] Check that there are no [release blockers] for the targeted release version
-- [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] If stable branch is not created yet. Run:
   - `git fetch upstream && git checkout -b upstream/vX.Y upstream/main`
   - [ ] Push that branch to GitHub:
