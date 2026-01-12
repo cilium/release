@@ -122,19 +122,7 @@ assignees: ''
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
     - Use the settings of the previous stable branch and main as sane defaults
   - [ ] On the `vX.Y` branch, prepare for stable release development:
-    - [ ] Remove any GitHub workflows from the stable branch that are only
-          relevant for the main branch (Read the following before running
-          this step).
-      - Remove workflows that are exclusively triggered by `schedule`,
-        `issue_comment` or `pull_request_target` triggers, as they do not run
-        on stable branches.
-        - ```
-          for f in .github/workflows/*yaml; do
-              if [ $(yq '.on | pick(["push", "pull_request", "merge_group", "workflow_call", "workflow_dispatch"]) | length' $f) == '0' ]; then
-                  git rm $f;
-              fi;
-          done
-          ```
+    - [ ] Update GitHub workflows for stable branch triggers:
       - Replace references to `main` branch with `X.Y` in the workflows.
         - `sed -i 's/- \(ft\/\)\?main/- \1vX.Y/g' .github/workflows/*`
         - `sed -i 's/@main/@vX.Y/g' .github/workflows/*`
@@ -144,15 +132,6 @@ assignees: ''
       - Double-check if there are any other new references to `main` in the
         workflows, and update them as needed.
         - `git grep 'main' .github/workflows/`
-      - Remove cilium-cli references in the tree.
-        - `git rm -r ./cilium-cli/`
-        - `git rm .github/workflows/cilium-cli.yaml`
-        - `sed -i 's/ cilium-cli$//' Makefile`
-        - `git rm Documentation/cmdref/index_cilium_cli.rst`
-        - `sed -i '/cilium_cli$/d' Documentation/cmdref/index.rst`
-        - `sed -i '/cilium-cli/d' Documentation/update-cmdref.sh`
-        - `make -C Documentation update-cmdref`
-        - `go mod vendor && go mod tidy`
       - [ ] Pick the latest cilium CLI version and place it into the action for setting environment variables.
         - `export CLI_RELEASE=$(gh release list --repo cilium/cilium-cli --json tagName,isLatest --jq '.[] | select(.isLatest)|.tagName')`
         - `sed -i 's/^\([ ]*\)\(CILIUM_CLI_VERSION=\)""$/\1# renovate: datasource=github-releases depName=cilium\/cilium-cli\n\1\2"'$CLI_RELEASE'"/g' .github/actions/set-env-variables/action.yml`
@@ -181,19 +160,12 @@ assignees: ''
         - `grep -v '#' ../cilium-X.Y-1/CODEOWNERS >> CODEOWNERS`
         - `make -C Documentation update-codeowners`
       - Delete unnecessary GitHub configurations from the stable branch
-        - `git rm .github/{pull_request,renovate}*`
-        - `git rm -r .github/ISSUE_TEMPLATE/`
-        - `git rm .github/workflows/lint-codeowners.yaml`
-        - `git rm .github/workflows/release.yaml`
-        - `git rm .github/workflows/renovate*`
       - Replace references to `bpf-next-*` lvh images in workflows with the
         newest LTS kernel from [quay.io](https://quay.io/repository/lvh-images/kind?tab=tags&tag=latest).
         If there is no newer LTS, delete the corresponding matrix entries.
         - `grep -R bpf-next- .github/workflows/`
-      - You may want to initially commit the state up until now before the next
-        step, so that it's easier to compare the diff vs. the previous stable
-        release.
-        - `git commit -s -m "Prepare vX.Y stable branch"`
+      - Commit the state up until now before the next step, so that it's easier
+        to compare the diff vs. the previous stable release.
       - Copy-paste the `.github` directory from the previous stable branch and
         manually check the diff between the files from the current stable branch
         and modify the workflows to match the target stable branch. See
@@ -210,8 +182,41 @@ assignees: ''
           update these instructions if you find anything we can do better.
     - [ ] Review the diff for this commit compared to the preparation commit
           for the previous stable branch.
+      - Update the preparation commit as needed.
+      - `git reset --hard`
+    - [ ] Remove any GitHub configuration from the stable branch that is only
+          relevant for the main branch (Read the following before running
+          this step).
+      - `git rm .github/{pull_request,renovate}*`
+      - `git rm -r .github/ISSUE_TEMPLATE/`
+      - `git rm .github/workflows/lint-codeowners.yaml`
+      - `git rm .github/workflows/release.yaml`
+      - `git rm .github/workflows/renovate*`
+    - [ ] Remove workflows that are exclusively triggered by `schedule`,
+      `issue_comment` or `pull_request_target` triggers, as they do not run
+      on stable branches.
+
+          ```
+          for f in .github/workflows/*yaml; do
+              if [ $(yq '.on | pick(["push", "pull_request", "merge_group", "workflow_call", "workflow_dispatch"]) | length' $f) == '0' ]; then
+                  git rm $f;
+              fi;
+          done
+          ```
+    - [ ] Commit the workflow changes
+      - `git commit -sam ".github: Simplify configuration for stable branch"`
+    - [ ] Remove the cilium-cli changes from the stable branch. This may take
+          some time, as it builds various binaries and updates cmdref.
+      - `git rm -r ./cilium-cli/`
+      - `git rm .github/workflows/cilium-cli.yaml`
+      - `sed -i 's/ cilium-cli$//' Makefile`
+      - `git rm Documentation/cmdref/index_cilium_cli.rst`
+      - `sed -i '/cilium_cli$/d' Documentation/cmdref/index.rst`
+      - `sed -i '/cilium-cli/d' Documentation/update-cmdref.sh`
+      - `make -C Documentation update-cmdref`
+      - `go mod vendor && go mod tidy`
+      - `git commit -sam "Remove cilium-cli in preparation for stable maintenance"`
     - [ ] Push a PR with those changes:
-      - `git commit -sam "Prepare vX.Y stable branch"`
       - `gh pr create -B vX.Y`
     - [ ] Merge the stable branch PR
 - [ ] Remove the `dont-merge/wait-until-release` label from [Blocked PRs].
