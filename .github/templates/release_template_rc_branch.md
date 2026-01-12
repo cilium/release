@@ -125,12 +125,12 @@ assignees: ''
     - [ ] Remove any GitHub workflows from the stable branch that are only
           relevant for the main branch (Read the following before running
           this step).
-      - Remove workflows that are exclusively triggered by cron job and
-        workflows triggered by `issue_comment` triggers, as they do not run on
-        stable branches.
+      - Remove workflows that are exclusively triggered by `schedule`,
+        `issue_comment` or `pull_request_target` triggers, as they do not run
+        on stable branches.
         - ```
           for f in .github/workflows/*yaml; do
-              if [ $(yq '.on | pick(["push", "pull_request", "pull_request_target", "merge_group", "workflow_call", "workflow_dispatch"]) | length' $f) == '0' ]; then
+              if [ $(yq '.on | pick(["push", "pull_request", "merge_group", "workflow_call", "workflow_dispatch"]) | length' $f) == '0' ]; then
                   git rm $f;
               fi;
           done
