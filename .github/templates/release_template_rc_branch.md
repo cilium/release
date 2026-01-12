@@ -83,12 +83,12 @@ assignees: ''
 - [ ] Change directory to the local copy of Cilium repository.
 - [ ] Check that there are no [release blockers] for the targeted release version
 - [ ] If stable branch is not created yet. Run:
-  - `git fetch upstream && git checkout -b upstream/vX.Y upstream/main`
+  - `git fetch upstream && git checkout -b vX.Y upstream/main`
   - [ ] Push that branch to GitHub:
     - `git push upstream vX.Y`
   - [ ] On the main branch, create a PR with a change in the `VERSION` file to
         start the next development cycle as well as creating the necessary GH
-        workflows (renovate configuration, MLH configuration, etc.
+        workflows (renovate configuration, etc.
         see [24143732b616](https://github.com/cilium/cilium/commit/24143732b616bb6cd308564b0be33f13fc5613e6)
         for reference):
     - [ ] Check for any other .github workflow references to the current stable
@@ -96,9 +96,10 @@ assignees: ''
           version as well.
       - `git grep "X.Y-1" .github/`
     - [ ] Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new minor schema version compared to the new `X.Y` release.
+      - `git grep 'CustomResourceDefinitionSchemaVersion =' -- pkg/`
     - `echo "X.Y+1.0-dev" > VERSION`
     - `make -C install/kubernetes`
-    - `git add .github/ Documentation/contributing/testing/ci.rst`
+    - `git add .github/ install/ pkg/k8s`
     - `git commit -sam "Prepare for vX.Y+1 development cycle"`
   - [ ] Merge the main PR so that the stable branch protection can be properly
         set up with the right status checks requirements.
