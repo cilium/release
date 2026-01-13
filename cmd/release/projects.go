@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -135,12 +136,17 @@ func (pm *ProjectManagement) Run(ctx context.Context, yesToPrompt, dryRun bool, 
 			defer sem.Release(1)
 
 			if !dryRun {
-				err := pm.addPRToProject(ctx, ghClient, prNodeID, currProjID, statusFieldId, releaseOptionIDStr)
-				if err != nil {
-					// retry once if fails
-					time.Sleep(5 * time.Second)
+				retries := 3
+				for retries > 0 {
 					err := pm.addPRToProject(ctx, ghClient, prNodeID, currProjID, statusFieldId, releaseOptionIDStr)
-					if err != nil {
+					if err == nil {
+						break
+					}
+					if strings.Contains(err.Error(), "Your attempt to move this item created a temporary conflict. Please try again.") {
+						retries--
+						time.Sleep(5 * time.Second)
+					} else {
+						retries = 0
 						errCh <- fmt.Errorf("unable to add PR %d to project %s: %w", prNumber, pm.projectName(), err)
 					}
 				}
