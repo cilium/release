@@ -203,6 +203,10 @@ assignees: ''
               fi;
           done
           ```
+          - Remove scale and perf tests, as these are not maintained on stable
+            branches:
+            - `git rm .github/workflows/*perf*`
+            - `git rm .github/workflows/*scale*`
     - [ ] Commit the workflow changes
       - `git commit -sam ".github: Simplify configuration for stable branch"`
     - [ ] Remove the cilium-cli changes from the stable branch. This may take
