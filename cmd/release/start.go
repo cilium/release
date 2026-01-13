@@ -321,7 +321,7 @@ To start, run
 	cmd.Flags().StringVar(&cfg.RepoDirectory, "repo-dir", "../cilium", "Directory with the source code of Cilium")
 	cmd.Flags().StringVar(&cfg.ReleaseRepoDirectory, "release-tool-dir", ".", "Directory with the source code of Release tool. (To access bash scripts)")
 	cmd.Flags().StringVar(&cfg.HelmRepoDirectory, "charts-repo-dir", "../charts", "Directory with the source code of Helm charts")
-	cmd.Flags().StringSliceVar(&cfg.HelmOCIRegistries, "helm-oci-registries", []string{"quay.io/cilium", "docker.io/cilium"}, "OCI registry URLs for Helm charts (comma-separated)")
+	cmd.Flags().StringSliceVar(&cfg.HelmOCIRegistries, "helm-oci-registries", []string{"oci://quay.io/cilium/charts"}, "OCI registry URLs for Helm charts (comma-separated)")
 	cmd.Flags().StringVar(&cfg.StateFile, "state-file", defaultStateFileValue, "When set, it will use the already fetched information from a previous run")
 	cmd.Flags().StringSliceVar(&cfg.Steps, "steps", []string{"1"},
 		fmt.Sprintf("Specify which steps should be executed for the release. Steps numbers are also allowed, e.g. '1,2'. Accepted values: %s", strings.Join(allGroupStepsNames, ", ")),
