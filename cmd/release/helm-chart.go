@@ -173,7 +173,7 @@ func (pc *HelmChart) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient
 
 			// Push to OCI registry and get digest
 			chartFileName := fmt.Sprintf("%s-%s.tgz", pc.cfg.Repo, newVersion)
-			digest, err := ociRegistry.PushChart(chartFileName)
+			digest, err := ociRegistry.PushChart(filepath.Join(pc.cfg.HelmRepoDirectory, chartFileName))
 			if err != nil {
 				return fmt.Errorf("failed to push chart to OCI registry %s: %w", registryURL, err)
 			}
