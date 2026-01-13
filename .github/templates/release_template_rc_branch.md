@@ -125,7 +125,6 @@ assignees: ''
     - [ ] Update GitHub workflows for stable branch triggers:
       - Replace references to `main` branch with `X.Y` in the workflows.
         - `sed -i 's/- \(ft\/\)\?main/- \1vX.Y/g' .github/workflows/*`
-        - `sed -i 's/\/main\//\/vX.Y\//g' .github/workflows/*`
         - `sed -i 's/\(renovate\/\)main/\1vX.Y/g' .github/workflows/*`
         - `sed -i 's/- v\[0-9\]+\.\[0-9\]+/- vX.Y/g' .github/workflows/build-images-releases.yaml`
       - Double-check if there are any other new references to `main` in the
