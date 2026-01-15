@@ -25,33 +25,30 @@ assignees: ''
 - [ ] Announce on Slack #development channel that the feature freeze is one
       week away and that contributors should coordinate with reviewers to
       assess whether their PRs are on track for merging prior to feature
-      freeze.
-      - Example announcement:
-        ```
-        :cilium-gopher: :mega: Feature freeze is in *one week*.
+      freeze. Example announcement:
 
-        If you are planning on getting a PR into the upcoming stable release,
-        please coordinate with your reviewers to ensure that you have aligned
-        expectations for bandwidth in order to develop, test, review and merge
-        the PR.
-        ```
+      :cilium-gopher: :mega: Feature freeze is in *one week*.
+
+      If you are planning on getting a PR into the upcoming stable release,
+      please coordinate with your reviewers to ensure that you have aligned
+      expectations for bandwidth in order to develop, test, review and merge
+      the PR.
 
 ## Feature freeze day
 
-- [ ] Announce feature freeze is in effect on Slack.
-      - Example announcement:
-        ```
-        :cilium-gopher: :mega: Feature freeze is *in effect*.
+- [ ] Announce feature freeze is in effect on Slack. Example announcement:
 
-        The `main` branch is now closed for merging feature changes into the
-        branch for the upcoming stable release. You may continue to develop
-        and update your feature PRs, however as a general rule they will not
-        be merged until the feature branching is complete in around one week.
+      :cilium-gopher: :mega: Feature freeze is *in effect*.
 
-        The feature freeze does not restrict bugfixes or improvements to
-        testing and documentation. We welcome these submissions at any time.
-        :cilium-bounce:
-        ```
+      The `main` branch is now closed for merging feature changes into the
+      branch for the upcoming stable release. You may continue to develop
+      and update your feature PRs, however as a general rule they will not
+      be merged until the feature branching is complete in around one week.
+
+      The feature freeze does not restrict bugfixes or improvements to
+      testing and documentation. We welcome these submissions at any time.
+      :cilium-bounce:
+
 - [ ] [Review feature PRs] to determine whether they are critical for the
       upcoming release or not. Discuss with other committers any potential
       exceptions to the feature freeze.
@@ -72,40 +69,22 @@ assignees: ''
       - Bug fixes
       - Testing enhancements
       - Documentation enhancements
+
 - [ ] Mark all PRs that are not granted an exception with the GitHub label
       `dont-merge/wait-until-release`.
-      - [ ] Review and merge open [renovate PRs]. Use the [dependency dashboard] to
-            ensure that dependency updates are current. This reduces duplicate effort
-            to update the upcoming stable branch as well as main for each of the
-            corresponding dependencies.
+
+   - [ ] Review and merge open [renovate PRs]. Use the [dependency dashboard] to
+         ensure that dependency updates are current. This reduces duplicate effort
+         to update the upcoming stable branch as well as main for each of the
+         corresponding dependencies.
 
 ## Pre-release
 
 - [ ] Change directory to the local copy of Cilium repository.
 - [ ] Check that there are no [release blockers] for the targeted release version
-- [ ] Ensure that outstanding [backport PRs] are merged
 - [ ] If stable branch is not created yet. Run:
-  - `git fetch upstream && git checkout -b upstream/v1.10 upstream/main`
+  - `git fetch upstream && git checkout -b v1.10 upstream/main`
   - [ ] Push that branch to GitHub:
-    - `git push upstream v1.10`
-  - [ ] On the main branch, create a PR with a change in the `VERSION` file to
-        start the next development cycle as well as creating the necessary GH
-        workflows (renovate configuration, MLH configuration, etc.
-        see [24143732b616](https://github.com/cilium/cilium/commit/24143732b616bb6cd308564b0be33f13fc5613e6)
-        for reference):
-    - [ ] Check for any other .github workflow references to the current stable
-          branch `1.9`, and update those to include the new stable `1.10`
-          version as well.
-      - `git grep "1.9" .github/`
-    - [ ] Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new minor schema version compared to the new `1.10` release.
-    - `echo "1.11.0-dev" > VERSION`
-    - `make -C install/kubernetes`
-    - `git add .github/ Documentation/contributing/testing/ci.rst`
-    - `git commit -sam "Prepare for v1.11 development cycle"`
-  - [ ] Merge the main PR so that the stable branch protection can be properly
-        set up with the right status checks requirements.
-  - [ ] Sync the `v1.10` branch up to the commit before preparing for the `1.11` development cycle.
-    - `git fetch upstream && git checkout v1.10 && git merge --ff-only upstream/main~1 && git log -5`
     - `git push upstream v1.10`
   - [ ] Push a copy of the latest CI image as a temporary v1.10 CI image version
         so that the upgrade workflow on `main` can upgrade from it.
@@ -120,40 +99,37 @@ assignees: ''
 
       skopeo logout
       ```
+  - [ ] On the main branch, create a PR with a change in the `VERSION` file to
+        start the next development cycle as well as creating the necessary GH
+        workflows (renovate configuration, etc.
+        see [24143732b616](https://github.com/cilium/cilium/commit/24143732b616bb6cd308564b0be33f13fc5613e6)
+        for reference):
+    - [ ] Check for any other .github workflow references to the current stable
+          branch `1.9`, and update those to include the new stable `1.10`
+          version as well.
+      - `git grep "1.9" .github/`
+    - [ ] Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new minor schema version compared to the new `1.10` release.
+      - `git grep 'CustomResourceDefinitionSchemaVersion =' -- pkg/`
+    - `echo "1.11.0-dev" > VERSION`
+    - `make -C install/kubernetes`
+    - `git add .github/ install/ pkg/k8s`
+    - `git commit -sam "Prepare for v1.11 development cycle"`
+  - [ ] Merge the main PR so that the stable branch protection can be properly
+        set up with the right status checks requirements.
+  - [ ] Sync the `v1.10` branch up to the commit before preparing for the `1.11` development cycle.
+    - `git fetch upstream && git checkout v1.10 && git merge --ff-only upstream/main~1 && git log -5`
+    - `git push upstream v1.10`
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
     - Use the settings of the previous stable branch and main as sane defaults
   - [ ] On the `v1.10` branch, prepare for stable release development:
-    - [ ] Remove any GitHub workflows from the stable branch that are only
-          relevant for the main branch (Read the following before running
-          this step).
-      - Remove workflows that are exclusively triggered by cron job and
-        workflows triggered by `issue_comment` triggers, as they do not run on
-        stable branches.
-        - ```
-          for f in .github/workflows/*yaml; do
-              if [ $(yq '.on | pick(["push", "pull_request", "pull_request_target", "merge_group", "workflow_call", "workflow_dispatch"]) | length' $f) == '0' ]; then
-                  git rm $f;
-              fi;
-          done
-          ```
+    - [ ] Update GitHub workflows for stable branch triggers:
       - Replace references to `main` branch with `1.10` in the workflows.
         - `sed -i 's/- \(ft\/\)\?main/- \1v1.10/g' .github/workflows/*`
-        - `sed -i 's/@main/@v1.10/g' .github/workflows/*`
-        - `sed -i 's/\/main\//\/v1.10\//g' .github/workflows/*`
         - `sed -i 's/\(renovate\/\)main/\1v1.10/g' .github/workflows/*`
         - `sed -i 's/- v\[0-9\]+\.\[0-9\]+/- v1.10/g' .github/workflows/build-images-releases.yaml`
       - Double-check if there are any other new references to `main` in the
         workflows, and update them as needed.
         - `git grep 'main' .github/workflows/`
-      - Remove cilium-cli references in the tree.
-        - `git rm -r ./cilium-cli/`
-        - `git rm .github/workflows/cilium-cli.yaml`
-        - `sed -i 's/ cilium-cli$//' Makefile`
-        - `git rm Documentation/cmdref/index_cilium_cli.rst`
-        - `sed -i '/cilium_cli$/d' Documentation/cmdref/index.rst`
-        - `sed -i '/cilium-cli/d' Documentation/update-cmdref.sh`
-        - `make -C Documentation update-cmdref`
-        - `go mod vendor && go mod tidy`
       - [ ] Pick the latest cilium CLI version and place it into the action for setting environment variables.
         - `export CLI_RELEASE=$(gh release list --repo cilium/cilium-cli --json tagName,isLatest --jq '.[] | select(.isLatest)|.tagName')`
         - `sed -i 's/^\([ ]*\)\(CILIUM_CLI_VERSION=\)""$/\1# renovate: datasource=github-releases depName=cilium\/cilium-cli\n\1\2"'$CLI_RELEASE'"/g' .github/actions/set-env-variables/action.yml`
@@ -182,19 +158,12 @@ assignees: ''
         - `grep -v '#' ../cilium-1.9/CODEOWNERS >> CODEOWNERS`
         - `make -C Documentation update-codeowners`
       - Delete unnecessary GitHub configurations from the stable branch
-        - `git rm .github/{pull_request,renovate}*`
-        - `git rm -r .github/ISSUE_TEMPLATE/`
-        - `git rm .github/workflows/lint-codeowners.yaml`
-        - `git rm .github/workflows/release.yaml`
-        - `git rm .github/workflows/renovate*`
       - Replace references to `bpf-next-*` lvh images in workflows with the
         newest LTS kernel from [quay.io](https://quay.io/repository/lvh-images/kind?tab=tags&tag=latest).
         If there is no newer LTS, delete the corresponding matrix entries.
         - `grep -R bpf-next- .github/workflows/`
-      - You may want to initially commit the state up until now before the next
-        step, so that it's easier to compare the diff vs. the previous stable
-        release.
-        - `git commit -s -m "Prepare v1.10 stable branch"`
+      - Commit the state up until now before the next step, so that it's easier
+        to compare the diff vs. the previous stable release.
       - Copy-paste the `.github` directory from the previous stable branch and
         manually check the diff between the files from the current stable branch
         and modify the workflows to match the target stable branch. See
@@ -211,28 +180,64 @@ assignees: ''
           update these instructions if you find anything we can do better.
     - [ ] Review the diff for this commit compared to the preparation commit
           for the previous stable branch.
+      - Update the preparation commit as needed.
+      - `git reset --hard`
+    - [ ] Remove any GitHub configuration from the stable branch that is only
+          relevant for the main branch (Read the following before running
+          this step).
+      - `git rm .github/{pull_request,renovate}*`
+      - `git rm -r .github/ISSUE_TEMPLATE/`
+      - `git rm .github/workflows/lint-codeowners.yaml`
+      - `git rm .github/workflows/release.yaml`
+      - `git rm .github/workflows/renovate*`
+    - [ ] Remove workflows that are exclusively triggered by `schedule`,
+      `issue_comment` or `pull_request_target` triggers, as they do not run
+      on stable branches.
+
+          ```
+          for f in .github/workflows/*yaml; do
+              if [ $(yq '.on | pick(["push", "pull_request", "merge_group", "workflow_call", "workflow_dispatch"]) | length' $f) == '0' ]; then
+                  git rm $f;
+              fi;
+          done
+          ```
+          - Remove scale and perf tests, as these are not maintained on stable
+            branches:
+            - `git rm .github/workflows/*perf*`
+            - `git rm .github/workflows/*scale*`
+    - [ ] Commit the workflow changes
+      - `git commit -sam ".github: Simplify configuration for stable branch"`
+    - [ ] Remove the cilium-cli changes from the stable branch. This may take
+          some time, as it builds various binaries and updates cmdref.
+      - `git rm -r ./cilium-cli/`
+      - `git rm .github/workflows/cilium-cli.yaml`
+      - `sed -i 's/ cilium-cli$//' Makefile`
+      - `git rm Documentation/cmdref/index_cilium_cli.rst`
+      - `sed -i '/cilium_cli$/d' Documentation/cmdref/index.rst`
+      - `sed -i '/cilium-cli/d' Documentation/update-cmdref.sh`
+      - `make -C Documentation update-cmdref`
+      - `go mod vendor && go mod tidy`
+      - `git commit -sam "Remove cilium-cli in preparation for stable maintenance"`
     - [ ] Push a PR with those changes:
-      - `git commit -sam "Prepare v1.10 stable branch"`
       - `gh pr create -B v1.10`
     - [ ] Merge the stable branch PR
 - [ ] Remove the `dont-merge/wait-until-release` label from [Blocked PRs].
 - [ ] Announce on Slack #development channel that the stable branch is
       created and developers must use `release-note/1.10` labels in order to
-      nominate any subsequent changes for the target stable branch.
-      - Example announcement:
-        ```
-        :cilium-gopher: :mega: We have cut the v1.10 stable branch.
+      nominate any subsequent changes for the target stable branch. Example
+      announcement:
 
-        Any pull request merged into `main` will now NOT be part of the `v1.10`
-        release unless it has the `needs-backport/1.10` label. The feature
-        freeze is now lifted. We encourage you to continue to focus on changes
-        that will improve the quality of the upcoming stable release such as
-        bugfixes and improvements to testing or documentation. Where possible,
-        consider deferring significant refactors until the final v1.10.0 release
-        as this will help with backporting during this period.
+      :cilium-gopher: :mega: We have cut the v1.10 stable branch.
 
-        Thank you to all who contribute to this release!
-        ```
+      Any pull request merged into `main` will now NOT be part of the `v1.10`
+      release unless it has the `needs-backport/1.10` label. The feature
+      freeze is now lifted. We encourage you to continue to focus on changes
+      that will improve the quality of the upcoming stable release such as
+      bugfixes and improvements to testing or documentation. Where possible,
+      consider deferring significant refactors until the final v1.10.0 release
+      as this will help with backporting during this period.
+
+      Thank you to all who contribute to this release!
 
 ## Pre-check (run ~1 week before targeted publish date)
 
@@ -285,7 +290,7 @@ assignees: ''
       - **IN CASE THE HELM CHART WAS NOT PUSHED** Go to [release workflow]
         and Run the workflow from "Branch: main", for step "5-publish-helm" and
         version for v1.10.0-pre.0
-- [ ] Open [Charts Workflow] and check if the workflow run is successful for v1.10.0-pre.0.
+- [ ] Open [chart workflow] and check if the workflow run is successful for v1.10.0-pre.0.
 
 ## Publish docs (only for pre/rc releases)
 
@@ -322,7 +327,7 @@ Text template for the first RC:
 :cilium-new: *Cilium release candidate v1.10.0-pre.0 has been released:*
 https://github.com/cilium/cilium/releases/tag/v1.10.0-pre.0
 
-This is the first monthly snapshot for the v1.10 development cycle. There are [v1.10.0-pre.0 OSS docs](https://docs.cilium.io/en/v1.10.0-pre.0) available if you want to pull this version & try it out.
+This is the first candidate for the v1.10 release. There are [v1.10.0-pre.0 OSS docs](https://docs.cilium.io/en/v1.10.0-pre.0) available if you want to pull this version & try it out.
 ```
 Text template for the next RCs:
 ```
@@ -347,7 +352,7 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
 [Cilium charts]: https://github.com/cilium/charts
-[Review feature PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+-label%3Arelease-note%2Fbug+-label%3Arelease-note%2Fci+-author%3Aapp%2Fcilium-renovate+-label%3Adont-merge%2Fpreview-only+-label%3Aarea%2Fdocumentation+-label%3Acilium-cli-exclusive+-label%3Arelease-blocker%2F1.10
+[Review feature PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+base%3Amain+is%3Apr+-label%3Arelease-note%2Fbug+-label%3Arelease-note%2Fci+-author%3Aapp%2Fcilium-renovate+-label%3Adont-merge%2Fwait-until-release+-label%3Adont-merge%2Fpreview-only+-label%3Aarea%2Fdocumentation+-label%3Acilium-cli-exclusive+-label%3Arelease-blocker%2F1.10
 [Renovate PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+author%3Aapp%2Fcilium-renovate+base%3Amain
 [Blocked PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Adont-merge%2Fwait-until-release+base%3Amain
 [dependency dashboard]: https://github.com/cilium/cilium/issues/33550
