@@ -327,7 +327,7 @@ Text template for the first RC:
 :cilium-new: *Cilium release candidate vX.Y.Z-rc.W has been released:*
 https://github.com/cilium/cilium/releases/tag/vX.Y.Z-rc.W
 
-This is the first monthly snapshot for the vX.Y development cycle. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
+This is the first candidate for the vX.Y release. There are [vX.Y.Z-rc.W OSS docs](https://docs.cilium.io/en/vX.Y.Z-rc.W) available if you want to pull this version & try it out.
 ```
 Text template for the next RCs:
 ```
