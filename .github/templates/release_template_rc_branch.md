@@ -290,7 +290,7 @@ assignees: ''
       - **IN CASE THE HELM CHART WAS NOT PUSHED** Go to [release workflow]
         and Run the workflow from "Branch: main", for step "5-publish-helm" and
         version for vX.Y.Z-rc.W
-- [ ] Open [Charts Workflow] and check if the workflow run is successful for vX.Y.Z-rc.W.
+- [ ] Open [chart workflow] and check if the workflow run is successful for vX.Y.Z-rc.W.
 
 ## Publish docs (only for pre/rc releases)
 
