@@ -13,7 +13,7 @@ import (
 	gh "github.com/google/go-github/v62/github"
 	"golang.org/x/mod/semver"
 
-	templates "github.com/cilium/release/.github/templates"
+	"github.com/cilium/release/.github/templates"
 )
 
 var (
@@ -22,6 +22,7 @@ var (
 		"X.Y.Z-pre.N",
 		"X.Y.Z",
 		"X.Y.W",
+		"X.Y-2",
 		"X.Y-1",
 		"X.Y+1",
 		"X.Y",
@@ -80,6 +81,7 @@ func assembleVersionSubstitutions(version string) ([]string, error) {
 	}
 
 	versionSub["X.Y.W"] = semver.MajorMinor(version) + "." + strconv.Itoa(patch+1)
+	versionSub["X.Y-2"] = semver.Major(version) + "." + strconv.Itoa(minor-2)
 	versionSub["X.Y-1"] = semver.Major(version) + "." + strconv.Itoa(minor-1)
 	versionSub["X.Y+1"] = semver.Major(version) + "." + strconv.Itoa(minor+1)
 	versionSub["X.Y"] = semver.MajorMinor(version)
