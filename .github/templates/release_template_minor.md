@@ -49,7 +49,7 @@ assignees: ''
 - [ ] Run `./release start --steps 3-tag --target-version vX.Y.0`
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
-      [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
+      [Cilium Image Release builds](https://github.com/cilium/cilium/actions/workflows/build-images-releases.yaml)
 
 ## Post Tagging (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
@@ -59,12 +59,13 @@ assignees: ''
 
 ## Publish helm (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
-- [ ] Ask a maintainer to approve the build in the following link:
-      [Release Tool](https://github.com/cilium/cilium/actions/workflows/release.yaml)
+- [ ] Ask a maintainer to approve the `release-helm` deployment in the GitHub
+      URL of the run kept from the "Tagging" step. ([Cilium Image Release builds](https://github.com/cilium/cilium/actions/workflows/build-images-releases.yaml))
 - [ ] Check if the image build process was successful and check if the helm
       chart was published by the Release bot under the [Cilium helm charts][Cilium charts].
-      If the PR was not opened, you can safely re-run the failed job.
-- [ ] Open [Charts Workflow] and check if the workflow run is successful for vX.Y.0.
+      If that did not happen, you can safely re-run the failed job.
+- [ ] Open [Cilium helm Chart Workflow][Charts Workflow] and check if the
+      workflow run is successful for vX.Y.0.
 
 ## Publish docs
 
@@ -104,7 +105,7 @@ assignees: ''
       Prepare an update PR for the `main` branch to remove references to that
       branch. This may involve modifying documentation, code comments and
       configuration for GitHub or Renovate.
-      - `git grep vX.Y-1`
+      - `git grep vX.Y-2`
 - [ ] Update the [Cilium Wikipedia] release timeline table to reflect the new
       version. Ensure the version, release date, and any notable changes are
       accurately represented in the table and graph.
@@ -120,7 +121,7 @@ assignees: ''
 [read the docs]: https://readthedocs.org/projects/cilium/
 [active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y
 [docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
-[chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
+[Charts Workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
 [Cilium charts]: https://github.com/cilium/charts
 [default version]: https://readthedocs.org/dashboard/cilium/advanced/
 [roadmap]: https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst

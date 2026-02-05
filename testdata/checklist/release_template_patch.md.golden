@@ -54,7 +54,7 @@ assignees: ''
 - [ ] Run `./release start --steps 3-tag --target-version v1.10.0`
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
-      [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
+      [Cilium Image Release builds](https://github.com/cilium/cilium/actions/workflows/build-images-releases.yaml)
 
 ## Post Tagging (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
@@ -66,12 +66,13 @@ assignees: ''
 
 ## Publish helm (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
-- [ ] Ask a maintainer to approve the build in the following link:
-      [Release Tool](https://github.com/cilium/cilium/actions/workflows/release.yaml)
+- [ ] Ask a maintainer to approve the `release-helm` deployment in the GitHub
+      URL of the run kept from the "Tagging" step. ([Cilium Image Release builds](https://github.com/cilium/cilium/actions/workflows/build-images-releases.yaml))
 - [ ] Check if the image build process was successful and check if the helm
       chart was published by the Release bot under the [Cilium helm charts][Cilium charts].
       If that did not happen, you can safely re-run the failed job.
-- [ ] Open [Charts Workflow] and check if the workflow run is successful for v1.10.0.
+- [ ] Open [Cilium helm Chart Workflow][Charts Workflow] and check if the
+      workflow run is successful for v1.10.0.
 
 ## Post-release
 

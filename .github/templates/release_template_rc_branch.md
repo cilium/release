@@ -269,28 +269,23 @@ assignees: ''
 - [ ] Run `./release start --steps 3-tag --target-version vX.Y.Z-rc.W`
 - [ ] Ask a maintainer to approve the build in the following link (keep the URL
       of the GitHub run to be used later):
-      [Cilium Image Release builds](https://github.com/cilium/cilium/actions?query=workflow:%22Image+Release+Build%22)
+      [Cilium Image Release builds](https://github.com/cilium/cilium/actions/workflows/build-images-releases.yaml)
 
 ## Post Tagging (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
 - [ ] Check if the image build process was successful and check the PR opened
-      by the Release bot. If the PR was not opened, you can re-run the workflow
-  -  **IN CASE THE PR WAS NOT OPENED** Go to [release workflow] and Run the
-     workflow from "Branch: main", for step "4-post-release" and version for
-     vX.Y.Z-rc.W
+      by the Release bot. If the PR was not opened, you can safely re-run the failed job.
 - [ ] Merge PR
 
 ## Publish helm (run after docker images are published. In case of failure, this step can be re-run multiple times.)
 
-- [ ] Ask a maintainer to approve the build in the following link:
-      [Release Tool](https://github.com/cilium/cilium/actions/workflows/release.yaml)
+- [ ] Ask a maintainer to approve the `release-helm` deployment in the GitHub
+      URL of the run kept from the "Tagging" step. ([Cilium Image Release builds](https://github.com/cilium/cilium/actions/workflows/build-images-releases.yaml))
 - [ ] Check if the image build process was successful and check if the helm
       chart was published by the Release bot under the [Cilium helm charts][Cilium charts].
-      If that did not happen, you can re-run the workflow.
-      - **IN CASE THE HELM CHART WAS NOT PUSHED** Go to [release workflow]
-        and Run the workflow from "Branch: main", for step "5-publish-helm" and
-        version for vX.Y.Z-rc.W
-- [ ] Open [chart workflow] and check if the workflow run is successful for vX.Y.Z-rc.W.
+      If that did not happen, you can safely re-run the failed job.
+- [ ] Open [Cilium helm Chart Workflow][Charts Workflow] and check if the
+      workflow run is successful for vX.Y.Z-rc.W.
 
 ## Publish docs (only for pre/rc releases)
 
@@ -350,7 +345,7 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [read the docs]: https://readthedocs.org/projects/cilium/
 [active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y.Z-rc.W
 [docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
-[chart workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
+[Charts Workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
 [Cilium charts]: https://github.com/cilium/charts
 [Review feature PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+base%3Amain+is%3Apr+-label%3Arelease-note%2Fbug+-label%3Arelease-note%2Fci+-author%3Aapp%2Fcilium-renovate+-label%3Adont-merge%2Fwait-until-release+-label%3Adont-merge%2Fpreview-only+-label%3Aarea%2Fdocumentation+-label%3Acilium-cli-exclusive+-label%3Arelease-blocker%2FX.Y
 [Renovate PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+author%3Aapp%2Fcilium-renovate+base%3Amain
