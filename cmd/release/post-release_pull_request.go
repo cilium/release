@@ -36,17 +36,6 @@ func (pc *PustPostPullRequest) Name() string {
 
 func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool, ghClient *GHClient) error {
 	io2.Fprintf(1, os.Stdout, "📜 Generating a DRAFT GitHub Release\n")
-	// Generate release summary
-	changelogFile := filepath.Join(pc.cfg.RepoDirectory, "CHANGELOG.md")
-	changelogContent, err := os.Open(changelogFile)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return fmt.Errorf("error reading CHANGELOG.md file: %w", err)
-		} else {
-			return fmt.Errorf("CHANGELOG.md file not found, it needs to be present to create a release on GitHub")
-		}
-	}
-	defer changelogContent.Close()
 
 	digestFileName := fmt.Sprintf("digest-%s.txt", pc.cfg.TargetVer)
 	digestFile := filepath.Join(pc.cfg.RepoDirectory, digestFileName)
@@ -68,22 +57,60 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	}
 	defer releaseSummaryFileContent.Close()
 
-	detectVersion := regexp.MustCompile(`^## v.*$`)
-	scanner := bufio.NewScanner(changelogContent)
-	for i := 0; scanner.Scan(); i++ {
-		// Ignore the first four lines
-		if i < 4 {
-			continue
+	majorMinor := semver.MajorMinor(pc.cfg.TargetVer)
+	isMinorRelease := strings.TrimPrefix(pc.cfg.TargetVer, majorMinor) == ".0"
+	if isMinorRelease {
+		const instructionMsg = "<!-- Copy the slack announcement message to here and adapt emojis -->\n\n"
+		if _, err := releaseSummaryFileContent.WriteString(instructionMsg); err != nil {
+			return fmt.Errorf("unable to write instruction message to release summary file: %w", err)
 		}
-		// Stop when we hit the previous version in the CHANGELOG.md
-		if detectVersion.Match(scanner.Bytes()) {
-			break
+
+		// For minor releases, use the -pr-body.txt file
+		prBodyFileName := fmt.Sprintf("%s-pr-body.txt", pc.cfg.TargetVer)
+		prBodyFile := filepath.Join(pc.cfg.RepoDirectory, prBodyFileName)
+		prBodyFileContent, err := os.Open(prBodyFile)
+		if err != nil {
+			if !os.IsNotExist(err) {
+				return fmt.Errorf("error reading %s file: %w", prBodyFileName, err)
+			} else {
+				return fmt.Errorf("%s file not found, it needs to be present to create a release on GitHub for minor releases", prBodyFileName)
+			}
 		}
-		releaseSummaryFileContent.Write(append(scanner.Bytes(), byte('\n')))
+		defer prBodyFileContent.Close()
+
+		if _, err := io.Copy(releaseSummaryFileContent, prBodyFileContent); err != nil {
+			return fmt.Errorf("unable to copy the pr-body file content into the release summary file: %w", err)
+		}
+	} else {
+		// Generate release summary
+		changelogFile := filepath.Join(pc.cfg.RepoDirectory, "CHANGELOG.md")
+		changelogContent, err := os.Open(changelogFile)
+		if err != nil {
+			if !os.IsNotExist(err) {
+				return fmt.Errorf("error reading CHANGELOG.md file: %w", err)
+			} else {
+				return fmt.Errorf("CHANGELOG.md file not found, it needs to be present to create a release on GitHub")
+			}
+		}
+		defer changelogContent.Close()
+
+		detectVersion := regexp.MustCompile(`^## v.*$`)
+		scanner := bufio.NewScanner(changelogContent)
+		for i := 0; scanner.Scan(); i++ {
+			// Ignore the first four lines
+			if i < 4 {
+				continue
+			}
+			// Stop when we hit the previous version in the CHANGELOG.md
+			if detectVersion.Match(scanner.Bytes()) {
+				break
+			}
+			releaseSummaryFileContent.Write(append(scanner.Bytes(), byte('\n')))
+		}
 	}
 
 	if _, err := io.Copy(releaseSummaryFileContent, digestFileContent); err != nil {
-		return fmt.Errorf("Unable to copy the digest file conent into the release summary file")
+		return fmt.Errorf("unable to copy the digest file content into the release summary file: %w", err)
 	}
 	releaseSummaryFileContent.Close()
 
@@ -109,6 +136,9 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 			GenerateReleaseNotes: func() *bool { a := false; return &a }(),
 		},
 	)
+	if err != nil {
+		return fmt.Errorf("unable to create draft release: %w", err)
+	}
 
 	if !pc.cfg.HasStableBranch() {
 		io2.Fprintf(1, os.Stdout, "Pre-Releases don't need to have a post pull request done "+
