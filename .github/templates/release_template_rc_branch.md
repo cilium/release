@@ -292,9 +292,6 @@ assignees: ''
 - [ ] Check [read the docs] configuration:
   - [ ] Set a new build as active and hidden in [active versions].
   - [ ] Deactivate previous RCs.
-  - [ ] Update algolia configuration search in [docsearch-scraper-webhook].
-    - Update the versions in `docsearch.config.json`, commit them and push a
-      trigger the workflow [here](https://github.com/cilium/docsearch-scraper-webhook/actions/workflows/update-algolia-index.yaml)
 
 ## Post-release
 
@@ -344,7 +341,6 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [cilium-runtime images]: https://quay.io/repository/cilium/cilium-runtime
 [read the docs]: https://readthedocs.org/projects/cilium/
 [active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y.Z-rc.W
-[docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [Charts Workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
 [Cilium charts]: https://github.com/cilium/charts
 [Review feature PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+base%3Amain+is%3Apr+-label%3Arelease-note%2Fbug+-label%3Arelease-note%2Fci+-author%3Aapp%2Fcilium-renovate+-label%3Adont-merge%2Fwait-until-release+-label%3Adont-merge%2Fpreview-only+-label%3Aarea%2Fdocumentation+-label%3Acilium-cli-exclusive+-label%3Arelease-blocker%2FX.Y
