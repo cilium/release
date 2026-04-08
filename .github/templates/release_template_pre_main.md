@@ -75,9 +75,6 @@ assignees: ''
 
 - [ ] Check [read the docs] configuration:
   - [ ] Deactivate [previous RCs].
-  - [ ] Update algolia configuration search in [docsearch-scraper-webhook].
-    - Update the versions in `docsearch.config.json`, commit them and push a
-      trigger the workflow [here](https://github.com/cilium/docsearch-scraper-webhook/actions/workflows/update-algolia-index.yaml)
 
 ## Post-release
 
@@ -121,7 +118,6 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 ```
 
 [previous RCs]: https://app.readthedocs.org/projects/cilium/?slug=&privacy=public&visibility=hidden&sort=
-[docsearch-scraper-webhook]: https://github.com/cilium/docsearch-scraper-webhook
 [release workflow]: https://github.com/cilium/cilium/actions/workflows/release.yaml
 [GitHub PAT tracker]: https://github.com/orgs/community/discussions/36441
 [signing tags]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-tags
