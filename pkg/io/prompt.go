@@ -25,7 +25,7 @@ func ContinuePrompt(prompt, declinedMsg string) error {
 		if input == "Y" {
 			return nil
 		} else if input == "N" {
-			return fmt.Errorf(declinedMsg)
+			return fmt.Errorf("%s", declinedMsg)
 		} else {
 			fmt.Println("Invalid input. Please enter 'Y' or 'N'.")
 		}
