@@ -158,7 +158,6 @@ assignees: ''
         - `sed -i '/^\//,$d' CODEOWNERS`
         - `grep -v '#' ../cilium-X.Y-1/CODEOWNERS >> CODEOWNERS`
         - `make -C Documentation update-codeowners`
-      - Delete unnecessary GitHub configurations from the stable branch
       - Replace references to `bpf-next-*` lvh images in workflows with the
         newest LTS kernel from [quay.io](https://quay.io/repository/lvh-images/kind?tab=tags&tag=latest).
         If there is no newer LTS, delete the corresponding matrix entries.
@@ -197,9 +196,11 @@ assignees: ''
       - `git rm .github/workflows/lint-codeowners.yaml`
       - `git rm .github/workflows/release.yaml`
       - `git rm .github/workflows/renovate*`
+      - `git rm .github/workflows/*perf*`
+      - `git rm .github/workflows/*scale*`
     - [ ] Remove workflows that are exclusively triggered by `schedule`,
-      `issue_comment` or `pull_request_target` triggers, as they do not run
-      on stable branches.
+          `issue_comment` or `pull_request_target` triggers, as they do not run
+          on stable branches.
 
           ```
           for f in .github/workflows/*yaml; do
@@ -208,10 +209,6 @@ assignees: ''
               fi;
           done
           ```
-          - Remove scale and perf tests, as these are not maintained on stable
-            branches:
-            - `git rm .github/workflows/*perf*`
-            - `git rm .github/workflows/*scale*`
     - [ ] Commit the workflow changes
       - `git commit -sam ".github: Simplify configuration for stable branch"`
     - [ ] Remove the cilium-cli changes from the stable branch. This may take
