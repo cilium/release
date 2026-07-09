@@ -174,7 +174,7 @@ assignees: ''
         - `git diff --stat`
         - Ignore all stable branch changes under the `.github/actions` directory.
           `git checkout .github/actions`
-        - `git diff`
+        - `git diff --ignore-matching-lines '(X.Y-1|X.Y)'`
         - Yes this step is horribly painful. It's unrealistic for us to make
           reasonable decisions here when scanning thousands of lines of random
           CI changes for the past six months. Suggestions welcome: please
