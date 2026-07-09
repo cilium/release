@@ -108,6 +108,7 @@ assignees: ''
           branch `X.Y-1`, and update those to include the new stable `X.Y`
           version as well.
       - `git grep "X.Y-1" .github/`
+      - `$EDITOR $(git grep -l "X.Y-1" .github/)`
     - [ ] Ensure that the `CustomResourceDefinitionSchemaVersion` uses a new minor schema version compared to the new `X.Y` release.
       - `git grep 'CustomResourceDefinitionSchemaVersion =' -- pkg/`
     - `echo "X.Y+1.0-dev" > VERSION`
