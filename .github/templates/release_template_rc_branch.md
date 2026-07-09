@@ -122,6 +122,7 @@ assignees: ''
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
     - Use the settings of the previous stable branch and main as sane defaults
   - [ ] On the `vX.Y` branch, prepare for stable release development:
+    - `git checkout -b pr/prep-vX.Y upstream/vX.Y
     - [ ] Update GitHub workflows for stable branch triggers:
       - Replace references to `main` branch with `X.Y` in the workflows.
         - `sed -i 's/- \(ft\/\)\?main/- \1vX.Y/g' .github/workflows/*`
@@ -164,6 +165,7 @@ assignees: ''
         - `grep -R bpf-next- .github/workflows/`
       - Commit the state up until now before the next step, so that it's easier
         to compare the diff vs. the previous stable release.
+        - `git commit -sam 'Prepare vX.Y stable branch'`
       - Copy-paste the `.github` directory from the previous stable branch and
         manually check the diff between the files from the current stable branch
         and modify the workflows to match the target stable branch. See
@@ -182,6 +184,11 @@ assignees: ''
           for the previous stable branch.
       - Update the preparation commit as needed.
       - `git reset --hard`
+    - [ ] Push a PR with those changes:
+      - `gh pr create -B vX.Y`
+    - [ ] Create a new PR for preparing file deletions. This PR is separate
+          from the one above to simplify review.
+      - `git checkout -b pr/prep-vX.Y-cleanup`
     - [ ] Remove any GitHub configuration from the stable branch that is only
           relevant for the main branch (Read the following before running
           this step).
@@ -218,9 +225,11 @@ assignees: ''
       - `make -C Documentation update-cmdref`
       - `go mod vendor && go mod tidy`
       - `git commit -sam "Remove cilium-cli in preparation for stable maintenance"`
-    - [ ] Push a PR with those changes:
-      - `gh pr create -B vX.Y`
-    - [ ] Merge the stable branch PR
+    - [ ] Push a PR with those changes, against the PR prepared earlier:
+      - `gh pr create -B pr/prep-vX.Y`
+    - [ ] Get each PR reviewed.
+    - [ ] Merge the CLI PR into the branch prep branch.
+    - [ ] Merge the branch prep branch PR into the vX.Y branch.
 - [ ] Remove the `dont-merge/wait-until-release` label from [Blocked PRs].
 - [ ] Announce on Slack #development channel that the stable branch is
       created and developers must use `release-note/X.Y` labels in order to
