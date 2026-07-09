@@ -99,9 +99,11 @@ assignees: ''
 
       skopeo logout
       ```
-  - [ ] On the main branch, create a PR with a change in the `VERSION` file to
-        start the next development cycle as well as creating the necessary GH
-        workflows (renovate configuration, etc.
+  - [ ] From this new branch, create a new branch which will be submitted into
+        `main` in order to begin the development cycle for the next release.
+    - `git checkout -b pr/vX.Y+1-dev`
+  - [ ] Create commits that update the `VERSION` and other necessary GitHub
+        workflows changes for the new stable branch (renovate configuration, etc.
         see [24143732b616](https://github.com/cilium/cilium/commit/24143732b616bb6cd308564b0be33f13fc5613e6)
         for reference):
     - [ ] Check for any other .github workflow references to the current stable
