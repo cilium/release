@@ -165,6 +165,11 @@ assignees: ''
         newest LTS kernel from [quay.io](https://quay.io/repository/lvh-images/kind?tab=tags&tag=latest).
         If there is no newer LTS, delete the corresponding matrix entries.
         - `grep -R bpf-next- .github/workflows/`
+      - Move the image build workflow to a path based on the current branch.
+        Update the triggers for image builds to remove the `pull_request_target` trigger.
+        - `git mv .github/workflows/build-images-ci{,-vX.Y}.yaml`
+        - `sed -i '/pull_request_target:$/,/push:$/{ /push/!d }' .github/workflows/build-images-ci-vX.Y.yaml`
+        - `sed -i '/pull_request_target:$/,/workflow_.*$/{ /workflow_/!d }'  .github/workflows/build-images-base.yaml`
       - Commit the state up until now before the next step, so that it's easier
         to compare the diff vs. the previous stable release.
         - `git commit -sam 'Prepare vX.Y stable branch'`
