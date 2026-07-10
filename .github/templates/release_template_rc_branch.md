@@ -96,7 +96,7 @@ assignees: ''
           skopeo copy -a docker://quay.io/cilium/$repo-ci:$COMMIT docker://quay.io/cilium/$repo-ci:vX.Y;
       done
 
-      skopeo logout
+      skopeo logout quay.io
       ```
   - [ ] From this new branch, create a new branch which will be submitted into
         `main` in order to begin the development cycle for the next release.
