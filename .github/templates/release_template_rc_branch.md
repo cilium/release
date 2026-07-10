@@ -67,7 +67,6 @@ assignees: ''
 
       General exemptions to feature freeze:
       - Bug fixes
-      - Testing enhancements
       - Documentation enhancements
 
 - [ ] Mark all PRs that are not granted an exception with the GitHub label
@@ -357,7 +356,7 @@ Thank you for the testing and contributing to the previous pre-releases. There a
 [active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y.Z-rc.W
 [Charts Workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
 [Cilium charts]: https://github.com/cilium/charts
-[Review feature PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+base%3Amain+is%3Apr+-label%3Arelease-note%2Fbug+-label%3Arelease-note%2Fci+-author%3Aapp%2Fcilium-renovate+-label%3Adont-merge%2Fwait-until-release+-label%3Adont-merge%2Fpreview-only+-label%3Aarea%2Fdocumentation+-label%3Acilium-cli-exclusive+-label%3Arelease-blocker%2FX.Y
+[Review feature PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+base%3Amain+is%3Apr+-label%3Arelease-note%2Fbug+-author%3Aapp%2Fcilium-renovate+-label%3Adont-merge%2Fwait-until-release+-label%3Adont-merge%2Fpreview-only+-label%3Aarea%2Fdocumentation+-label%3Acilium-cli-exclusive+-label%3Arelease-blocker%2FX.Y
 [Renovate PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+author%3Aapp%2Fcilium-renovate+base%3Amain
 [Blocked PRs]: https://github.com/cilium/cilium/pulls?q=is%3Aopen+is%3Apr+label%3Adont-merge%2Fwait-until-release+base%3Amain
 [dependency dashboard]: https://github.com/cilium/cilium/issues/33550
