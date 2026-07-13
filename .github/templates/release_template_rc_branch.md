@@ -130,6 +130,7 @@ assignees: ''
         - `sed -i 's/- \(ft\/\)\?main/- \1vX.Y/g' .github/workflows/*`
         - `sed -i 's/\(renovate\/\)main/\1vX.Y/g' .github/workflows/*`
         - `sed -i 's/- v\[0-9\]+\.\[0-9\]+/- vX.Y/g' .github/workflows/build-images-releases.yaml`
+        - `sed -i 's/\(build-images-ci\)/\1-vX.Y/g' $(git grep -l build-images-ci .github/ariane-config.yaml)`
       - Double-check if there are any other new references to `main` in the
         workflows, and update them as needed.
         - `git grep 'main' .github/workflows/`
