@@ -101,6 +101,11 @@ assignees: ''
   - [ ] From this new branch, create a new branch which will be submitted into
         `main` in order to begin the development cycle for the next release.
     - `git checkout -b pr/vX.Y+1-dev`
+  - [ ] Create a commit to update the release notes in preparation for the
+        upcoming stable and main branch development.
+    - `git mv Documentation/operations/upgrade-{next,current}.rst`
+    - `git cp Documentation/operations/upgrade-{template.rst.tmpl,next.inc}`
+    - `git commit -sam "Prepare for vX.Y branch"`
   - [ ] Create commits that update the `VERSION` and other necessary GitHub
         workflows changes for the new stable branch (renovate configuration, etc.
         see [24143732b616](https://github.com/cilium/cilium/commit/24143732b616bb6cd308564b0be33f13fc5613e6)
@@ -156,6 +161,9 @@ assignees: ''
         - `vim $(git grep -l CustomResourceDefinitionSchemaVersion)`
       - Remove `stable.txt` file
         - `git rm stable.txt`
+      - Remove upgrade notes for the next release
+        - `git rm Documentation/operations/upgrade-next.inc`
+        - `sed -i '/upgrade-next/d' Documentation/operations/upgrade-notes.inc`
       - Adjust `./.github/maintainers-little-helper.yaml` to set labels based
         on the new stable branch version. See [5b4934284d](https://github.com/cilium/cilium/commit/5b4934284dd525399aacec17c137811df9cf0f8b)
         for reference.
