@@ -121,6 +121,14 @@ assignees: ''
   - [ ] Sync the `vX.Y` branch up to the commit before preparing for the `X.Y+1` development cycle.
     - `git fetch upstream && git checkout vX.Y && git merge --ff-only upstream/main~1 && git log -5`
     - `git push upstream vX.Y`
+  - [ ] Check for any merged PRs with `needs-backport/X.Y` label set, and
+        remove the label. Sometimes contributors get confused around this time
+        whether a PR needs backporting or not, and they may prematurely set the
+        label.
+  - [ ] Check PRs with `release-note/bug` and `needs-backport/X.Y-1` label and
+        add the `needs-backport/X.Y` label to them.
+  - [ ] Check any open PRs with `release-blocker/X.Y` label and add the
+        `needs-backport/X.Y` label to them.
   - [ ] Protect the new stable branch with GitHub Settings [here](https://github.com/cilium/cilium/settings/branches)
     - Use the settings of the previous stable branch and main as sane defaults
   - [ ] On the `vX.Y` branch, prepare for stable release development:
