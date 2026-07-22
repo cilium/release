@@ -251,6 +251,11 @@ assignees: ''
     - [ ] Get each PR reviewed.
     - [ ] Merge the CLI PR into the branch prep branch.
     - [ ] Merge the branch prep branch PR into the vX.Y branch.
+    - [ ] Submit a PR to https://github.com/isovalent/corgi to start scraping
+          test results into the CI dashboard for the new branch.
+      - `git clone https://github.com/isovalent/corgi`
+      - `git grep vX.Y-1`
+      - Manually edit the files with matches.
 - [ ] Remove the `dont-merge/wait-until-release` label from [Blocked PRs].
 - [ ] Announce on Slack #development channel that the stable branch is
       created and developers must use `release-note/X.Y` labels in order to
