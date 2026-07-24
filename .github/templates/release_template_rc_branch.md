@@ -342,9 +342,6 @@ assignees: ''
 - [ ] Announce the release in #general on Slack (do not use [@]channel).
       See below for templates.
 - [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
-- [ ] Update the upgrade guide and [roadmap](https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst)
-      for any features that changed status. Usually do it after the RC1, once the
-      stability of features is known.
 
 ---
 Text template for the first RC:
