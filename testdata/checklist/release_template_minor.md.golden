@@ -35,7 +35,7 @@ assignees: ''
 
 ## Preparation PR (run ~1 day before targeted publish date. This step can be re-run multiple times.)
 
-- [ ] Run `./release start --steps 2-prepare-release --target-version v1.10.0`
+- [ ] Run `./release start --steps 2-prepare-release --target-version v1.10.0 --exclude-labels "cilium-cli-exclusive"`
 - [ ] Manually fix the following:
   - [ ] Add the 'stable' tag as part of the GitHub workflow and remove the
         'stable' tag from the last stable branch (v1.9).
