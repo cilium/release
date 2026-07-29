@@ -16,6 +16,11 @@ import (
 	github2 "github.com/google/go-github/v62/github"
 )
 
+// prBodyMsg is the body used for the "Prepare for release" PR. It is also
+// re-used as the body of the draft GitHub release for minor releases, since
+// the full changelog would exceed the maximum size of a release body.
+const prBodyMsg = "\nSee the included CHANGELOG.md for a full list of changes.\n"
+
 type PushPullRequest struct {
 	cfg *ReleaseConfig
 }
@@ -144,7 +149,7 @@ func (pc *PushPullRequest) generateSummaryFile() (string, string, error) {
 	}
 	defer prBodyFileContent.Close()
 
-	prBodyFileContent.WriteString("\nSee the included CHANGELOG.md for a full list of changes.\n")
+	prBodyFileContent.WriteString(prBodyMsg)
 
 	return prTitle, prBodyFileName, err
 }
