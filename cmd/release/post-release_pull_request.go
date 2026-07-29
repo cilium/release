@@ -60,26 +60,13 @@ func (pc *PustPostPullRequest) Run(ctx context.Context, yesToPrompt, dryRun bool
 	majorMinor := semver.MajorMinor(pc.cfg.TargetVer)
 	isMinorRelease := strings.TrimPrefix(pc.cfg.TargetVer, majorMinor) == ".0"
 	if isMinorRelease {
+		// The full changelog of a minor release would exceed the maximum size
+		// of a GitHub release body, so use the same short body as the
+		// "Prepare for release" PR and leave it up to the maintainers to
+		// replace it with the release announcement.
 		const instructionMsg = "<!-- Copy the slack announcement message to here and adapt emojis -->\n\n"
-		if _, err := releaseSummaryFileContent.WriteString(instructionMsg); err != nil {
+		if _, err := releaseSummaryFileContent.WriteString(instructionMsg + prBodyMsg); err != nil {
 			return fmt.Errorf("unable to write instruction message to release summary file: %w", err)
-		}
-
-		// For minor releases, use the -pr-body.txt file
-		prBodyFileName := fmt.Sprintf("%s-pr-body.txt", pc.cfg.TargetVer)
-		prBodyFile := filepath.Join(pc.cfg.RepoDirectory, prBodyFileName)
-		prBodyFileContent, err := os.Open(prBodyFile)
-		if err != nil {
-			if !os.IsNotExist(err) {
-				return fmt.Errorf("error reading %s file: %w", prBodyFileName, err)
-			} else {
-				return fmt.Errorf("%s file not found, it needs to be present to create a release on GitHub for minor releases", prBodyFileName)
-			}
-		}
-		defer prBodyFileContent.Close()
-
-		if _, err := io.Copy(releaseSummaryFileContent, prBodyFileContent); err != nil {
-			return fmt.Errorf("unable to copy the pr-body file content into the release summary file: %w", err)
 		}
 	} else {
 		// Generate release summary
