@@ -55,6 +55,10 @@ assignees: ''
 
 - [ ] Check if the image build process was successful and check the PR opened
       by the Release bot. If the PR was not opened, you can safely re-run the failed job.
+      Note that the `4-post-release` step is expected to take ~30 minutes to run,
+      as it needs to fetch all the PRs that were merged in this release to add
+      them to the project. It is also fine if this part fails, but in that case
+      you will need to add the PRs to the project manually.
 - [ ] Merge PR
 
 ## Publish helm (run after docker images are published. In case of failure, this step can be re-run multiple times.)
@@ -70,10 +74,8 @@ assignees: ''
 ## Publish docs
 
 - [ ] Check [read the docs] configuration:
-  - [ ] Set a new build as active and hidden in [active versions].
-  - [ ] Set the [default version] and mark the EOL version as active, and
-        hidden and configure the new minor version as active and **not**
-        hidden in [active versions].
+  - [ ] Mark the EOL version as active and hidden, and configure the new minor
+        version as active and **not** hidden in [active versions].
   - [ ] Deactivate previous RCs.
 
 ## Post-release
@@ -88,16 +90,10 @@ assignees: ''
         the "Announcements" category.
   - [ ] Publish the release
 - [ ] Announce the release in #general on Slack (Use [@]channel for vX.Y.0)
-- [ ] For new minor version update [security policy]
 - [ ] Prepare post-release changes to main branch using `../release/internal/bump-readme.sh`.
-  - [ ] `echo vX.Y.0 > stable.txt`.
-  - [ ] `echo '{"results":[{"slug":"vX.Y"}]}' > Documentation/_static/stable-version.json`.
+  - [ ] For new minor version update [security policy].
   - [ ] Commit / amend the commit to add all of the changes above and push the PR.
   - [ ] Merge the post-release PR.
-- [ ] Update the upgrade guide and [roadmap] on the `main` branch to prepare
-      for the next development cycle. References to vX.Y should be removed, but
-      the upgrade guide structure should remain in place in order for
-      developers to document the changes necessary for the next release.
 - [ ] The oldest maintained release branch will now no longer be maintained.
       Prepare an update PR for the `main` branch to remove references to that
       branch. This may involve modifying documentation, code comments and
@@ -106,7 +102,7 @@ assignees: ''
 - [ ] Update the [Cilium Wikipedia] release timeline table to reflect the new
       version. Ensure the version, release date, and any notable changes are
       accurately represented in the table and graph.
-- [ ] Add [release-blocker labels] for the two upcoming minor release versions.
+- [ ] Add [release-blocker labels] for the **two upcoming minor** release versions.
   - [ ] Update the [release-blocker project automation] to auto-add issues to
         the project when the issue is labeled with a release-blocker label.
 
@@ -123,8 +119,5 @@ assignees: ''
 [read the docs]: https://readthedocs.org/projects/cilium/
 [active versions]: https://readthedocs.org/projects/cilium/versions/?version_filter=vX.Y
 [Charts Workflow]: https://github.com/cilium/charts/actions/workflows/validate-cilium-chart.yaml
-[Cilium charts]: https://github.com/cilium/charts
-[default version]: https://readthedocs.org/dashboard/cilium/advanced/
-[roadmap]: https://github.com/cilium/cilium/blob/main/Documentation/community/roadmap.rst
 [security policy]: https://github.com/cilium/cilium/security/policy
 [Cilium Wikipedia]: https://en.wikipedia.org/wiki/Cilium_(computing)#Release_timeline
