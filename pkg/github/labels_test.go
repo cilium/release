@@ -79,6 +79,14 @@ func Test_getReleaseNote(t *testing.T) {
 			},
 			want: "Pineapple pizza",
 		},
+		{
+			name: "Ignore k8s style empty release note",
+			args: args{
+				title: "Ketchup on pizza",
+				body:  "```release-note\r\nNONE\n",
+			},
+			want: "Ketchup on pizza",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

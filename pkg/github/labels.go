@@ -29,8 +29,14 @@ import (
 const (
 	releaseNoteBlock = "```release-note"
 	upstreamPRsBlock = "```upstream-prs"
-	commentTag       = "<!--"
 	endBlock         = "```"
+)
+
+var (
+	ignoreReleaseNoteFragments = []string{
+		"<!--",
+		"NONE",
+	}
 )
 
 // Get the text between startBlock and endBlock
@@ -133,7 +139,14 @@ func getUpstreamPRsV2(block string) []int {
 func getReleaseNote(title, body string) string {
 	if strings.Contains(body, releaseNoteBlock) {
 		block := textBlockBetween(body, releaseNoteBlock)
-		if len(block) != 0 && !strings.Contains(block, commentTag) {
+		ignore := false
+		for _, commentTag := range ignoreReleaseNoteFragments {
+			if strings.Contains(block, commentTag) {
+				ignore = true
+				break
+			}
+		}
+		if !ignore && len(block) != 0 {
 			return block
 		}
 	}
