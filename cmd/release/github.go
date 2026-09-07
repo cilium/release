@@ -85,6 +85,40 @@ func (ghClient *GHClient) getRemoteBranch(ctx context.Context, owner, repo, targ
 	}
 }
 
+// getStableBranches returns all active, protected stable branches (those whose
+// name is a semver major.minor version, e.g. "v1.15") for the given owner and
+// repo. The default development branch (e.g. "main") is not a valid semver
+// version and is therefore naturally excluded.
+func (ghClient *GHClient) getStableBranches(ctx context.Context, owner, repo string) ([]string, error) {
+	page := 0
+	var stableBranches []string
+	for {
+		branches, resp, err := ghClient.ghClient.Repositories.ListBranches(ctx, owner, repo, &gh.BranchListOptions{
+			Protected: func() *bool { a := true; return &a }(),
+			ListOptions: gh.ListOptions{
+				Page: page,
+			},
+		})
+		if err != nil {
+			return nil, err
+		}
+		for _, br := range branches {
+			name := br.GetName()
+			// Only keep branches that are a bare major.minor version, e.g.
+			// "v1.15". This excludes the default branch as well as any other
+			// non-version branch.
+			if semver.IsValid(name) && semver.MajorMinor(name) == name {
+				stableBranches = append(stableBranches, name)
+			}
+		}
+		page = resp.NextPage
+		if page == 0 {
+			break
+		}
+	}
+	return stableBranches, nil
+}
+
 func (ghClient *GHClient) previousVersion(ctx context.Context, owner, repo, currentVersion string) (string, error) {
 	ghTags, err := ghClient.getTags(ctx, owner, repo)
 	if err != nil {

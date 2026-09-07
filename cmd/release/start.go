@@ -41,6 +41,7 @@ type ReleaseConfig struct {
 	StateFile            string
 	Steps                []string
 	DefaultBranch        string
+	MaintainedMinors     int
 
 	IncludeLabels []string
 	ExcludeLabels []string
@@ -323,6 +324,7 @@ To start, run
 	cmd.Flags().StringVar(&cfg.HelmRepoDirectory, "charts-repo-dir", "../charts", "Directory with the source code of Helm charts")
 	cmd.Flags().StringSliceVar(&cfg.HelmOCIRegistries, "helm-oci-registries", []string{"oci://quay.io/cilium/charts"}, "OCI registry URLs for Helm charts (comma-separated)")
 	cmd.Flags().StringVar(&cfg.StateFile, "state-file", defaultStateFileValue, "When set, it will use the already fetched information from a previous run")
+	cmd.Flags().IntVar(&cfg.MaintainedMinors, "maintained-minors", 3, "Number of most-recent stable minor branches considered actively maintained. The backport-ordering check only compares against these branches (plus the released one), ignoring older EOL branches.")
 	cmd.Flags().StringSliceVar(&cfg.Steps, "steps", []string{"1"},
 		fmt.Sprintf("Specify which steps should be executed for the release. Steps numbers are also allowed, e.g. '1,2'. Accepted values: %s", strings.Join(allGroupStepsNames, ", ")),
 	)
