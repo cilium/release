@@ -222,6 +222,7 @@ assignees: ''
       - `git rm .github/workflows/renovate*`
       - `git rm .github/workflows/*perf*`
       - `git rm .github/workflows/*scale*`
+      - `git rm .github/workflows/eks-cluster-{delete,pool-manager}.yaml`
     - [ ] Remove workflows that are exclusively triggered by `schedule`,
           `issue_comment` or `pull_request_target` triggers, as they do not run
           on stable branches.
