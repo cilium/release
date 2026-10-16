@@ -30,6 +30,9 @@ type ReleaseConfig struct {
 	QuayOrg  string
 	QuayRepo string
 
+	// Security is the repository tracking security fixes that block a release.
+	Security types.CommonConfig
+
 	TargetVer            string
 	PreviousVer          string
 	RemoteBranchName     string
@@ -52,6 +55,10 @@ type ReleaseConfig struct {
 func (cfg *ReleaseConfig) Sanitize() error {
 	if err := cfg.CommonConfig.Sanitize(); err != nil {
 		return err
+	}
+
+	if err := cfg.Security.Sanitize(); err != nil || cfg.Security.Owner == "" || cfg.Security.Repo == "" {
+		return fmt.Errorf("invalid --security-repo=%s. Expected form 'owner/repo'", cfg.Security.RepoName)
 	}
 
 	if !semver.IsValid(cfg.TargetVer) {
@@ -89,10 +96,12 @@ func init() {
 			name: "1-pre-check",
 			steps: []Step{
 				NewCheckReleaseBlockers(&cfg),
+				NewCheckSecurityBlockers(&cfg),
 				NewImageCVE(&cfg),
 			},
 			permissions: map[Location]Permission{
 				LocationGitHubUpstream: PermissionRead,
+				LocationGitHubSecurity: PermissionRead,
 				LocationQuayIO:         PermissionRead,
 			},
 		},
@@ -166,7 +175,8 @@ dependency on the previous one.
 This tool handles pre-releases, release candidates (RCs), and patch releases.
 
 1. pre-check:
-Checks for any release blockers and fixable CVEs in quay.io.
+Checks for any release blockers, for security fixes that are still open in the
+cilium/security repository, and for fixable CVEs in quay.io.
 
 2. prepare-release:
 Prepares a commit in the local git repository by modifying necessary files and
@@ -201,6 +211,8 @@ Requirements:
     - Read access to actions, issues, and metadata
     - Read and write access to code, organization projects, and pull requests
 	- Direct link in https://github.com/settings/tokens/new?scopes=project,write:org,repo
+    - Read access to the private cilium/security repository is optional. Without
+      it, the security release blockers are not checked and a warning is printed.
 - Local Cilium repository
 - Local Cilium Chart repository
 
@@ -318,6 +330,7 @@ To start, run
 	cmd.Flags().BoolVar(&cfg.Force, "force", false, "Say yes to all prompts.")
 	cmd.Flags().StringVar(&cfg.QuayOrg, "quay-org", "cilium", "Quay.io organization to check for image vulnerabilities")
 	cmd.Flags().StringVar(&cfg.QuayRepo, "quay-repo", "cilium-ci", "Quay.io repository to check for image vulnerabilities")
+	cmd.Flags().StringVar(&cfg.Security.RepoName, "security-repo", "cilium/security", "GitHub organization and repository names separated by a slash, tracking the security fixes that block a release")
 	cmd.Flags().StringVar(&cfg.RepoDirectory, "repo-dir", "../cilium", "Directory with the source code of Cilium")
 	cmd.Flags().StringVar(&cfg.ReleaseRepoDirectory, "release-tool-dir", ".", "Directory with the source code of Release tool. (To access bash scripts)")
 	cmd.Flags().StringVar(&cfg.HelmRepoDirectory, "charts-repo-dir", "../charts", "Directory with the source code of Helm charts")

@@ -28,6 +28,7 @@ const (
 	LocationGitHubFork
 	LocationGitHubProjects
 	LocationGitHubHelmChart
+	LocationGitHubSecurity
 )
 
 var locationNames = []string{
@@ -37,6 +38,7 @@ var locationNames = []string{
 	LocationGitHubFork:      "GitHub - Fork",
 	LocationGitHubProjects:  "GitHub - Org Projects",
 	LocationGitHubHelmChart: "GitHub - Helm Chart Repo",
+	LocationGitHubSecurity:  "GitHub - Security",
 }
 
 type PermissionLocation struct {
@@ -80,7 +82,7 @@ func PrintPermTable(writer io.Writer) {
 
 	for _, group := range groups {
 		row := fmt.Sprintf("%s\t", group.name)
-		for location := LocationLocalDisk; location <= LocationGitHubHelmChart; location++ {
+		for location := LocationLocalDisk; location < len(locationNames); location++ {
 			perm := permissionString(group.permissions[Location(location)])
 			row += fmt.Sprintf("%s\t", perm)
 		}
