@@ -4,7 +4,7 @@ DOCKER_BUILD_FLAGS ?=
 IMAGE_TAG ?= latest
 
 .PHONY: all
-all: test bump-readme release
+all: test bump-readme release test-oidc
 
 .PHONY: bump-readme
 bump-readme:
@@ -33,6 +33,25 @@ test:
 .PHONY: release
 release:
 	CGO_ENABLED=0 $(GO) build $(GO_BUILD_FLAGS) -mod=vendor -o ./release ./cmd/main.go
+
+.PHONY: test-oidc
+test-oidc:
+	echo "ACTIONS_ID_TOKEN_REQUEST_URL set: $${ACTIONS_ID_TOKEN_REQUEST_URL:+yes}$${ACTIONS_ID_TOKEN_REQUEST_URL:-no}"; \
+	echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN set: $${ACTIONS_ID_TOKEN_REQUEST_TOKEN:+yes}$${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-no}"; \
+	if [ -z "$${ACTIONS_ID_TOKEN_REQUEST_URL}" ] || [ -z "$${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" ]; then \
+		echo "OIDC env vars missing, skipping token exchange"; \
+	else \
+		oidc_token=$$(curl -sSf --retry 3 --retry-all-errors \
+			-H "Authorization: bearer $${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+			"$${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=quay.io" \
+			| jq -er '.value' || echo ""); \
+		echo "$$oidc_token" | grep -nc .; \
+		robot_token=$$(printf 'user = "cilium+quay_gh_release_tool:%s"\n' "$$oidc_token" \
+			| curl -sSf --retry 3 --retry-all-errors -K - \
+			"https://quay.io/oauth2/federation/robot/token" \
+			| jq -er '.token' || echo ""); \
+		echo "$$robot_token" | grep -nc .; \
+	fi
 
 .PHONY: clean
 clean:
