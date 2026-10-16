@@ -97,6 +97,63 @@ func Test_getReleaseNote(t *testing.T) {
 	}
 }
 
+func Test_backportLabelHelpers(t *testing.T) {
+	tests := []struct {
+		version         string
+		wantDone        string
+		wantPending     string
+		wantNeeds       string
+		wantBackport    string
+		wantReleaseBlck string
+	}{
+		{
+			version:         "v1.15.5",
+			wantDone:        "backport-done/1.15",
+			wantPending:     "backport-pending/1.15",
+			wantNeeds:       "needs-backport/1.15",
+			wantBackport:    "backport/1.15",
+			wantReleaseBlck: "release-blocker/1.15",
+		},
+		{
+			// Bare major.minor branch names should work as well.
+			version:         "v1.14",
+			wantDone:        "backport-done/1.14",
+			wantPending:     "backport-pending/1.14",
+			wantNeeds:       "needs-backport/1.14",
+			wantBackport:    "backport/1.14",
+			wantReleaseBlck: "release-blocker/1.14",
+		},
+		{
+			// Pre-releases collapse to their major.minor.
+			version:         "v1.16.0-rc.1",
+			wantDone:        "backport-done/1.16",
+			wantPending:     "backport-pending/1.16",
+			wantNeeds:       "needs-backport/1.16",
+			wantBackport:    "backport/1.16",
+			wantReleaseBlck: "release-blocker/1.16",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.version, func(t *testing.T) {
+			if got := BackportDoneLabel(tt.version); got != tt.wantDone {
+				t.Errorf("BackportDoneLabel(%q) = %q, want %q", tt.version, got, tt.wantDone)
+			}
+			if got := BackportPendingLabel(tt.version); got != tt.wantPending {
+				t.Errorf("BackportPendingLabel(%q) = %q, want %q", tt.version, got, tt.wantPending)
+			}
+			if got := NeedsBackportLabel(tt.version); got != tt.wantNeeds {
+				t.Errorf("NeedsBackportLabel(%q) = %q, want %q", tt.version, got, tt.wantNeeds)
+			}
+			if got := BackportLabel(tt.version); got != tt.wantBackport {
+				t.Errorf("BackportLabel(%q) = %q, want %q", tt.version, got, tt.wantBackport)
+			}
+			if got := ReleaseBlockerLabel(tt.version); got != tt.wantReleaseBlck {
+				t.Errorf("ReleaseBlockerLabel(%q) = %q, want %q", tt.version, got, tt.wantReleaseBlck)
+			}
+		})
+	}
+}
+
 func Test_getBackportPRs(t *testing.T) {
 	type args struct {
 		body string

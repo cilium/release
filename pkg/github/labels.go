@@ -185,9 +185,11 @@ func parseGHLabels(ghLabels []*gh.Label) []string {
 }
 
 const (
-	releaseBlockerPrefix = "release-blocker/"
-	backportDonePrefix   = "backport-done/"
-	backportPrefix       = "backport/"
+	releaseBlockerPrefix  = "release-blocker/"
+	backportDonePrefix    = "backport-done/"
+	backportPendingPrefix = "backport-pending/"
+	needsBackportPrefix   = "needs-backport/"
+	backportPrefix        = "backport/"
 )
 
 func ReleaseBlockerLabel(version string) string {
@@ -196,6 +198,18 @@ func ReleaseBlockerLabel(version string) string {
 
 func BackportDoneLabel(version string) string {
 	return fmt.Sprintf("%s%s", backportDonePrefix, MajorMinorErsion(version))
+}
+
+// BackportPendingLabel returns the label set on an upstream PR whose backport to
+// the given version has an open (pending) backport PR.
+func BackportPendingLabel(version string) string {
+	return fmt.Sprintf("%s%s", backportPendingPrefix, MajorMinorErsion(version))
+}
+
+// NeedsBackportLabel returns the label set on an upstream PR that still needs to
+// be backported to the given version.
+func NeedsBackportLabel(version string) string {
+	return fmt.Sprintf("%s%s", needsBackportPrefix, MajorMinorErsion(version))
 }
 
 func BackportLabel(version string) string {
